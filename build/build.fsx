@@ -62,7 +62,7 @@ Target "Test" (fun _ ->
 
 let fileVersion = 
     let assemblyFileContents = ReadFileAsString @"src\EditorConfig.Core\Properties\AssemblyInfo.cs"
-    let re = @"\[assembly\: AssemblyFileVersion\(""([^""]+)""\)\]"
+    let re = @"\[assembly\: AssemblyFileVersionAttribute\(""([^""]+)""\)\]"
     let matches = Regex.Matches(assemblyFileContents,re)
     let defaultVersion = regex_replace re "$1" (matches.Item(0).Captures.Item(0).Value)
     let timestampedVersion = (sprintf "%s-ci%s" defaultVersion (DateTime.UtcNow.ToString("yyyyMMddHHmmss")))
@@ -104,18 +104,17 @@ let validateSignedAssembly = fun name ->
     let token = (tokenMessage.Replace("Public key token is", "")).Trim();
 
     let valid = (out.ExitCode, token)
-    let oficialToken = "96c599bbe3e70f5d"
+    let oficialToken = "fe6ce3ea283749f2"
     match valid with
     | (0, t) when t = oficialToken  -> 
       trace (sprintf "%s was signed with official key token %s" name t) 
     | (_, t) -> traceFAKE "%s was not signed with the official token: %s but %s" name oficialToken t
 
 let nugetPack = fun _ ->
-    CreateDir nugetOutDir
     let package = @"build\nuget.nuspec"
     let name = "EditorConfig.Core"
     let dir = sprintf "%s/%s/" buildDir name
-    let nugetOutFile = buildDir + (sprintf "%s/%s.%s.nupkg" name name patchedFileVersion);
+    let nugetOutFile = buildDir + (sprintf "%s/%s.%s.nupkg" name "editorconfig" patchedFileVersion);
     NuGetPack (fun p ->
       {p with 
         Version = patchedFileVersion
@@ -125,6 +124,14 @@ let nugetPack = fun _ ->
       package
 
     MoveFile nugetOutDir nugetOutFile
+
+let patchVersionInCode = fun _ ->
+    let file = @"src\EditorConfig.Core\EditorConfigParser.cs"
+    let source = ReadFileAsString file
+    let re = "public static readonly string VersionString .+$"
+    let replacedContents = regex_replace re (sprintf @"public static readonly string VersionSting = ""%s""" patchedFileVersion) packageContents
+    WriteStringToFile false file replacedContents
+    
 
 let chocoPack = fun _ ->
     let choco = @"build\tools\chocolatey\tools\chocolateyInstall\chocolatey.cmd"
@@ -139,9 +146,10 @@ let chocoPack = fun _ ->
         p.Arguments <- args
         ) (TimeSpan.FromMinutes 5.0))
 
-    let name "editorconfig.core"
-    let chocoFile = buildDir + (sprintf "%s.%s.nupkg" name patchedFileVersion);
-    CreateDir nugetOutDir
+    let name = "editorconfig.core"
+    let chocoFile = sprintf "%s.%s.nupkg" name patchedFileVersion
+    trace chocoFile
+
     MoveFile nugetOutDir chocoFile
 
 
@@ -186,13 +194,16 @@ Target "Version" (fun _ ->
         Attribute.InformationalVersion patchedFileVersion
       ]
     )
+
+  patchVersionInCode()
 )
 
 
 Target "Release" (fun _ -> 
+    validateSignedAssembly("EditorConfig.Core")
+    CreateDir nugetOutDir
     chocoPack()
     nugetPack()
-    //validateSignedAssembly("EditorConfig.App")
 )
 
 // Dependencies
