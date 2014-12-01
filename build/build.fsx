@@ -83,7 +83,7 @@ let patchedFileVersion =
     | _ -> fileVersion
 
 let validateSignedAssembly = fun name ->
-    let sn = if isMono then "sn" else "build/tools/sn/sn.exe"
+    let sn = if isMono then "sn" else @"build\tools\sn\sn.exe"
     let out = (ExecProcessAndReturnMessages(fun p ->
                 p.FileName <- sn
                 p.Arguments <- sprintf @"-v build\output\%s\%s.dll" name name

@@ -5,12 +5,30 @@ The EditorConfig .NET coreprovides the same functionality as the
 
 ## Installation
 
-TODO: push to nuget/chocolatey
+The library exists on nuget under 
+
+```
+nuget install editorconfig
+```
+
+The commandline tooling is uploaded to chocolatey under
+
+```
+cinst editorconfig.core
+```
 
 ## Usage
 
 Usage as a library:
 
+```csharp
+var parser = new EditorConfigParser();
+var configuration = parser.Parse(fileName).First();
+foreach (var kv in configuration.Properties)
+{
+    Console.WriteLine("{0}={1}", kv.Key, kv.Value);
+}
+```
 
 Usage as a command line tool:
 
@@ -48,6 +66,20 @@ Clone this repos and init the test submodule
 git clone git@github.com:editorconfig/editorconfig-core-net.git
 git submodule init
 git submodule update
+```
+
+building in visual studio should just work (tm)
+
+Building on the command line (will run all the unit tests too)
+
+```
+build
+```
+
+Release builds can be made using
+
+```
+build release X.X.X
 ```
 
 # Testing
