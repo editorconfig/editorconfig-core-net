@@ -92,6 +92,9 @@ root: special property that should be specified at the top of the file outside o
 
 		public Version Version { get; private set; }
 
+		/// <summary>
+		/// Holds the editor configuration for a file, please use <see cref="EditorConfigParser.Parse"/> to get an instance
+		/// </summary>
 		internal FileConfiguration(Version version, string fileName, Dictionary<string, string> properties)
 		{
 			FileName = fileName;
@@ -216,7 +219,7 @@ root: special property that should be specified at the top of the file outside o
 				case "latin1":
 					this.Charset = EditorConfig.Core.Charset.Latin1;
 					return;
-				case "utf-16-be":
+				case "utf-16be":
 					this.Charset = EditorConfig.Core.Charset.UTF16BE;
 					return;
 				case "utf-16le":
