@@ -54,13 +54,13 @@ git submodule update
 
 We have several NUnit tests that you can run from visual studio or the build scripts. 
 
-If you want to run the official editorconfig tests you'll need to install CMAKE and call
+If you want to run the official editorconfig tests you'll need to install [CMAKE](http://www.cmake.org) and call
 
 ```
 cmake .
 ```
 
-in the rot once.
+in the root of this repository once.
 
 Afterwhich you can simply call 
 
