@@ -128,9 +128,9 @@ let nugetPack = fun _ ->
 let patchVersionInCode = fun _ ->
     let file = @"src\EditorConfig.Core\EditorConfigParser.cs"
     let source = ReadFileAsString file
-    let re = "public static readonly string VersionString .+$"
-    let replacedContents = regex_replace re (sprintf @"public static readonly string VersionSting = ""%s""" patchedFileVersion) packageContents
-    WriteStringToFile false file replacedContents
+    let re = @"public static readonly string VersionString = ""[^""]+"""
+    let updatedSource = regex_replace re (sprintf @"public static readonly string VersionString = ""%s""" patchedFileVersion) source
+    WriteStringToFile false file updatedSource
     
 
 let chocoPack = fun _ ->
