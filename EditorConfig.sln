@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		build.bat = build.bat
 		build\build.fsx = build\build.fsx
+		build\chocolatey.nuspec = build\chocolatey.nuspec
+		build\nuget.nuspec = build\nuget.nuspec
 		README.md = README.md
 	EndProjectSection
 EndProject

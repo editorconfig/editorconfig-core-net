@@ -20,7 +20,7 @@ namespace EditorConfig.Core
 		/// <summary>
 		/// The current (and latest parser supported) version as string
 		/// </summary>
-		public static readonly string VersionString = "0.12";
+		public static readonly string VersionString = "0.10.0";
 
 		/// <summary>
 		/// The current editorconfig version
@@ -59,7 +59,6 @@ namespace EditorConfig.Core
 				.Select(f => f
 					.Trim()
 					.Trim(new[] { '\r', '\n' })
-					.Replace(@"\", "/")
 				)
 				.Select(this.ParseFile)
 				.ToList();
@@ -68,7 +67,8 @@ namespace EditorConfig.Core
 		private FileConfiguration ParseFile(string fileName)
 		{
 			Debug.WriteLine(":: {0} :: {1}", this.ConfigFileName, fileName);
-			var fullPath = Path.GetFullPath(fileName);
+
+			var fullPath = Path.GetFullPath(fileName).Replace(@"\", "/");
 			var configFiles = this.AllParentConfigFiles(fullPath);
 
 			//All the .editorconfig files going from root =>.fileName
@@ -78,7 +78,7 @@ namespace EditorConfig.Core
 				from configFile in editorConfigFiles
 				from section in configFile.Sections
 				let glob = this.FixGlob(section.Name, configFile.Directory)
-				where this.IsMatch(glob, fileName, configFile.Directory)
+				where this.IsMatch(glob, fullPath, configFile.Directory)
 				select section;
 
 			var allProperties =
@@ -97,7 +97,7 @@ namespace EditorConfig.Core
 		{
 			var matcher = new Minimatcher(glob, _globOptions);
 			var isMatch = matcher.IsMatch(fileName);
-			Debug.WriteLine("{0} :: {1} \t\t:: {2}", isMatch ? "✓" : "✘", glob, fileName);
+			Debug.WriteLine("{0} :: {1} \t\t:: {2}", isMatch ? "?" : "?", glob, fileName);
 			return isMatch;
 		}
 

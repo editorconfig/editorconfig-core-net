@@ -52,7 +52,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EditorConfig.Core\EditorConfig.Core.csproj">
       <Project>{c33cf791-89d0-4abe-b2b7-97e1f46a1319}</Project>
-      <Name>EditorConfig</Name>
+      <Name>EditorConfig.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

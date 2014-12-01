@@ -3,6 +3,7 @@ root=true
 [*]
 indent_style = tab
 indent_size = 4
+x=a
 
 [*.cshtml]
 indent_style = tab

@@ -3,7 +3,7 @@
 	<metadata>
 		<id>editorconfig.core</id>
 		<title>EditorConfig Core</title>
-		<version>0.12.0</version>
+		<version>0.10.0</version>
 		<authors>EditorConfig Team</authors>
 		<owners>Hong Xu, Martijn Laarman</owners>
 		<summary>The Core Library of EditorConfig Written in .NET</summary>
