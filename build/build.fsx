@@ -112,7 +112,7 @@ let validateSignedAssembly = fun name ->
 
 let nugetPack = fun _ ->
     CreateDir nugetOutDir
-    let package = @"build\nuget.nuspec" name
+    let package = @"build\nuget.nuspec"
     let name = "EditorConfig.Core"
     let dir = sprintf "%s/%s/" buildDir name
     let nugetOutFile = buildDir + (sprintf "%s/%s.%s.nupkg" name name patchedFileVersion);
@@ -128,9 +128,9 @@ let nugetPack = fun _ ->
 
 let chocoPack = fun _ ->
     let choco = @"build\tools\chocolatey\tools\chocolateyInstall\chocolatey.cmd"
-    let spec = "build\editorconfig.core.nuspec"
+    let spec = "build\chocolatey.nuspec"
     let args = sprintf "pack %s" spec
-    let assemblyFileContents = ReadFileAsString spec
+    let packageContents = ReadFileAsString spec
     let re = @"(?<start>\<version\>)[^""><]+(?<end>\<\/version\>)"
     let replacedContents = regex_replace re (sprintf "${start}%s${end}" patchedFileVersion) packageContents
     WriteStringToFile false spec replacedContents
@@ -138,10 +138,11 @@ let chocoPack = fun _ ->
         p.FileName <- choco
         p.Arguments <- args
         ) (TimeSpan.FromMinutes 5.0))
-    
-    let chocoFile = buildDir + (sprintf "%s.%s.nupkg" name name patchedFileVersion);
+
+    let name "editorconfig.core"
+    let chocoFile = buildDir + (sprintf "%s.%s.nupkg" name patchedFileVersion);
     CreateDir nugetOutDir
-    MoveFile nugetOutDir nugetOutFile
+    MoveFile nugetOutDir chocoFile
 
 
 let suffix = fun (prerelease: PreRelease) -> sprintf "-%s%i" prerelease.Name prerelease.Number.Value
