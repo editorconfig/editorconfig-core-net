@@ -71,6 +71,7 @@ root: special property that should be specified at the top of the file outside o
 		public Charset? Charset { get; private set; }
 		public bool? TrimTrailingWhitespace { get; private set; }
 		public bool? InsertFinalNewline { get; private set; }
+		public int? MaxLineLength { get; private set; }
 
 		private static readonly string[] KnownProperties =
 		{
@@ -81,6 +82,7 @@ root: special property that should be specified at the top of the file outside o
 			"charset",
 			"trim_trailing_whitespace",
 			"insert_final_newline",
+			"max_line_length",
 			"root",
 		};
 
@@ -145,7 +147,7 @@ root: special property that should be specified at the top of the file outside o
 			this.ParseCharset();
 			this.ParseTrimTrailingWhitespace();
 			this.ParseInsertFinalNewline();
-			
+			this.ParseMaxLineLength();
 		}
 
 		private void ParseIndentStyle()
@@ -180,6 +182,16 @@ root: special property that should be specified at the top of the file outside o
 						this.IndentSize = new IndentSize(size);
 					return;
 			}
+		}
+
+		private void ParseMaxLineLength()
+		{
+			string maxLineLength;
+			if (!_properties.TryGetValue("max_line_length", out maxLineLength)) return;
+			
+			int length;
+			if (int.TryParse(maxLineLength, out length) && length > 0)
+				this.MaxLineLength = length;
 		}
 
 		private void ParseTabWidth()
