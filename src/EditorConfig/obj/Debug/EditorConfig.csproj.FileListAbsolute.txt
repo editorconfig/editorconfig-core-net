@@ -1,5 +1,0 @@
-C:\Projects\editorconfig-core-net\src\EditorConfig\bin\Debug\EditorConfig.dll
-C:\Projects\editorconfig-core-net\src\EditorConfig\bin\Debug\EditorConfig.pdb
-C:\Projects\editorconfig-core-net\src\EditorConfig\obj\Debug\EditorConfig.csprojResolveAssemblyReference.cache
-C:\Projects\editorconfig-core-net\src\EditorConfig\obj\Debug\EditorConfig.dll
-C:\Projects\editorconfig-core-net\src\EditorConfig\obj\Debug\EditorConfig.pdb

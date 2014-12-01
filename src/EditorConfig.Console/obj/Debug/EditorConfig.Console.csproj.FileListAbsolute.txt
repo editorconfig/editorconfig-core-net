@@ -1,3 +1,0 @@
-C:\Projects\editorconfig-core-net\src\EditorConfig.Console\bin\Debug\EditorConfig.Console.exe.config
-C:\Projects\editorconfig-core-net\src\EditorConfig.Console\bin\Debug\editorconfig.exe.config
-C:\Projects\editorconfig-core-net\src\EditorConfig.Console\obj\Debug\EditorConfig.Console.csprojResolveAssemblyReference.cache

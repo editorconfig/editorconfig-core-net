@@ -1,9 +1,0 @@
-C:\Projects\editorconfig-core-net\src\EditorConfig.Console\bin\Debug\editorconfig.exe.config
-C:\Projects\editorconfig-core-net\src\EditorConfig.Console\bin\Debug\editorconfig.exe
-C:\Projects\editorconfig-core-net\src\EditorConfig.Console\bin\Debug\editorconfig.pdb
-C:\Projects\editorconfig-core-net\src\EditorConfig.Console\bin\Debug\EditorConfig.dll
-C:\Projects\editorconfig-core-net\src\EditorConfig.Console\bin\Debug\PowerArgs.dll
-C:\Projects\editorconfig-core-net\src\EditorConfig.Console\bin\Debug\PowerArgs.xml
-C:\Projects\editorconfig-core-net\src\EditorConfig.Console\obj\Debug\editorconfig.exe
-C:\Projects\editorconfig-core-net\src\EditorConfig.Console\obj\Debug\editorconfig.pdb
-C:\Projects\editorconfig-core-net\src\EditorConfig.Console\obj\Debug\EditorConfig.App.csprojResolveAssemblyReference.cache
