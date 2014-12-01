@@ -45,9 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EditorConfigFile.cs" />
     <Compile Include="FileConfiguration.cs" />
     <Compile Include="EditorConfigParser.cs" />
-    <Compile Include="IniParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
