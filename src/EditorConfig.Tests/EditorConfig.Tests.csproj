@@ -54,9 +54,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Charsets\DefaultsTests.cs" />
+    <Compile Include="Charsets\CharsetTests.cs" />
     <Compile Include="Defaults\DefaultsTests.cs" />
     <Compile Include="EditorConfigTestBase.cs" />
+    <Compile Include="IndentSizes\IndentSizesTests.cs" />
+    <Compile Include="IndentStyles\IndentStyleTests.cs" />
+    <Compile Include="StopAtRoot\StopsAtRootTests.cs" />
+    <Compile Include="InsertFinal\InsertFinalNewlineTests.cs" />
+    <Compile Include="TrimTrailing\TrimTrailingWhitespaceTests.cs" />
+    <Compile Include="EndOfLines\EndOfLineTests.cs" />
     <Compile Include="MiniMatcherTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -82,7 +88,61 @@
     <None Include="Defaults\.editorconfig">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="IndentSizes\.bogus.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IndentSizes\.negative.editorconfig" />
+    <None Include="IndentSizes\.positive.editorconfig" />
+    <None Include="IndentSizes\.tab.editorconfig" />
+    <None Include="IndentStyles\.bogus.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IndentStyles\.space.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IndentStyles\.tab.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InsertFinal\.bogus.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InsertFinal\.false.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="InsertFinal\.true.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="StopAtRoot\X\.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="StopAtRoot\X\Y\.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="StopAtRoot\X\Y\Z\.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TrimTrailing\.bogus.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="EndOfLines\.bogus.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="EndOfLines\.cr.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="EndOfLines\.crlf.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="EndOfLines\.lf.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
+    <None Include="TrimTrailing\.false.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TrimTrailing\.true.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EditorConfig.Core\EditorConfig.Core.csproj">

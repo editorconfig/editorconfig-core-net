@@ -12,7 +12,12 @@ namespace EditorConfig.Tests
 {
 	class EditorConfigTestBase
 	{
-		
+		protected void HasBogusKey(FileConfiguration file, string key)
+		{
+			file.Properties.Should().NotBeEmpty().And.HaveCount(1).And.ContainKey(key);
+			var bogusCharset = file.Properties[key];
+			bogusCharset.Should().Be("bogus");
+		}
 
 		protected FileConfiguration GetConfig(MethodBase method, string fileName, string configurationFile = ".editorconfig")
 		{

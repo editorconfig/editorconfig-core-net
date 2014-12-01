@@ -119,8 +119,14 @@ root: special property that should be specified at the top of the file outside o
 				properties["indent_size"] = "tab";
 
 			// Set tab_width to indent_size if indent_size is specified and tab_width is unspecified
-			if (properties.ContainsKey("indent_size") && !properties.ContainsKey("tab_width") && properties["indent_size"] != "tab")
-				properties["tab_width"] = properties["indent_size"];
+			if (properties.ContainsKey("indent_size") && !properties.ContainsKey("tab_width") &&
+			    properties["indent_size"] != "tab")
+			{
+				//only set tab_width to indent_size if indent size holds a positive integer
+				int size;
+				if (int.TryParse(properties["indent_size"], out size) && size >= 0)
+					properties["tab_width"] = properties["indent_size"];
+			}
 
 			// Set indent_size to tab_width if indent_size is "tab"
 			if (properties.ContainsKey("indent_size") && properties.ContainsKey("tab_width") && properties["indent_size"] == "tab")

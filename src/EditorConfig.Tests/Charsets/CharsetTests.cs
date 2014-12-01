@@ -48,10 +48,7 @@ namespace EditorConfig.Tests.Charsets
 		{
 			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".bogus.editorconfig");
 			file.Charset.Should().BeNull();
-
-			file.Properties.Should().NotBeEmpty().And.HaveCount(1).And.ContainKey("charset");
-			var bogusCharset = file.Properties["charset"];
-			bogusCharset.Should().Be("bogus");
+			this.HasBogusKey(file, "charset");
 		}
 
 	}
