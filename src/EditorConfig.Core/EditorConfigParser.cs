@@ -16,26 +16,47 @@ using Minimatch;
 
 namespace EditorConfig.Core
 {
-
-
+	/// <summary>
+	/// The EditorConfigParser locates all relevant editorconfig files and makes sure they are merged correctly.
+	/// </summary>
 	public class EditorConfigParser
 	{
+		/// <summary>
+		/// The current (and latest parser supported) version as string
+		/// </summary>
 		public static readonly string VersionString = "0.11.4";
+
+		/// <summary>
+		/// The current editorconfig version
+		/// </summary>
 		public static readonly Version Version = new Version(VersionString);
 
 		private readonly Options _globOptions = new Options { MatchBase = true, Dot = true, NoExt = true };
-
+		
+		/// <summary>
+		/// The configured name of the files holding editorconfig values, defaults to ".editorconfig"
+		/// </summary>
 		public string ConfigFileName { get; private set; }
-
+		
+		/// <summary>
+		/// The editor config parser version in use, defaults to latest <see cref="EditorConfigParser.Version"/>
+		/// </summary>
 		public Version ParseVersion { get; private set; }
-
+		
+		/// <summary>
+		/// The EditorConfigParser locates all relevant editorconfig files and makes sure they are merged correctly.
+		/// </summary>
+		/// <param name="configFileName">The name of the file(s) holding the editorconfiguration values</param>
+		/// <param name="developmentVersion">Only used in testing, development to pass an older version to the parsing routine</param>
 		public EditorConfigParser(string configFileName = ".editorconfig", Version developmentVersion = null)
 		{
 			ConfigFileName = configFileName ?? ".editorconfig";
 			ParseVersion = developmentVersion ?? Version;
 		}
 
-
+		/// <summary>
+		/// Gets the FileConfiguration for each of the passed fileName by resolving their relevant editorconfig files.
+		/// </summary>
 		public IEnumerable<FileConfiguration> Parse(params string[] fileNames)
 		{
 			return fileNames
@@ -86,8 +107,6 @@ namespace EditorConfig.Core
 
 		private string FixGlob(string glob, string directory)
 		{
-			//glob = glob.Trim();
-
 			switch (glob.IndexOf('/'))
 			{
 				case -1: glob = "**/" + glob; break;

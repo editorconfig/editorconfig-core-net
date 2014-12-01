@@ -45,9 +45,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Charset.cs" />
     <Compile Include="EditorConfigFile.cs" />
+    <Compile Include="EndOfLine.cs" />
     <Compile Include="FileConfiguration.cs" />
     <Compile Include="EditorConfigParser.cs" />
+    <Compile Include="IndentSize.cs" />
+    <Compile Include="IndentStyle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

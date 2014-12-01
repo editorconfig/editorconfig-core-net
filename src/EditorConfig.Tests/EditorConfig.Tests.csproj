@@ -57,6 +57,8 @@
     <Compile Include="Charsets\CharsetTests.cs" />
     <Compile Include="Defaults\DefaultsTests.cs" />
     <Compile Include="EditorConfigTestBase.cs" />
+    <Compile Include="MaxLineLengths\MaxLineLengthsTests.cs" />
+    <Compile Include="TabWidths\TabWidthTests.cs" />
     <Compile Include="IndentSizes\IndentSizesTests.cs" />
     <Compile Include="IndentStyles\IndentStyleTests.cs" />
     <Compile Include="StopAtRoot\StopsAtRootTests.cs" />
@@ -88,12 +90,39 @@
     <None Include="Defaults\.editorconfig">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="MaxLineLengths\.bogus.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="MaxLineLengths\.negative.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="MaxLineLengths\.positive.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TabWidths\.bogus.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TabWidths\.negative.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TabWidths\.positive.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="TabWidths\.tab.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="IndentSizes\.bogus.editorconfig">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="IndentSizes\.negative.editorconfig" />
-    <None Include="IndentSizes\.positive.editorconfig" />
-    <None Include="IndentSizes\.tab.editorconfig" />
+    <None Include="IndentSizes\.negative.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IndentSizes\.positive.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="IndentSizes\.tab.editorconfig">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="IndentStyles\.bogus.editorconfig">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

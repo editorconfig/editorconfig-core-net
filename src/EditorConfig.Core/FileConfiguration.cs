@@ -6,71 +6,49 @@ using System.Linq;
 
 namespace EditorConfig.Core
 {
-	/*
-	 * 
-indent_style: set to tab or space to use hard tabs or soft tabs respectively.
-indent_size: a whole number defining the number of columns used for each indentation level and the width of soft tabs (when supported). When set to tab, the value of tab_width (if specified) will be used.
-tab_width: a whole number defining the number of columns used to represent a tab character. This defaults to the value of indent_size and doesn't usually need to be specified.
-end_of_line: set to lf, cr, or crlf to control how line breaks are represented.
-charset: set to latin1, utf-8, utf-8-bom, utf-16be or utf-16le to control the character set. Use of utf-8-bom is discouraged.
-trim_trailing_whitespace: set to true to remove any whitespace characters preceding newline characters and false to ensure it doesn't.
-insert_final_newline: set to true ensure file ends with a newline when saving and false to ensure it doesn't.
-root: special property that should be specified at the top of the file outside of any sections. Set to true to stop .editorconfig files search on current file.
-*/
-
-	public enum IndentStyle
-	{
-		Tab,
-		Space
-	}
-
-	public enum EndOfLine
-	{
-// ReSharper disable InconsistentNaming
-		LF,
-		CR,
-		CRLF
-// ReSharper restore InconsistentNaming
-	}
-
-	public enum Charset
-	{
-		Latin1,
-		UTF8,
-		/// <summary>
-		/// Usage of UFT8BOM is discouraged
-		/// </summary>
-		UTF8BOM,
-		UTF16BE,
-		UTF16LE,
-
-	}
-
-	public class IndentSize
-	{
-		public bool UseTabWidth { get; private set; }
-		public int? NumberOfColumns { get; private set; }
-
-		public IndentSize(bool useTabs)
-		{
-			this.UseTabWidth = useTabs;
-		}
-
-		public IndentSize(int numberOfColumns)
-		{
-			this.NumberOfColumns = numberOfColumns;
-		}
-	}
 
 	public class FileConfiguration
 	{
+		/// <summary>
+		/// set to tab or space to use hard tabs or soft tabs respectively.
+		/// </summary>
 		public IndentStyle? IndentStyle { get; private set; }
+
+		/// <summary>
+		/// a whole number defining the number of columns used for each indentation level and the width of soft tabs (when supported). 
+		/// When set to tab, the value of tab_width (if specified) will be used.
+		/// </summary>
 		public IndentSize IndentSize { get; private set; }
+		
+		/// <summary>
+		/// a whole number defining the number of columns used to represent a tab character. 
+		/// This defaults to the value of indent_size and doesn't usually need to be specified.
+		/// </summary>
 		public int? TabWidth { get; private set; }
+		
+		/// <summary>
+		/// set to lf, cr, or crlf to control how line breaks are represented.
+		/// </summary>
 		public EndOfLine? EndOfLine { get; private set; }
+		
+		/// <summary>
+		/// set to latin1, utf-8, utf-8-bom, utf-16be or utf-16le to control the character set. Use of utf-8-bom is discouraged.
+		/// </summary>
 		public Charset? Charset { get; private set; }
+		
+		/// <summary>
+		/// set to true to remove any whitespace characters preceding newline characters and false to ensure it doesn't.
+		/// </summary>
 		public bool? TrimTrailingWhitespace { get; private set; }
+		
+		/// <summary>
+		/// set to true ensure file ends with a newline when saving and false to ensure it doesn't.
+		/// </summary>
 		public bool? InsertFinalNewline { get; private set; }
+		
+		/// <summary>
+		/// Forces hard line wrapping after the amount of characters specified
+		/// </summary>
 		public int? MaxLineLength { get; private set; }
 
 		private static readonly string[] KnownProperties =
@@ -89,9 +67,15 @@ root: special property that should be specified at the top of the file outside o
 		private readonly Dictionary<string, string> _properties;
 
 		public IDictionary<string, string> Properties { get { return _properties; } }
-
+		
+		/// <summary>
+		/// The filename we asked the configuration for
+		/// </summary>
 		public string FileName { get; private set; }
-
+		
+		/// <summary>
+		/// A reference to the version number of the parser
+		/// </summary>
 		public Version Version { get; private set; }
 
 		/// <summary>
@@ -99,6 +83,9 @@ root: special property that should be specified at the top of the file outside o
 		/// </summary>
 		internal FileConfiguration(Version version, string fileName, Dictionary<string, string> properties)
 		{
+			if (version == null) throw new ArgumentNullException("version");
+			if (string.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("file should not be null or whitespace", "fileName");
+
 			FileName = fileName;
 			Version = version;
 			_properties = this.SanitizeProperties(properties ?? new Dictionary<string, string>());

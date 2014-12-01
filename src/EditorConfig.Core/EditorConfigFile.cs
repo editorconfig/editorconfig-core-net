@@ -9,11 +9,17 @@ using System.Threading.Tasks;
 
 namespace EditorConfig.Core
 {
+	/// <summary>
+	/// Represents an ini section within the editorconfig file
+	/// </summary>
 	internal class IniSection : Dictionary<string, string>
 	{
 		public string Name { get; set; }
 	}
 
+	/// <summary>
+	/// Represents the raw config file as INI
+	/// </summary>
 	internal class EditorConfigFile
 	{
 		private readonly Regex _section = new Regex(@"^\s*\[(([^#;]|\\#|\\;)+)\]\s*([#;].*)?$");
