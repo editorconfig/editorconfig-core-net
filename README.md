@@ -19,7 +19,7 @@ Usage as a command line tool:
 
     Usage: editorconfig [OPTIONS] FILEPATH1 [FILEPATH2 FILEPATH3 ...]
 
-    EditorConfig .NET Core Version 0.11.4-development
+    EditorConfig .NET Core Version 0.12
 
     FILEPATH can be a hyphen (-) if you want path(s) to be read from stdin.
 
@@ -43,11 +43,33 @@ Example:
 
 ## Development
 
-TODO document building
+Clone this repos and init the test submodule
+```
+git clone git@github.com:editorconfig/editorconfig-core-net.git
+git submodule init
+git submodule update
+```
 
 # Testing
 
-TODO document testing
+We have several NUnit tests that you can run from visual studio or the build scripts. 
+
+If you want to run the official editorconfig tests you'll need to install CMAKE and call
+
+```
+cmake .
+```
+
+in the rot once.
+
+Afterwhich you can simply call 
+
+```
+ctest .
+```
+
+To run the official editorconfig tests located in `/tests` right now we pass all but one related to utf-8 which fails 
+when run from `ctest .` but when i run it directly from the commandline it succeeds.
 
 [EditorConfig C Core]: https://github.com/editorconfig/editorconfig-core
 [EditorConfig Python Core]: https://github.com/editorconfig/editorconfig-core-py
