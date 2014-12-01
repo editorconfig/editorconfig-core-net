@@ -18,10 +18,14 @@ if not exist build\tools\NUnit.Runners\tools\nunit-console.exe (
     "build\tools\nuget\nuget.exe" "install" "NUnit.Runners" "-OutputDirectory" "build\tools" "-ExcludeVersion" "-Prerelease"
 )
 
-REM we need sign to sign our output assembly 
 if not exist build\tools\ilmerge\ilmerge.exe (
     ECHO ilmerge not found.. Installing
     "build\tools\nuget\nuget.exe" "install" "ilmerge" "-OutputDirectory" "build\tools" "-ExcludeVersion" "-Prerelease"
+)
+
+if not exist build\tools\chocolatey\chocolatey.nupkg (
+    ECHO chocolatey not found.. Installing
+    "build\tools\nuget\nuget.exe" "install" "chocolatey" "-OutputDirectory" "build\tools" "-ExcludeVersion" "-Prerelease"
 )
 
 SET TARGET="Build"

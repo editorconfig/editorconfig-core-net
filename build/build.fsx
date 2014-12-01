@@ -16,6 +16,19 @@ Target "Build" (fun _ -> traceHeader "STARTING BUILD")
 
 Target "Clean" (fun _ -> CleanDir buildDir)
 
+
+let toSingleExe = fun _ ->
+    let ilmerge = @"build\tools\ilmerge\ilmerge.exe"
+    let sn = if isMono then (sprintf "mono %s" ilmerge) else ilmerge
+    let name = "editorconfig"
+    let outDir = "build\output\EditorConfig.App"
+    let inExe = sprintf "%s\editorconfig.exe" outDir
+    let inDlls = sprintf "%s\EditorConfig.Core.dll %s\Minimatch.dll" outDir outDir
+    let out = (ExecProcessAndReturnMessages(fun p ->
+                p.FileName <- sn
+                p.Arguments <- sprintf @"/target:winexe /out:build\output\%s.exe %s %s" name inExe inDlls
+              ) (TimeSpan.FromMinutes 5.0))
+
 Target "BuildApp" (fun _ ->
     let binDirs = !! "src/**/bin/**"
                   |> Seq.map DirectoryName
@@ -24,7 +37,6 @@ Target "BuildApp" (fun _ ->
 
     CleanDirs binDirs
 
-    //Override the prebuild event because it just calls a fake task BuildApp depends on anyways
     let msbuildProperties = [
       ("Configuration","Release"); 
     ]
@@ -33,6 +45,9 @@ Target "BuildApp" (fun _ ->
     !! "src/**/*.csproj"
       |> Seq.map(fun f -> (f, buildDir + directoryInfo(f).Name.Replace(".csproj", "")))
       |> Seq.iter(fun (f,d) -> MSBuild d "Build" msbuildProperties (seq { yield f }) |> ignore)
+
+    //does not seem to work, not a high priority
+    //toSingleExe()
 )
 
 Target "Test" (fun _ ->
@@ -43,6 +58,7 @@ Target "Test" (fun _ ->
              OutputFile = buildDir + "TestResults.xml" }
          )
 )
+
 
 let fileVersion = 
     let assemblyFileContents = ReadFileAsString @"src\EditorConfig.Core\Properties\AssemblyInfo.cs"
@@ -94,9 +110,10 @@ let validateSignedAssembly = fun name ->
       trace (sprintf "%s was signed with official key token %s" name t) 
     | (_, t) -> traceFAKE "%s was not signed with the official token: %s but %s" name oficialToken t
 
-let nugetPack = fun name ->
+let nugetPack = fun _ ->
     CreateDir nugetOutDir
-    let package = (sprintf @"build\%s.nuspec" name)
+    let package = @"build\nuget.nuspec" name
+    let name = "EditorConfig.Core"
     let dir = sprintf "%s/%s/" buildDir name
     let nugetOutFile = buildDir + (sprintf "%s/%s.%s.nupkg" name name patchedFileVersion);
     NuGetPack (fun p ->
@@ -108,6 +125,24 @@ let nugetPack = fun name ->
       package
 
     MoveFile nugetOutDir nugetOutFile
+
+let chocoPack = fun _ ->
+    let choco = @"build\tools\chocolatey\tools\chocolateyInstall\chocolatey.cmd"
+    let spec = "build\editorconfig.core.nuspec"
+    let args = sprintf "pack %s" spec
+    let assemblyFileContents = ReadFileAsString spec
+    let re = @"(?<start>\<version\>)[^""><]+(?<end>\<\/version\>)"
+    let replacedContents = regex_replace re (sprintf "${start}%s${end}" patchedFileVersion) packageContents
+    WriteStringToFile false spec replacedContents
+    let out = (ExecProcessAndReturnMessages(fun p ->
+        p.FileName <- choco
+        p.Arguments <- args
+        ) (TimeSpan.FromMinutes 5.0))
+    
+    let chocoFile = buildDir + (sprintf "%s.%s.nupkg" name name patchedFileVersion);
+    CreateDir nugetOutDir
+    MoveFile nugetOutDir nugetOutFile
+
 
 let suffix = fun (prerelease: PreRelease) -> sprintf "-%s%i" prerelease.Name prerelease.Number.Value
 let getAssemblyVersion = (fun _ ->
@@ -154,8 +189,9 @@ Target "Version" (fun _ ->
 
 
 Target "Release" (fun _ -> 
-    nugetPack("EditorConfig.App")
-    validateSignedAssembly("EditorConfig.App")
+    chocoPack()
+    nugetPack()
+    //validateSignedAssembly("EditorConfig.App")
 )
 
 // Dependencies
