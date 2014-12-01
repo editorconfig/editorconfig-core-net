@@ -20,7 +20,7 @@ namespace EditorConfig.Core
 		/// <summary>
 		/// The current (and latest parser supported) version as string
 		/// </summary>
-		public static readonly string VersionString = "0.11.0";
+		public static readonly string VersionString = "0.12.0";
 
 		/// <summary>
 		/// The current editorconfig version
