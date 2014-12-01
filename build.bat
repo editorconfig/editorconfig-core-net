@@ -19,12 +19,6 @@ if not exist build\tools\NUnit.Runners\tools\nunit-console.exe (
 )
 
 REM we need sign to sign our output assembly 
-if not exist build\tools\sign\tools\sign.exe (
-    ECHO Sign not found.. Installing
-    "build\tools\nuget\nuget.exe" "install" "Sign" "-OutputDirectory" "build\tools" "-ExcludeVersion" "-Prerelease"
-)
-
-REM we need sign to sign our output assembly 
 if not exist build\tools\ilmerge\ilmerge.exe (
     ECHO ilmerge not found.. Installing
     "build\tools\nuget\nuget.exe" "install" "ilmerge" "-OutputDirectory" "build\tools" "-ExcludeVersion" "-Prerelease"

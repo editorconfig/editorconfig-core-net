@@ -97,11 +97,6 @@ let validateSignedAssembly = fun name ->
 let nugetPack = fun name ->
     CreateDir nugetOutDir
     let package = (sprintf @"build\%s.nuspec" name)
-    let packageContents = ReadFileAsString package
-    let re = @"(?<start>\<version\>|""(Elasticsearch.Net|Nest)"" version="")[^""><]+(?<end>\<\/version\>|"")"
-    let replacedContents = regex_replace re (sprintf "${start}%s${end}" patchedFileVersion) packageContents
-    WriteStringToFile false package replacedContents
-
     let dir = sprintf "%s/%s/" buildDir name
     let nugetOutFile = buildDir + (sprintf "%s/%s.%s.nupkg" name name patchedFileVersion);
     NuGetPack (fun p ->
@@ -113,16 +108,6 @@ let nugetPack = fun name ->
       package
 
     MoveFile nugetOutDir nugetOutFile
-
-let buildDocs = fun action ->
-    let node = @"build\tools\Node.js\node.exe"
-    let wintersmith = @"..\build\tools\node_modules\wintersmith\bin\wintersmith"
-    ExecProcess (fun p ->
-        p.WorkingDirectory <- "docs"  
-        p.FileName <- node
-        p.Arguments <- sprintf "\"%s\" %s" wintersmith action
-      ) 
-      (TimeSpan.FromMinutes (if action = "preview" then 300.0 else 5.0))
 
 let suffix = fun (prerelease: PreRelease) -> sprintf "-%s%i" prerelease.Name prerelease.Number.Value
 let getAssemblyVersion = (fun _ ->
@@ -147,11 +132,8 @@ Target "Version" (fun _ ->
   let assemblyDescription = fun (f: string) ->
     let name = f 
     match f.ToLowerInvariant() with
-    | f when f = "elasticsearch.net" -> "Elasticsearch.Net - oficial low level elasticsearch client"
-    | f when f = "nest" -> "NEST - oficial high level elasticsearch client"
-    | f when f = "elasticsearch.net.connection.thrift" -> "Add thrift support to elasticsearch."
-    | f when f = "elasticsearch.net.connection.httpclient" -> "IConnection implementation that uses HttpClient (.NET 4.5 only)"
-    | f when f = "elasticsearch.net.jsonnet" -> "IElasticsearchSerializer implementation that allows you to use Json.NET with the lowlevel client"
+    | f when f = "editorconfig.core" -> "A .NET implementation of the core editorconfig library"
+    | f when f = "editorconfig.app" -> "A .NET implementation of the editorconfig tooling"
     | _ -> sprintf "%s" name
 
   !! "src/**/AssemblyInfo.cs"
@@ -159,9 +141,9 @@ Target "Version" (fun _ ->
       let name = (directoryInfo f).Parent.Parent.Name
       CreateCSharpAssemblyInfo f [
         Attribute.Title name
-        Attribute.Copyright (sprintf "Elasticsearch %i" DateTime.UtcNow.Year)
+        Attribute.Copyright (sprintf "editorconfig.org %i" DateTime.UtcNow.Year)
         Attribute.Description (assemblyDescription name)
-        Attribute.Company "Elasticsearch"
+        Attribute.Company "EditorConfig"
         Attribute.Configuration "Release"
         Attribute.Version assemblyVersion
         Attribute.FileVersion patchedFileVersion

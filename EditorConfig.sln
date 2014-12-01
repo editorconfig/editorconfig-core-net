@@ -3,11 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EditorConfig", "src\EditorConfig.Core\EditorConfig.Core.csproj", "{C33CF791-89D0-4ABE-B2B7-97E1F46A1319}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EditorConfig.Core", "src\EditorConfig.Core\EditorConfig.Core.csproj", "{C33CF791-89D0-4ABE-B2B7-97E1F46A1319}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2BEF5154-2B53-46CA-8BB9-D1C8E5B218C5}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		build.bat = build.bat
+		build\build.fsx = build\build.fsx
+		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EditorConfig.App", "src\EditorConfig.App\EditorConfig.App.csproj", "{D7CD5DEF-002E-4463-9FE8-AC6676DAA36C}"

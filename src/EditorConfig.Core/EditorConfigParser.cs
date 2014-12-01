@@ -8,10 +8,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using IniParser;
-using IniParser.Exceptions;
-using IniParser.Model;
-using IniParser.Parser;
 using Minimatch;
 
 namespace EditorConfig.Core

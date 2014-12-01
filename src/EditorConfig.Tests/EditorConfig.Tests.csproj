@@ -36,9 +36,6 @@
     <Reference Include="FluentAssertions.Core">
       <HintPath>..\..\packages\FluentAssertions.3.2.1\lib\net45\FluentAssertions.Core.dll</HintPath>
     </Reference>
-    <Reference Include="INIFileParser">
-      <HintPath>..\..\packages\ini-parser.2.1.1\lib\INIFileParser.dll</HintPath>
-    </Reference>
     <Reference Include="Minimatch">
       <HintPath>..\..\packages\Minimatch.1.1.0.0\lib\portable-net40+sl50+win+wp80\Minimatch.dll</HintPath>
     </Reference>

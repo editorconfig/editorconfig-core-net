@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EditorConfig.Core;
-using PowerArgs;
 
 namespace EditorConfig.App
 {
