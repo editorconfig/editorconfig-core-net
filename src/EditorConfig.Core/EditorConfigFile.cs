@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace EditorConfig.Core
 {
@@ -45,7 +43,8 @@ namespace EditorConfig.Core
 
 		public void Parse(string file)
 		{
-			var lines = File.ReadAllLines(file);
+			var lines = File.ReadLines(file);
+
 			var activeSection = this.Global;
 			foreach (var line in lines)
 			{

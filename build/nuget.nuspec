@@ -15,6 +15,9 @@
 		<iconUrl>http://editorconfig.org/logo.png</iconUrl>
 	</metadata>
 	<files>
+		<file src="output\EditorConfig.Core.ASPNET50\Release\aspnetcore50\EditorConfig.Core.dll" target="lib\aspnetcore50"/>
+		<file src="output\EditorConfig.Core.ASPNET50\Release\aspnetcore50\EditorConfig.Core.pdb" target="lib\aspnetcore50"/>
+		<file src="output\EditorConfig.Core.ASPNET50\Release\aspnetcore50\EditorConfig.Core.XML" target="lib\aspnetcore50"/>
 		<file src="output\EditorConfig.Core.NET45\EditorConfig.Core.dll" target="lib\net45"/>
 		<file src="output\EditorConfig.Core.NET45\EditorConfig.Core.pdb" target="lib\net45"/>
 		<file src="output\EditorConfig.Core.NET45\EditorConfig.Core.XML" target="lib\net45"/>

@@ -24,11 +24,12 @@ let toSingleExe = fun _ ->
     let name = "editorconfig"
     let outDir = "build\output\EditorConfig.App"
     let inExe = sprintf "%s\editorconfig.exe" outDir
-    let inDlls = sprintf "%s\EditorConfig.Core.dll %s\Minimatch.dll" outDir outDir
+    let inDlls = sprintf "%s\EditorConfig.Core.dll" outDir 
     let out = (ExecProcessAndReturnMessages(fun p ->
                 p.FileName <- sn
                 p.Arguments <- sprintf @"/target:winexe /out:build\output\%s.exe %s %s" name inExe inDlls
               ) (TimeSpan.FromMinutes 5.0))
+    out
 
 Target "BuildApp" (fun _ ->
     let binDirs = !! "src/**/bin/**"
@@ -45,6 +46,10 @@ Target "BuildApp" (fun _ ->
     //Compile each csproj and output it seperately in build/output/PROJECTNAME
     !! "src/**/*.csproj"
       |> Seq.map(fun f -> (f, buildDir + directoryInfo(f).Name.Replace(".csproj", "")))
+      |> Seq.iter(fun (f,d) -> MSBuild d "Build" msbuildProperties (seq { yield f }) |> ignore)
+    
+    !! "src/**/*.kproj"
+      |> Seq.map(fun f -> (f, buildDir + directoryInfo(f).Name.Replace(".kproj", "")))
       |> Seq.iter(fun (f,d) -> MSBuild d "Build" msbuildProperties (seq { yield f }) |> ignore)
 
     //does not seem to work, not a high priority
@@ -133,7 +138,13 @@ let patchVersionInCode = fun _ ->
     let updatedSource = regex_replace re (sprintf @"public static readonly string VersionString = ""%s""" patchedFileVersion) source
     WriteStringToFile false file updatedSource
     
-
+let patchVersionInProjectJson = fun _ ->
+    let file = @"src\EditorConfig.Core\project.json"
+    let source = ReadFileAsString file
+    let re = @"""version"": ""[^""]+"""
+    let updatedSource = regex_replace re (sprintf @"""version"": ""%s""" patchedFileVersion) source
+    WriteStringToFile false file updatedSource
+ 
 let chocoPack = fun _ ->
     let choco = @"build\tools\chocolatey\tools\chocolateyInstall\chocolatey.cmd"
     let spec = "build\chocolatey.nuspec"
@@ -197,6 +208,7 @@ Target "Version" (fun _ ->
     )
 
   patchVersionInCode()
+  patchVersionInProjectJson()
 )
 
 

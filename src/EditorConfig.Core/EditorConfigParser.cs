@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace EditorConfig.Core
 {
@@ -19,7 +15,7 @@ namespace EditorConfig.Core
 		/// <summary>
 		/// The current (and latest parser supported) version as string
 		/// </summary>
-		public static readonly string VersionString = "0.12.0";
+		public static readonly string VersionString = "0.12.1";
 
 		/// <summary>
 		/// The current editorconfig version
@@ -140,7 +136,8 @@ namespace EditorConfig.Core
 			{
 				if (dir == null) yield break;
 				yield return dir;
-				dir = Directory.GetParent(dir).FullName;
+				var dirInfo = new DirectoryInfo(dir);
+				dir = dirInfo.Parent.FullName;
 			} while (dir != root);
 		}
 	}
