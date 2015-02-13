@@ -8,7 +8,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Minimatch;
 
 namespace EditorConfig.Core
 {
@@ -27,7 +26,7 @@ namespace EditorConfig.Core
 		/// </summary>
 		public static readonly Version Version = new Version(VersionString);
 
-		private readonly Options _globOptions = new Options { MatchBase = true, Dot = true, NoExt = true };
+		private readonly EditorConfigMinimatcherOptions _globOptions = new EditorConfigMinimatcherOptions { MatchBase = true, Dot = true, NoExt = true };
 		
 		/// <summary>
 		/// The configured name of the files holding editorconfig values, defaults to ".editorconfig"
@@ -95,7 +94,7 @@ namespace EditorConfig.Core
 
 		private bool IsMatch(string glob, string fileName, string directory)
 		{
-			var matcher = new Minimatcher(glob, _globOptions);
+			var matcher = new EditorConfigMinimatcher(glob, _globOptions);
 			var isMatch = matcher.IsMatch(fileName);
 			Debug.WriteLine("{0} :: {1} \t\t:: {2}", isMatch ? "?" : "?", glob, fileName);
 			return isMatch;

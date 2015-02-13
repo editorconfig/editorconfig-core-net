@@ -4,17 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D7CD5DEF-002E-4463-9FE8-AC6676DAA36C}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{F22050E7-E2C3-47BC-8B06-5BFE163FF045}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EditorConfig.App</RootNamespace>
-    <AssemblyName>editorconfig</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <RootNamespace>EditorConfig.Core</RootNamespace>
+    <AssemblyName>EditorConfig.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,15 +20,21 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\EditorConfig.Core.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\..\sign.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -42,18 +46,31 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArgumentsParser.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="..\EditorConfig.Core\Charset.cs">
+      <Link>Charset.cs</Link>
+    </Compile>
+    <Compile Include="..\EditorConfig.Core\EditorConfigFile.cs">
+      <Link>EditorConfigFile.cs</Link>
+    </Compile>
+    <Compile Include="..\EditorConfig.Core\EditorConfigParser.cs">
+      <Link>EditorConfigParser.cs</Link>
+    </Compile>
+    <Compile Include="..\EditorConfig.Core\EndOfLine.cs">
+      <Link>EndOfLine.cs</Link>
+    </Compile>
+    <Compile Include="..\EditorConfig.Core\FileConfiguration.cs">
+      <Link>FileConfiguration.cs</Link>
+    </Compile>
+    <Compile Include="..\EditorConfig.Core\IndentSize.cs">
+      <Link>IndentSize.cs</Link>
+    </Compile>
+    <Compile Include="..\EditorConfig.Core\IndentStyle.cs">
+      <Link>IndentStyle.cs</Link>
+    </Compile>
+    <Compile Include="..\EditorConfig.Core\Minimatcher.cs">
+      <Link>Minimatcher.cs</Link>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EditorConfig.Core\EditorConfig.Core.csproj">
-      <Project>{c33cf791-89d0-4abe-b2b7-97e1f46a1319}</Project>
-      <Name>EditorConfig.Core</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

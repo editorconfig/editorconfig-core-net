@@ -13,11 +13,11 @@
 		<licenseUrl>https://raw.github.com/editorconfig/editorconfig-core/master/LICENSE</licenseUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<iconUrl>http://editorconfig.org/logo.png</iconUrl>
-		<dependencies>
-			<dependency id="Minimatch" version="1.1.0.0" />
-		</dependencies>
 	</metadata>
 	<files>
+		<file src="output\EditorConfig.Core.NET45\EditorConfig.Core.dll" target="lib\net45"/>
+		<file src="output\EditorConfig.Core.NET45\EditorConfig.Core.pdb" target="lib\net45"/>
+		<file src="output\EditorConfig.Core.NET45\EditorConfig.Core.XML" target="lib\net45"/>
 		<file src="output\EditorConfig.Core\EditorConfig.Core.dll" target="lib"/>
 		<file src="output\EditorConfig.Core\EditorConfig.Core.pdb" target="lib"/>
 		<file src="output\EditorConfig.Core\EditorConfig.Core.XML" target="lib"/>
