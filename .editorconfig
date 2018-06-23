@@ -5,6 +5,10 @@ indent_style = tab
 indent_size = 4
 x=a
 
+[Minimatcher.cs]
+indent_style = space
+indent_size = 2
+
 [*.cshtml]
 indent_style = tab
 indent_size = 4
