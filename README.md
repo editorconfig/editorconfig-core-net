@@ -1,6 +1,6 @@
 # EditorConfig .NET Core
 
-The EditorConfig .NET coreprovides the same functionality as the
+The EditorConfig .NET core provides the same functionality as the
 [EditorConfig C Core][] and [EditorConfig Python Core][].
 
 ## Installation
@@ -90,18 +90,18 @@ If you want to run the official editorconfig tests you'll need to install [CMAKE
 
 ```
 cmake .
-```
+``` 
 
 in the root of this repository once.
 
-Afterwhich you can simply call 
+After which you can simply call 
 
 ```
 ctest .
 ```
 
 To run the official editorconfig tests located in `/tests` right now we pass all but one related to utf-8 which fails 
-when run from `ctest .` but when i run it directly from the commandline it succeeds.
+when run from `ctest .` but when I run it directly from the commandline it succeeds.
 
 [EditorConfig C Core]: https://github.com/editorconfig/editorconfig-core
 [EditorConfig Python Core]: https://github.com/editorconfig/editorconfig-core-py
