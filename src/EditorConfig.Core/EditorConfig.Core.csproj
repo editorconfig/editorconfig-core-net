@@ -1,12 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net40;net45;netstandard2.0</TargetFrameworks>
-	</PropertyGroup>
-
-	<PropertyGroup>
-		<Company>EditorConfig</Company>
-		<Title>EditorConfig.Core</Title>
+		<TargetFrameworks>net40;netstandard1.3;netstandard2.0</TargetFrameworks>
 	</PropertyGroup>
 
 </Project>

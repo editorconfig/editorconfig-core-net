@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace EditorConfig.Tests.Charsets
 {
 	[TestFixture]
-	class CharsetTests : EditorConfigTestBase
+	public class CharsetTests : EditorConfigTestBase
 	{
 		[Test]
 		public void Utf8()

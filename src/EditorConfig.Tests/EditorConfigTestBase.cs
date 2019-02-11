@@ -10,7 +10,7 @@ using FluentAssertions;
 
 namespace EditorConfig.Tests
 {
-	class EditorConfigTestBase
+	public class EditorConfigTestBase
 	{
 		protected void HasBogusKey(FileConfiguration file, string key)
 		{
@@ -35,8 +35,12 @@ namespace EditorConfig.Tests
 			var folderSep = Path.DirectorySeparatorChar.ToString();
 			var folder = @namespace.Replace("EditorConfig.Tests.", "").Replace(".", folderSep);
 			var file = Path.Combine(folder, fileName.Replace(@"\", folderSep));
-			file = Path.Combine(Environment.CurrentDirectory.Replace("bin" + folderSep + "Debug", "").Replace("bin" + folderSep + "Release", ""), file);
+
+			var cwd = Environment.CurrentDirectory;
+			file = Path.Combine(cwd.Replace(OutputPath("Release"), "").Replace(OutputPath("Debug"), ""), file);
 			return file;
+
+			string OutputPath(string configuration) => $"bin{folderSep}netcoreapp2.0{folderSep}{configuration}";
 		}
 	}
 }

@@ -48,4 +48,5 @@ CTest*
 *.log
 [Tt]est*/
 Makefile
+.idea
 

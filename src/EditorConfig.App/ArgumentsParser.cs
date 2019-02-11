@@ -7,16 +7,6 @@ using System.Threading.Tasks;
 
 namespace EditorConfig.App
 {
-	public class ApplicationArgumentException : Exception
-	{
-		public ApplicationArgumentException(string message, params object[] args) 
-			: base(string.Format(message, args))
-		{
-			
-		}
-	}
-
-
 	class ArgumentsParser
 	{
 		public string[] FileNames { get; private set; } 
