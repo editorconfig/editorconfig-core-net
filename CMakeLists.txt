@@ -1,4 +1,5 @@
+cmake_minimum_required(VERSION 3.14)
 project(editorconfig-core-test NONE)
 enable_testing()
-set(EDITORCONFIG_CMD "c:\\Projects\\ecn\src\\EditorConfig.App\\bin\\Debug\\editorconfig.exe")
+set(EDITORCONFIG_CMD "${PROJECT_SOURCE_DIR}\\src\\EditorConfig.App\\bin\\Debug\\editorconfig.exe")
 add_subdirectory(tests)
