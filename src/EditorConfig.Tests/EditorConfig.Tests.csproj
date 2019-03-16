@@ -17,5 +17,14 @@
 		<None Include="*\*.editorconfig">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<None Include="StopAtRoot\X\*.editorconfig">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Include="StopAtRoot\X\Y\Z\*.editorconfig">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Include="StopAtRoot\X\Y\*.editorconfig">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 </Project>
