@@ -22,7 +22,7 @@ namespace EditorConfig.Core
 		/// </summary>
 		public static readonly Version Version = new Version(VersionString);
 
-		private readonly EditorConfigMinimatcherOptions _globOptions = new EditorConfigMinimatcherOptions { MatchBase = true, Dot = true, NoExt = true };
+		private readonly GlobMatcherOptions _globOptions = new GlobMatcherOptions { MatchBase = true, Dot = true, AllowWindowsPaths = true };
 		
 		/// <summary>
 		/// The configured name of the files holding editorconfig values, defaults to ".editorconfig"
@@ -90,7 +90,7 @@ namespace EditorConfig.Core
 
 		private bool IsMatch(string glob, string fileName, string directory)
 		{
-			var matcher = new EditorConfigMinimatcher(glob, _globOptions);
+			var matcher = GlobMatcher.Create(glob, _globOptions);
 			var isMatch = matcher.IsMatch(fileName);
 			Debug.WriteLine("{0} :: {1} \t\t:: {2}", isMatch ? "?" : "?", glob, fileName);
 			return isMatch;
@@ -103,7 +103,8 @@ namespace EditorConfig.Core
 				case -1: glob = "**/" + glob; break;
 				case 0: glob = glob.Substring(1); break;
 			}
-			glob = Regex.Replace(glob, @"\*\*", "{*,**/**/**}");
+			
+			//glob = Regex.Replace(glob, @"\*\*", "{*,**/**/**}");
 
 			directory = directory.Replace(@"\", "/");
 			if (!directory.EndsWith("/")) directory += "/";
