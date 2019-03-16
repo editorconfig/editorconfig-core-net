@@ -14,8 +14,8 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<Content Include="**\*.editorconfig">
+		<None Include="*\*.editorconfig">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
+		</None>
 	</ItemGroup>
 </Project>

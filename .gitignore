@@ -47,6 +47,7 @@ CTest*
 *.vcxproj*
 *.log
 [Tt]est*/
+tests
 Makefile
 .idea
 

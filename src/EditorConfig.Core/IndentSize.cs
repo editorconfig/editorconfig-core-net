@@ -6,8 +6,14 @@
 	/// </summary>
 	public class IndentSize
 	{
+		public bool Unset { get; private set; }
 		public bool UseTabWidth { get; private set; }
 		public int? NumberOfColumns { get; private set; }
+		
+		public IndentSize()
+		{
+			this.Unset = true;
+		}
 
 		public IndentSize(bool useTabs)
 		{

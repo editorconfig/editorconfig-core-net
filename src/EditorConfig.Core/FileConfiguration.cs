@@ -160,6 +160,9 @@ namespace EditorConfig.Core
 
 			switch (indentSize)
 			{
+				case "unset":
+					this.IndentSize = new IndentSize();
+					return;
 				case "tab":
 					this.IndentSize = new IndentSize(useTabs: true);
 					return;
