@@ -51,19 +51,16 @@ namespace EditorConfig.Core
 		public IEnumerable<FileConfiguration> Parse(params string[] fileNames)
 		{
 			return fileNames
-				.Select(f => f
-					.Trim()
-					.Trim(new[] { '\r', '\n' })
-				)
-				.Select(this.ParseFile)
+				.Select(this.Parse)
 				.ToList();
 		}
 
-		private FileConfiguration ParseFile(string fileName)
+		public FileConfiguration Parse(string fileName)
 		{
-			Debug.WriteLine(":: {0} :: {1}", this.ConfigFileName, fileName);
+			var file = fileName.Trim().Trim(new[] {'\r', '\n'});
+			Debug.WriteLine(":: {0} :: {1}", this.ConfigFileName, file);
 
-			var fullPath = Path.GetFullPath(fileName).Replace(@"\", "/");
+			var fullPath = Path.GetFullPath(file).Replace(@"\", "/");
 			var configFiles = this.AllParentConfigFiles(fullPath);
 
 			//All the .editorconfig files going from root =>.fileName
@@ -85,7 +82,7 @@ namespace EditorConfig.Core
 			foreach (var kv in allProperties)
 				properties[kv.Key] = kv.Value;
 
-			return new FileConfiguration(ParseVersion, fileName, properties);
+			return new FileConfiguration(ParseVersion, file, properties);
 		}
 
 		private bool IsMatch(string glob, string fileName, string directory)
