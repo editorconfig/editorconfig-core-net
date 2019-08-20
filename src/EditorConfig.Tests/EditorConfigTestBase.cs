@@ -24,8 +24,8 @@ namespace EditorConfig.Tests
 			var file = this.GetFileFromMethod(method, fileName);
 			var parser = new EditorConfigParser(configurationFile);
 			var fileConfigs = parser.Parse(file);
-			fileConfigs.Should().NotBeEmpty();
-			return fileConfigs.First();
+			fileConfigs.Should().NotBeNull();
+			return fileConfigs;
 		}
 
 		protected string GetFileFromMethod(MethodBase method, string fileName)

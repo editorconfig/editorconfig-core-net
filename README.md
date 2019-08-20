@@ -23,7 +23,7 @@ Usage as a library:
 
 ```csharp
 var parser = new EditorConfigParser();
-var configuration = parser.Parse(fileName).First();
+var configuration = parser.Parse(fileName);
 foreach (var kv in configuration.Properties)
 {
     Console.WriteLine("{0}={1}", kv.Key, kv.Value);
