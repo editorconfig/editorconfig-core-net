@@ -20,6 +20,8 @@ jobs:
       run: cmake --version && git submodule init && git submodule update
     - run: dotnet build -c Debug
       name: Build
+    - run: dotnet src/EditorConfig.App/bin/Debug/netcoreapp2.0/editorconfig.dll .editorconfig src/EditorConfig.Tests/MiniMatcherTests.cs
+      name: SmokeTest
     - name: Core tests
       run: 'cmake . && ctest . -E "max_property_(name|value)|max_section_name_ignore" '
   windows:
