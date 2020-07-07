@@ -60,7 +60,7 @@ namespace EditorConfig.Core
 			var file = fileName.Trim().Trim(new[] {'\r', '\n'});
 			Debug.WriteLine(":: {0} :: {1}", this.ConfigFileName, file);
 
-			var fullPath = Path.GetFullPath(file).Replace(@"\", "/");
+			var fullPath = Path.GetFullPath(file);
 			var configFiles = this.AllParentConfigFiles(fullPath);
 
 			//All the .editorconfig files going from root =>.fileName
@@ -135,6 +135,7 @@ namespace EditorConfig.Core
 				if (dir == null) yield break;
 				yield return dir;
 				var dirInfo = new DirectoryInfo(dir);
+				if (dirInfo.Parent == null) yield break;
 				dir = dirInfo.Parent.FullName;
 			} while (dir != root);
 		}

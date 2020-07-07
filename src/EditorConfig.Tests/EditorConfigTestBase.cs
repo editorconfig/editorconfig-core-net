@@ -34,7 +34,7 @@ namespace EditorConfig.Tests
 			var @namespace = type.Namespace;
 			var folderSep = Path.DirectorySeparatorChar.ToString();
 			var folder = @namespace.Replace("EditorConfig.Tests.", "").Replace(".", folderSep);
-			var file = Path.Combine(folder, fileName.Replace(@"\", folderSep));
+			var file = Path.Combine(folder, fileName);
 
 			var cwd = Environment.CurrentDirectory;
 			file = Path.Combine(cwd.Replace(OutputPath("Release"), "").Replace(OutputPath("Debug"), ""), file);
