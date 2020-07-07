@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>net40;netcoreapp2.0</TargetFrameworks>
 		<AssemblyName>editorconfig</AssemblyName>
-		<ProjectType>Exe</ProjectType>
+		<OutputType>Exe</OutputType>
 		<Version>0.12.1</Version>
 		<Description>A .NET implementation of the editorconfig tooling</Description>
 	</PropertyGroup>
