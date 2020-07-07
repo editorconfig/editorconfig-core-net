@@ -1,0 +1,46 @@
+name: Linux & Windows CI
+
+on: [push, pull_request]
+
+jobs:
+  linux:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - run: |
+        git fetch --prune --unshallow --tags
+        echo exit code $?
+        git tag --list
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.201'
+    - name: Prepare
+      shell: cmd
+      run: cmake --version && git submodule init && git submodule update
+    - run: dotnet build -c Debug
+      name: Build
+    - name: Core tests
+      run: 'cmake . && ctest . -E "max_property_(name|value)|max_section_name_ignore" '
+  windows:
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+    - run: |
+        git fetch --prune --unshallow --tags
+        echo exit code $?
+        git tag --list
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.201'
+    - name: Prepare
+      shell: cmd
+      run: cmake --version && git submodule init && git submodule update
+    - run: dotnet build -c Debug
+      name: Build
+    - name: Core tests
+      shell: cmd
+      run: 'cmake . && ctest . -E "max_property_(name|value)|max_section_name_ignore" '
