@@ -112,9 +112,13 @@ namespace EditorConfig.Core
 			    properties["indent_size"] != "tab")
 			{
 				//only set tab_width to indent_size if indent size holds a positive integer
-				int size;
-				if (int.TryParse(properties["indent_size"], out size) && size >= 0)
+				if (int.TryParse(properties["indent_size"], out var size) && size >= 0)
 					properties["tab_width"] = properties["indent_size"];
+				
+				// unset carries over see:
+				//  ctest . -R "unset_indent_size"
+				else if (properties["indent_size"] == "unset")
+					properties["tab_width"] = "unset";
 			}
 
 			// Set indent_size to tab_width if indent_size is "tab"
