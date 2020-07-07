@@ -50,4 +50,4 @@ CTest*
 tests
 Makefile
 .idea
-
+cmake_install.cmake
