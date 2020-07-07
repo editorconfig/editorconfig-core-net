@@ -17,7 +17,6 @@ jobs:
       with:
         dotnet-version: '3.1.201'
     - name: Prepare
-      shell: cmd
       run: cmake --version && git submodule init && git submodule update
     - run: dotnet build -c Debug
       name: Build
@@ -40,6 +39,7 @@ jobs:
       shell: cmd
       run: cmake --version && git submodule init && git submodule update
     - run: dotnet build -c Debug
+      shell: cmd
       name: Build
     - name: Core tests
       shell: cmd
