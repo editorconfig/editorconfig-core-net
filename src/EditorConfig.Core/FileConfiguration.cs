@@ -51,23 +51,9 @@ namespace EditorConfig.Core
 		/// </summary>
 		public int? MaxLineLength { get; private set; }
 
-		private static readonly string[] KnownProperties =
-		{
-			"indent_style",
-			"indent_size",
-			"tab_width",
-			"end_of_line",
-			"charset",
-			"trim_trailing_whitespace",
-			"insert_final_newline",
-			"max_line_length",
-			"root",
-		};
-
 		private readonly Dictionary<string, string> _properties;
+		public IDictionary<string, string> Properties => _properties;
 
-		public IDictionary<string, string> Properties { get { return _properties; } }
-		
 		/// <summary>
 		/// The filename we asked the configuration for
 		/// </summary>
@@ -83,21 +69,13 @@ namespace EditorConfig.Core
 		/// </summary>
 		internal FileConfiguration(Version version, string fileName, Dictionary<string, string> properties)
 		{
-			if (version == null) throw new ArgumentNullException("version");
-			if (string.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("file should not be null or whitespace", "fileName");
+			if (version == null) throw new ArgumentNullException(nameof(version));
+			if (string.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("file should not be null or whitespace", nameof(fileName));
 
 			FileName = fileName;
 			Version = version;
 			_properties = this.SanitizeProperties(properties ?? new Dictionary<string, string>());
 			this.ParseKnownProperties();
-		}
-
-		internal static KeyValuePair<string, string> Sanitize(string key, string value)
-		{
-			key = key.ToLowerInvariant();
-			if (KnownProperties.Contains(key, StringComparer.OrdinalIgnoreCase))
-				value = value.ToLowerInvariant();
-			return new KeyValuePair<string, string>(key, value);
 		}
 
 		private Dictionary<string, string> SanitizeProperties(Dictionary<string, string> properties)

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net40;netcoreapp2.0</TargetFrameworks>
+		<TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
 		<AssemblyName>editorconfig</AssemblyName>
 		<OutputType>Exe</OutputType>
 		<Version>0.12.1</Version>
@@ -13,7 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net40" Version="1.0.0" PrivateAssets="all"/>
+		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net45" Version="1.0.0" PrivateAssets="all"/>
 	</ItemGroup>
 
 

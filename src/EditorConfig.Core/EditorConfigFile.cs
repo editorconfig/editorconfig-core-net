@@ -8,62 +8,91 @@ using System.Text.RegularExpressions;
 namespace EditorConfig.Core
 {
 	/// <summary>
-	/// Represents an ini section within the editorconfig file
-	/// </summary>
-	internal class IniSection : Dictionary<string, string>
-	{
-		public string Name { get; set; }
-	}
-
-	/// <summary>
 	/// Represents the raw config file as INI
 	/// </summary>
-	internal class EditorConfigFile
+	public class EditorConfigFile
 	{
-		private readonly Regex _section = new Regex(@"^\s*\[(([^#;]|\\#|\\;)+)\]\s*([#;].*)?$");
-		private readonly Regex _comment = new Regex(@"^\s*[#;]");
-		private readonly Regex _property = new Regex(@"^\s*([\w\.\-_]+)\s*[=:]\s*(.*?)\s*([#;].*)?$");
+		private static readonly Regex SectionRe = new Regex(@"^\s*\[(([^#;]|\\#|\\;)+)\]\s*([#;].*)?$");
+		private static readonly Regex CommentRe = new Regex(@"^\s*[#;]");
+		private static readonly Regex PropertyRe = new Regex(@"^\s*([\w\.\-_]+)\s*[=:]\s*(.*?)\s*([#;].*)?$");
 		
-		public IniSection Global = new IniSection(); 
-		public List<IniSection> Sections = new List<IniSection>(); 
+		private static readonly string[] KnownProperties =
+		{
+			"indent_style",
+			"indent_size",
+			"tab_width",
+			"end_of_line",
+			"charset",
+			"trim_trailing_whitespace",
+			"insert_final_newline",
+			"max_line_length",
+			"root",
+		};
 
-		public string Directory { get; private set; }
-		private bool _isRoot = false;
-		public bool IsRoot { get { return _isRoot; }}
+		private readonly Dictionary<string, string> _globalDict = new Dictionary<string, string>(); 
+		public List<ConfigSection> Sections { get; } = new List<ConfigSection>(); 
+
+		public string Directory { get; }
+		
+		private readonly bool _isRoot;
+		public bool IsRoot => _isRoot;
 
 		public EditorConfigFile(string file)
 		{
 			this.Directory = Path.GetDirectoryName(file);
 			this.Parse(file);
 
-			if (this.Global.ContainsKey("root"))
-				bool.TryParse(this.Global["root"], out this._isRoot);
+			if (this._globalDict.ContainsKey("root"))
+				bool.TryParse(this._globalDict["root"], out this._isRoot);
 
 		}
 
-		public void Parse(string file)
+		private void Parse(string file)
 		{
 			var lines = File.ReadLines(file);
 
-			var activeSection = this.Global;
+			var activeDict = _globalDict;
+			var sectionName = string.Empty;
+			var reset = false;
 			foreach (var line in lines)
 			{
-				if (_comment.IsMatch(line)) continue;
-				var matches = _property.Matches(line);
+				if (string.IsNullOrWhiteSpace(line)) continue;
+				
+				if (CommentRe.IsMatch(line)) continue;
+				var matches = PropertyRe.Matches(line);
 				if (matches.Count > 0)
 				{
 					var key = matches[0].Groups[1].Value.Trim();
 					var value = matches[0].Groups[2].Value.Trim();
-					activeSection.Add(key, value);
+					
+					key = key.ToLowerInvariant();
+					if (KnownProperties.Contains(key, StringComparer.OrdinalIgnoreCase))
+						value = value.ToLowerInvariant();
+					
+					activeDict.Add(key, value);
+					reset = false;
 					continue;
 				}
-				matches = _section.Matches(line);
+				matches = SectionRe.Matches(line);
 				if (matches.Count <= 0) continue;
 
-				var sectionName = matches[0].Groups[1].Value;
-				activeSection = new IniSection { Name = sectionName };
-				this.Sections.Add(activeSection);
+				if (!string.IsNullOrEmpty(sectionName))
+				{
+					var section = new ConfigSection(sectionName, this.Directory, activeDict);
+					this.Sections.Add(section);
+					reset = true;
+				}
+
+				sectionName = matches[0].Groups[1].Value;
+				activeDict = new Dictionary<string, string>();
 			}
+
+			if (!reset)
+			{
+				var section = new ConfigSection(sectionName, this.Directory, activeDict);
+				this.Sections.Add(section);
+			}
+			
 		}
 	}
 }

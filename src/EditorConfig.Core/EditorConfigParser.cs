@@ -48,35 +48,36 @@ namespace EditorConfig.Core
 		/// <summary>
 		/// Gets the FileConfiguration for each of the passed fileName by resolving their relevant editorconfig files.
 		/// </summary>
-		public IEnumerable<FileConfiguration> Parse(params string[] fileNames)
-		{
-			return fileNames
-				.Select(this.Parse)
-				.ToList();
-		}
+		public IEnumerable<FileConfiguration> Parse(params string[] fileNames) => fileNames.Select(f => Parse(f)).ToList();
 
-		public FileConfiguration Parse(string fileName)
+
+		/// <summary>
+		/// Get the editorconfig configuration (see <see cref="FileConfiguration"/> for the provided <paramref name="fileName"/>
+		/// </summary>
+		/// <param name="fileName">The path to the file we want to know it's editorconfig settings for</param>
+		/// <param name="editorConfigFiles">
+		/// If null will traverse the file path to find all relevant editorconfig files. <para/>
+		/// This can be costly if repeated multiple times, if you call this for the same file multiple times look in to
+		/// using <see cref="GetConfigurationFilesTillRoot"/> and passing that explicitly to <paramref name="editorConfigFiles"/>
+		/// </param>
+		/// <returns></returns>
+		public FileConfiguration Parse(string fileName, IEnumerable<EditorConfigFile> editorConfigFiles = null)
 		{
-			var file = fileName.Trim().Trim(new[] {'\r', '\n'});
+			var file = fileName.Trim('\r', '\n', ' ');
 			Debug.WriteLine(":: {0} :: {1}", this.ConfigFileName, file);
 
 			var fullPath = Path.GetFullPath(file);
-			var configFiles = this.AllParentConfigFiles(fullPath);
 
 			//All the .editorconfig files going from root =>.fileName
-			var editorConfigFiles = this.ParseConfigFilesTillRoot(configFiles).Reverse();
+			editorConfigFiles = editorConfigFiles ?? this.GetConfigurationFilesTillRoot(file);
 
 			var sections =
 				from configFile in editorConfigFiles
 				from section in configFile.Sections
-				let glob = this.FixGlob(section.Name, configFile.Directory)
-				where this.IsMatch(glob, fullPath, configFile.Directory)
+				where this.IsMatch(section.Glob, fullPath, configFile.Directory)
 				select section;
 
-			var allProperties =
-				from section in sections
-				from kv in section
-				select FileConfiguration.Sanitize(kv.Key, kv.Value);
+			var allProperties = sections.SelectMany(section => section);
 
 			var properties = new Dictionary<string, string>();
 			foreach (var kv in allProperties)
@@ -93,22 +94,18 @@ namespace EditorConfig.Core
 			return isMatch;
 		}
 
-		private string FixGlob(string glob, string directory)
+		/// <summary>
+		/// Gets all relevant <see cref="EditorConfigFile"/> for <see cref="file"/> until the first config file upwards
+		/// marked as root.
+		/// </summary>
+		public IList<EditorConfigFile> GetConfigurationFilesTillRoot(string file)
 		{
-			switch (glob.IndexOf('/'))
-			{
-				case -1: glob = "**/" + glob; break;
-				case 0: glob = glob.Substring(1); break;
-			}
-			
-			//glob = Regex.Replace(glob, @"\*\*", "{*,**/**/**}");
+			var fullPath = Path.GetFullPath(file);
+			var configFiles = this.AllParentConfigFiles(fullPath);
 
-			directory = directory.Replace(@"\", "/");
-			if (!directory.EndsWith("/")) directory += "/";
-
-			return directory + glob;
+			return this.ParseConfigFilesTillRoot(configFiles).Reverse().ToList();
 		}
-
+			
 		private IEnumerable<EditorConfigFile> ParseConfigFilesTillRoot(IEnumerable<string> configFiles)
 		{
 			foreach (var configFile in configFiles.Select(f=> new EditorConfigFile(f)))
