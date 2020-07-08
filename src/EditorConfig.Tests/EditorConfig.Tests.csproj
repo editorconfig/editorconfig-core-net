@@ -7,7 +7,7 @@
 	
 	<ItemGroup>
 		<ProjectReference Include="..\EditorConfig.Core\EditorConfig.Core.csproj" />
-		<PackageReference Include="FluentAssertions" Version="5.6.0" />
+		<PackageReference Include="FluentAssertions" Version="5.10.3" />
 		<PackageReference Include="NUnit" Version="3.11.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
 		<PackageReference Include="NUnit3TestAdapter" Version="3.11.0" />
@@ -25,6 +25,9 @@
 		</None>
 		<None Include="StopAtRoot\X\Y\*.editorconfig">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="CTestReproduce\unset\unset.editorconfig">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 </Project>

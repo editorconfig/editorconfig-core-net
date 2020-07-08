@@ -21,10 +21,11 @@ namespace EditorConfig.Tests.IndentStyles
 			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".tab.editorconfig");
 			file.IndentStyle.Should().Be(IndentStyle.Tab);
 
-			// Set indent_size to "tab" if indent_size is unspecified and indent_style is set to "tab".
-			file.Properties.Should().HaveCount(2);
 			file.IndentSize.Should().NotBeNull();
 			file.IndentSize.UseTabWidth.Should().BeTrue();
+			
+			// Set indent_size to "tab" if indent_size is unspecified and indent_style is set to "tab".
+			file.Properties.Should().HaveCount(2);
 		}
 
 		[Test]

@@ -14,7 +14,8 @@ namespace EditorConfig.Tests
 	{
 		protected void HasBogusKey(FileConfiguration file, string key)
 		{
-			file.Properties.Should().NotBeEmpty().And.HaveCount(1).And.ContainKey(key);
+			file.Properties.Should().NotBeEmpty().And.HaveCount(1);
+			AssertHasProperty(key, file);
 			var bogusCharset = file.Properties[key];
 			bogusCharset.Should().Be("bogus");
 		}
@@ -41,6 +42,15 @@ namespace EditorConfig.Tests
 			return file;
 
 			string OutputPath(string configuration) => $"bin{folderSep}netcoreapp2.0{folderSep}{configuration}";
+		}
+
+		protected void AssertHasProperty(string property, FileConfiguration file)
+		{
+			file.Properties.ContainsKey(property).Should().BeTrue($"Expected to find {property} in Properties for file: {file.FileName}");
+		}
+		protected void AssertHasNotProperty(string property, FileConfiguration file)
+		{
+			file.Properties.ContainsKey(property).Should().BeFalse($"Did not expect to find {property} in Properties for file: {file.FileName}");
 		}
 	}
 }

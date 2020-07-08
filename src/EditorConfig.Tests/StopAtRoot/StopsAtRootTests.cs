@@ -11,7 +11,8 @@ namespace EditorConfig.Tests.StopAtRoot
 		public void SomeProp_HasValueFromClosestConfig()
 		{
 			var file = this.GetConfig(MethodBase.GetCurrentMethod(), @"X/Y/Z/f.x");
-			file.Properties.Should().NotBeEmpty().And.ContainKey("some_prop");
+			file.Properties.Should().NotBeEmpty();
+			AssertHasProperty("some_prop", file);
 			var someProp = file.Properties["some_prop"];
 			someProp.Should().Be("z");
 		}
@@ -20,15 +21,18 @@ namespace EditorConfig.Tests.StopAtRoot
 		public void ParentsFromRootDoNotLeakIntoScope()
 		{
 			var file = this.GetConfig(MethodBase.GetCurrentMethod(), @"X/Y/Z/f.x");
-			file.Properties.Should().NotBeEmpty().And.NotContainKey("outer_prop");
+			file.Properties.Should().NotBeEmpty();
+			AssertHasNotProperty("outer_prop", file);
 		}
 		
 		[Test]
 		public void ChildrenDoNotInterfere()
 		{
 			var file = this.GetConfig(MethodBase.GetCurrentMethod(), @"X/f.x");
-			file.Properties.Should().NotBeEmpty().And.ContainKey("outer_prop");
-			file.Properties.Should().NotBeEmpty().And.ContainKey("some_prop");
+			file.Properties.Should().NotBeEmpty();
+			AssertHasProperty("outer_prop", file);
+			file.Properties.Should().NotBeEmpty();
+			AssertHasProperty("some_prop", file);
 			var someProp = file.Properties["some_prop"];
 			someProp.Should().Be("x");
 		}

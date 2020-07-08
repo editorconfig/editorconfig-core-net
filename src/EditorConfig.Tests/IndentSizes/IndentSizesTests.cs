@@ -16,10 +16,11 @@ namespace EditorConfig.Tests.IndentSizes
 			file.IndentSize.NumberOfColumns.Should().Be(2);
 			file.IndentSize.UseTabWidth.Should().BeFalse();
 			
+			file.TabWidth.Should().Be(file.IndentSize.NumberOfColumns);
+			
 			//tab_width is unspecified and indent_size is a positive integer, editorconfig dictates 
 			//that tabwidth should thus default to indent_size
 			file.Properties.Should().HaveCount(2);
-			file.TabWidth.Should().Be(file.IndentSize.NumberOfColumns);
 		}
 
 		[Test]

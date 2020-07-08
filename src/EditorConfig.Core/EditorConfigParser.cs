@@ -77,13 +77,7 @@ namespace EditorConfig.Core
 				where this.IsMatch(section.Glob, fullPath, configFile.Directory)
 				select section;
 
-			var allProperties = sections.SelectMany(section => section);
-
-			var properties = new Dictionary<string, string>();
-			foreach (var kv in allProperties)
-				properties[kv.Key] = kv.Value;
-
-			return new FileConfiguration(ParseVersion, file, properties);
+			return new FileConfiguration(ParseVersion, file, sections.ToList());
 		}
 
 		private bool IsMatch(string glob, string fileName, string directory)

@@ -12,8 +12,8 @@ namespace EditorConfig.Tests.Limits
 			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "test1", ".limits.editorconfig");
 			file.Properties.Should().NotBeEmpty();
 
-			file.Properties.Should().ContainKey("00000000000000000000000000000000000000000000000001");
-			file.Properties.Should().ContainKey("000000000000000000000000000000000000000000000000002");
+			AssertHasProperty("00000000000000000000000000000000000000000000000001", file);
+			AssertHasProperty("000000000000000000000000000000000000000000000000002", file);
 		}
 		
 		[Test] public void ValueLengths()
@@ -21,8 +21,8 @@ namespace EditorConfig.Tests.Limits
 			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "test2", ".limits.editorconfig");
 			file.Properties.Should().NotBeEmpty();
 
-			file.Properties.Should().ContainKey("k255");
-			file.Properties.Should().ContainKey("k256");
+			AssertHasProperty("k255", file);
+			AssertHasProperty("k256", file);
 			
 			file.Properties["k255"].Should().HaveLength(255);
 			file.Properties["k256"].Should().HaveLength(256);
@@ -32,9 +32,10 @@ namespace EditorConfig.Tests.Limits
 		{
 			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "hello.vsct", ".limits.editorconfig");
 			file.Properties.Should().NotBeEmpty().And.HaveCount(1);
+			
+			AssertHasProperty("x", file);
 
-			file.Properties.Should().ContainKey("x");
-			file.Properties.Should().ContainValue("y");
+			file.Properties["x"].Should().Be("y");
 		}
 		
 

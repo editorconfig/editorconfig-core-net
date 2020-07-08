@@ -6,19 +6,16 @@
 	/// </summary>
 	public class IndentSize
 	{
-		public bool Unset { get; private set; }
-		public bool UseTabWidth { get; private set; }
-		public int? NumberOfColumns { get; private set; }
+		public static IndentSize Tab { get; } = new IndentSize(useTabs: true);
+		public static IndentSize Unset { get; } = new IndentSize();
 		
-		public IndentSize()
-		{
-			this.Unset = true;
-		}
+		public bool IsUnset { get; }
+		public bool UseTabWidth { get; }
+		public int? NumberOfColumns { get; }
 
-		public IndentSize(bool useTabs)
-		{
-			this.UseTabWidth = useTabs;
-		}
+		internal IndentSize() => IsUnset = true;
+
+		internal IndentSize(bool useTabs) => UseTabWidth = useTabs;
 
 		public IndentSize(int numberOfColumns)
 		{
