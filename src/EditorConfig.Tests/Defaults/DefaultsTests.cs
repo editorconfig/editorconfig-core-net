@@ -30,7 +30,7 @@ namespace EditorConfig.Tests.Defaults
 			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "somefile.randomextension");
 			file.Should().NotBeNull();
 			file.FileName.Should().EndWith("somefile.randomextension");
-			file.CharSet.Should().BeNull();
+			file.Charset.Should().BeNull();
 			file.EndOfLine.Should().BeNull();
 			file.IndentSize.Should().BeNull();
 			file.IndentStyle.Should().BeNull();

@@ -49,7 +49,7 @@ namespace EditorConfig.Core
 		/// <summary>
 		/// set to latin1, utf-8, utf-8-bom, utf-16be or utf-16le to control the character set. Use of utf-8-bom is discouraged.
 		/// </summary>
-		public CharSet? CharSet { get; private set; }
+		public Charset? Charset { get; private set; }
 		
 		/// <summary>
 		/// set to true to remove any whitespace characters preceding newline characters and false to ensure it doesn't.
@@ -168,19 +168,19 @@ namespace EditorConfig.Core
 			switch (charset)
 			{
 				case "latin1":
-					this.CharSet = EditorConfig.Core.CharSet.Latin1;
+					this.Charset = EditorConfig.Core.Charset.Latin1;
 					return;
 				case "utf-16be":
-					this.CharSet = EditorConfig.Core.CharSet.UTF16BE;
+					this.Charset = EditorConfig.Core.Charset.UTF16BE;
 					return;
 				case "utf-16le":
-					this.CharSet = EditorConfig.Core.CharSet.UTF16LE;
+					this.Charset = EditorConfig.Core.Charset.UTF16LE;
 					return;
 				case "utf-8":
-					this.CharSet = EditorConfig.Core.CharSet.UTF8;
+					this.Charset = EditorConfig.Core.Charset.UTF8;
 					return;
 				case "utf-8-bom":
-					this.CharSet = EditorConfig.Core.CharSet.UTF8BOM;
+					this.Charset = EditorConfig.Core.Charset.UTF8BOM;
 					return;
 			}
 		}

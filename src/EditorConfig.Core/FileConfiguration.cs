@@ -36,7 +36,7 @@ namespace EditorConfig.Core
 		/// <summary>
 		/// set to latin1, utf-8, utf-8-bom, utf-16be or utf-16le to control the character set. Use of utf-8-bom is discouraged.
 		/// </summary>
-		public CharSet? CharSet { get; } 
+		public Charset? Charset { get; } 
 		
 		/// <summary>
 		/// set to true to remove any whitespace characters preceding newline characters and false to ensure it doesn't.
@@ -89,7 +89,7 @@ namespace EditorConfig.Core
 			IndentSize = Sections.LastOrDefault(s => s.IndentSize != null)?.IndentSize;
 			TabWidth = Sections.FirstOrDefault(s => s.TabWidth.HasValue)?.TabWidth;
 			EndOfLine = Sections.FirstOrDefault(s => s.EndOfLine.HasValue)?.EndOfLine; 
-			CharSet = Sections.FirstOrDefault(s => s.CharSet.HasValue)?.CharSet;
+			Charset = Sections.FirstOrDefault(s => s.Charset.HasValue)?.Charset;
 			TrimTrailingWhitespace = Sections.FirstOrDefault(s => s.TrimTrailingWhitespace.HasValue)?.TrimTrailingWhitespace; 
 			InsertFinalNewline = Sections.FirstOrDefault(s => s.InsertFinalNewline.HasValue)?.InsertFinalNewline; 
 			MaxLineLength = Sections.FirstOrDefault(s => s.MaxLineLength.HasValue)?.MaxLineLength;
