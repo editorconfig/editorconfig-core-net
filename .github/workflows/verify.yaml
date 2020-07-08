@@ -15,10 +15,10 @@ jobs:
         git tag --list
     - uses: actions/setup-dotnet@v1
       with:
-          dotnet-version: '2.2.207'
+        dotnet-version: '3.1.201'
     - uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '3.1.201'
+          dotnet-version: '2.2.207'
     - name: Prepare
       run: cmake --version && git submodule init && git submodule update
     - run: dotnet build -c Debug

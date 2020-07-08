@@ -24,22 +24,14 @@ namespace EditorConfig.Core
 		{
 			switch (numberOfColumns)
 			{
-				case 1:
-					return Column1;
-				case 2:
-					return Column2;
-				case 3:
-					return Column3;
-				case 4:
-					return Column4;
-				case 5:
-					return Column5;
-				case 6:
-					return Column6;
-				case 7:
-					return Column7;
-				case 8:
-					return Column8;
+				case 1: return Column1;
+				case 2: return Column2;
+				case 3: return Column3;
+				case 4: return Column4;
+				case 5: return Column5;
+				case 6: return Column6;
+				case 7: return Column7;
+				case 8: return Column8;
 				default:
 					return new IndentSize(numberOfColumns);
 			}
