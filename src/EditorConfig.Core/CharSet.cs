@@ -3,7 +3,7 @@
 	/// <summary>
 	/// set to latin1, utf-8, utf-8-bom, utf-16be or utf-16le to control the character set. Use of utf-8-bom is discouraged.
 	/// </summary>
-	public enum Charset
+	public enum CharSet
 	{
 		Latin1,
 		UTF8,
