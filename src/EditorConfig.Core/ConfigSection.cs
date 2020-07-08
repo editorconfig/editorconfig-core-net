@@ -113,15 +113,15 @@ namespace EditorConfig.Core
 			switch (indentSize)
 			{
 				case "unset":
-					this.IndentSize = new IndentSize();
+					this.IndentSize = IndentSize.Unset;
 					return;
 				case "tab":
-					this.IndentSize = new IndentSize(useTabs: true);
+					this.IndentSize = IndentSize.Tab;
 					return;
 				default:
 					int size;
 					if (int.TryParse(indentSize, out size) && size > 0)
-						this.IndentSize = new IndentSize(size);
+						this.IndentSize = IndentSize.Columns(size);
 					return;
 			}
 		}

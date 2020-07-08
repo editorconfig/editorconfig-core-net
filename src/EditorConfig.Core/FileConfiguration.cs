@@ -123,7 +123,7 @@ namespace EditorConfig.Core
 			// Set indent_size to tab_width if indent_size is "tab"
 			if (this.IndentSize != null && this.TabWidth != null && this.IndentSize.UseTabWidth)
 			{
-				this._indentSizeOverride = new IndentSize(this.TabWidth.Value);
+				this._indentSizeOverride = IndentSize.Columns(this.TabWidth.Value);
 				properties["indent_size"] = this.TabWidth.Value.ToString();
 			}
 			
