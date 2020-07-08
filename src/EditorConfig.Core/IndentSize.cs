@@ -20,13 +20,31 @@ namespace EditorConfig.Core
 		private static IndentSize Column7 { get; } = new IndentSize(7);
 		private static IndentSize Column8 { get; } = new IndentSize(8);
 
-		public static IndentSize Columns(int numberOfColumns) => numberOfColumns switch
+		public static IndentSize Columns(int numberOfColumns)
 		{
-			1 => Column1, 2 => Column2, 3 => Column3, 4 => Column4,
-			5 => Column5, 6 => Column6, 7 => Column7, 8 => Column8,
-			_ => new IndentSize(numberOfColumns)
-		};
-		
+			switch (numberOfColumns)
+			{
+				case 1:
+					return Column1;
+				case 2:
+					return Column2;
+				case 3:
+					return Column3;
+				case 4:
+					return Column4;
+				case 5:
+					return Column5;
+				case 6:
+					return Column6;
+				case 7:
+					return Column7;
+				case 8:
+					return Column8;
+				default:
+					return new IndentSize(numberOfColumns);
+			}
+		}
+
 		public bool IsUnset { get; }
 		public bool UseTabWidth { get; }
 		public int? NumberOfColumns { get; }
@@ -35,9 +53,6 @@ namespace EditorConfig.Core
 
 		private IndentSize(bool useTabs) => UseTabWidth = useTabs;
 
-		private IndentSize(int numberOfColumns)
-		{
-			this.NumberOfColumns = numberOfColumns;
-		}
+		private IndentSize(int numberOfColumns) => NumberOfColumns = numberOfColumns;
 	}
 }
