@@ -11,7 +11,8 @@ namespace EditorConfig.Core
 	{
 		private readonly Dictionary<string, string> _backingDictionary;
 
-		public ConfigSection() => _backingDictionary = new Dictionary<string, string>();
+		private static readonly Dictionary<string, string> DefaultGlobalDictionary = new Dictionary<string, string>();
+		public ConfigSection() => _backingDictionary = DefaultGlobalDictionary;
 
 		public ConfigSection(string name, string configDirectory, Dictionary<string, string> backingDictionary)
 		{
