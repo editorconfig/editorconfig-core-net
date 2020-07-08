@@ -1,0 +1,9 @@
+root=true
+
+; escaped closing brace
+[{e,\},f}.txt]
+closing=yes
+
+; escaped backslash
+[{g,\\,i}.txt]
+backslash=yes

@@ -43,6 +43,7 @@ test-results/*
 
 CMake*
 CTest*
+!CTestReproduce
 *.sln
 *.vcxproj*
 *.log
