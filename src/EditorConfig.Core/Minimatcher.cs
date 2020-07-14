@@ -21,7 +21,7 @@ namespace EditorConfig.Core
   {
     ///<summary>Suppresses the behavior of treating # at the start of a pattern as a comment.</summary>
     public bool NoComment { get; set; }
-  
+
     ///<summary>Suppresses the behavior of treating a leading ! character as negation.</summary>
     public bool NoNegate { get; set; }
 
@@ -49,13 +49,13 @@ namespace EditorConfig.Core
 
     ///<summary>If true, backslahes in paths will be treated as forward slashes.</summary>
     public bool AllowWindowsPaths { get; set; }
-    
+
     ///<summary>If true, backslahes in patterns will be treated as forward slashes. This disables escape characters.</summary>
     public bool AllowWindowsPathsInPatterns { get; set; }
   }
-  
+
   // ReSharper restore UnusedAutoPropertyAccessor.Global
-  
+
   public class GlobMatcher
   {
     private readonly GlobMatcherOptions myOptions;
@@ -95,7 +95,7 @@ namespace EditorConfig.Core
         if (hit)
         {
           if (myOptions.FlipNegate) return true;
-          
+
           return !myNegate;
         }
       }
@@ -103,11 +103,11 @@ namespace EditorConfig.Core
       // didn't get any hits.  this is success if it's a negative
       // pattern, failure otherwise.
       if (myOptions.FlipNegate) return false;
-      
+
       return myNegate;
     }
 
-    struct MatchContext
+    private struct MatchContext
     {
       private readonly GlobMatcherOptions myOptions;
       private readonly PatternCase        myPatternCase;
@@ -143,7 +143,7 @@ namespace EditorConfig.Core
           {
             SkipLastPathSeparators();
 
-            int lastSeparator = myStr.LastIndexOfAny(PathSeparatorChars, myEndOffset - 1, myEndOffset - myStartOffset);
+            var lastSeparator = myStr.LastIndexOfAny(PathSeparatorChars, myEndOffset - 1, myEndOffset - myStartOffset);
             if (lastSeparator != -1)
             {
               myStartOffset = lastSeparator + 1;
@@ -179,7 +179,7 @@ namespace EditorConfig.Core
             case Literal literal:
               if (myEndOffset - myStartOffset < literal.Source.Length) return false; // Not enough chars
 
-              int pos = myStr.LastIndexOf(literal.Source, myEndOffset - 1, literal.Source.Length, ComparisonType);
+              var pos = myStr.LastIndexOf(literal.Source, myEndOffset - 1, literal.Source.Length, ComparisonType);
               if (pos == -1) return false;
 
               myEndOffset = pos;
@@ -226,7 +226,7 @@ namespace EditorConfig.Core
 
       private bool SkipLastPathSeparators()
       {
-        bool success = false;
+        var success = false;
         while (myEndOffset - myStartOffset > 0 && IsPathSeparator(myOptions, myStr[myEndOffset - 1]))
         {
           myEndOffset--;
@@ -294,7 +294,7 @@ namespace EditorConfig.Core
               //             - doublestar followed by *
               //                     - matchOne(d/e.cs, *.cs) -> no
               //                     - matchOne(/e.cs, /*.cs) -> yes, hit
-              bool first = true;
+              var first = true;
               var oldLastAsteriskItem = myLastAsteriskItem;
               while (true)
               {
@@ -305,7 +305,7 @@ namespace EditorConfig.Core
                 myLastAsteriskItem = -1;
                 myNextPositionForAsterisk = -1;
                 if (MatchOneForward()) return true;
-                
+
                 myLastAsteriskItem = oldLastAsteriskItem;
                 myNextPositionForAsterisk = oldNextPositionForAsterisk;
 
@@ -330,7 +330,7 @@ namespace EditorConfig.Core
             case Literal literal:
               if (myEndOffset - myStartOffset < literal.Source.Length) return false; // Not enough chars
 
-              int pos = myStr.IndexOf(literal.Source, myStartOffset, literal.Source.Length, ComparisonType);
+              var pos = myStr.IndexOf(literal.Source, myStartOffset, literal.Source.Length, ComparisonType);
               if (pos == -1) goto Mismatch;
 
               myStartOffset = pos + literal.Source.Length;
@@ -339,7 +339,7 @@ namespace EditorConfig.Core
             case OneChar oneChar:
               if (myEndOffset - myStartOffset < 1) return false; // Not enough chars
 
-              char c = myStr[myStartOffset];
+              var c = myStr[myStartOffset];
               if (!oneChar.CheckChar(myOptions, c, ComparisonType)) goto Mismatch;
 
               if (c == '.' && !CheckDot(myStartOffset)) goto Mismatch;
@@ -385,22 +385,22 @@ namespace EditorConfig.Core
         return myEndOffset - myStartOffset <= 0;
       }
 
-      bool GotoNextPositionForAsterisk(bool first)
+      private bool GotoNextPositionForAsterisk(bool first)
       {
         Debug.Assert(myLastAsteriskItem >= 0 && myLastAsteriskItem < myPatternCase.Count, "lastAsteriskItem >= 0 && lastAsteriskItem < patternCase.Count");
         var asterisk = (Asterisk) myPatternCase[myLastAsteriskItem];
-        int fixedItemsLengthAfterAsterisk = asterisk.FixedItemsLengthAfterAsterisk;
+        var fixedItemsLengthAfterAsterisk = asterisk.FixedItemsLengthAfterAsterisk;
         if (myEndOffset - myStartOffset < fixedItemsLengthAfterAsterisk) return false;
 
         var oldStartPos = myStartOffset;
 
-        int literalAfterAsterisk = asterisk.LiteralAfterAsterisk;
+        var literalAfterAsterisk = asterisk.LiteralAfterAsterisk;
         if (literalAfterAsterisk != -1)
         {
-          int numberOfOneCharItemsBefore = literalAfterAsterisk - myLastAsteriskItem - 1;
+          var numberOfOneCharItemsBefore = literalAfterAsterisk - myLastAsteriskItem - 1;
           if (myPatternCase[literalAfterAsterisk] is Literal literal)
           {
-            int pos = myStr.IndexOf(literal.Source, myStartOffset + numberOfOneCharItemsBefore, myEndOffset - myStartOffset - numberOfOneCharItemsBefore, ComparisonType);
+            var pos = myStr.IndexOf(literal.Source, myStartOffset + numberOfOneCharItemsBefore, myEndOffset - myStartOffset - numberOfOneCharItemsBefore, ComparisonType);
             if (pos == -1) return false;
 
             myStartOffset = pos - numberOfOneCharItemsBefore;
@@ -419,7 +419,7 @@ namespace EditorConfig.Core
               return true;
             }
 
-            int pos = myStr.IndexOfAny(PathSeparatorChars, myStartOffset + numberOfOneCharItemsBefore, myEndOffset - myStartOffset - numberOfOneCharItemsBefore);
+            var pos = myStr.IndexOfAny(PathSeparatorChars, myStartOffset + numberOfOneCharItemsBefore, myEndOffset - myStartOffset - numberOfOneCharItemsBefore);
             if (pos == -1) return false;
 
             myStartOffset = pos - numberOfOneCharItemsBefore;
@@ -427,7 +427,7 @@ namespace EditorConfig.Core
           }
         }
 
-        int newStartPos = myStartOffset;
+        var newStartPos = myStartOffset;
 
         if (!CheckMatchedByAsterisk(asterisk, first, oldStartPos, newStartPos)) return false;
 
@@ -435,7 +435,7 @@ namespace EditorConfig.Core
         return true;
       }
 
-      bool CheckMatchedByAsterisk(Asterisk asteriskItem, bool first, int oldStartPos, int newStartPos)
+      private bool CheckMatchedByAsterisk(Asterisk asteriskItem, bool first, int oldStartPos, int newStartPos)
       {
         if (asteriskItem is SimpleAsterisk)
         {
@@ -443,8 +443,8 @@ namespace EditorConfig.Core
           {
             // a/b/ should *not* match "a/b/*"
 
-            bool atStart = newStartPos == 0 || IsPathSeparator(myOptions, myStr[newStartPos - 1]);
-            bool atEnd = newStartPos == myStr.Length || IsPathSeparator(myOptions, myStr[newStartPos]);
+            var atStart = newStartPos == 0 || IsPathSeparator(myOptions, myStr[newStartPos - 1]);
+            var atEnd = newStartPos == myStr.Length || IsPathSeparator(myOptions, myStr[newStartPos]);
             if (atStart && atEnd) return false;
           }
 
@@ -458,11 +458,11 @@ namespace EditorConfig.Core
 
         if (asteriskItem is DoubleAsterisk && newStartPos > oldStartPos)
         {
-          int length = newStartPos - oldStartPos;
+          var length = newStartPos - oldStartPos;
 
           if (newStartPos < myStr.Length)
           {
-            // We also search for dot immediately after **. For example, pattern **.hidden shouldn't be matched by **/.hidden 
+            // We also search for dot immediately after **. For example, pattern **.hidden shouldn't be matched by **/.hidden
             length++;
           }
 
@@ -475,7 +475,7 @@ namespace EditorConfig.Core
 
         return true;
       }
-      
+
       private bool CheckDot(int dotPos)
       {
         // .x should not match neither *x, nor **x, nor ?x, unless
@@ -496,16 +496,14 @@ namespace EditorConfig.Core
         return true; // just a file/directory name that starts with "..", allow this
       }
     }
-    
-    static bool IsPathSeparator(GlobMatcherOptions options, char c)
-    {
-      // windows: need to use /, not \
-      // On other platforms, \ is a valid (albeit bad) filename char.
-      return c == '/' || options.AllowWindowsPaths && c == '\\';
-    }
+
+    private static bool IsPathSeparator(GlobMatcherOptions options, char c) =>
+	    // windows: need to use /, not \
+	    // On other platforms, \ is a valid (albeit bad) filename char.
+	    c == '/' || options.AllowWindowsPaths && c == '\\';
 
 
-    class PatternCase : List<IPatternElement>
+    private class PatternCase : List<IPatternElement>
     {
       public bool HasPathSeparators { get; private set; }
 
@@ -513,15 +511,15 @@ namespace EditorConfig.Core
       {
         HasPathSeparators = false;
         Asterisk lastAsterisk = null;
-        int fixedItemsLength = 0;
-        for (int i = 0; i < Count; i++)
+        var fixedItemsLength = 0;
+        for (var i = 0; i < Count; i++)
         {
           var item = this[i];
           if (item is PathSeparator || item is DoubleAsterisk)
           {
             HasPathSeparators = true;
           }
-          
+
           switch (item)
           {
             case Literal literal:
@@ -566,21 +564,18 @@ namespace EditorConfig.Core
       }
     }
 
-    interface IPatternElement
+    private interface IPatternElement
     {
     }
 
-    class Literal : IPatternElement
+    private class Literal : IPatternElement
     {
-      public Literal(string source)
-      {
-        Source = source;
-      }
+      public Literal(string source) => Source = source;
 
       public string Source { get; }
     }
 
-    class OneChar : IPatternElement
+    private class OneChar : IPatternElement
     {
       static OneChar() { }
       public static readonly OneChar EmptyInstance = new OneChar(null, false);
@@ -597,7 +592,7 @@ namespace EditorConfig.Core
       public bool CheckChar(GlobMatcherOptions options, char c, StringComparison comparison)
       {
         if (IsPathSeparator(options, c)) return false;
-        
+
         if (PossibleChars != null)
         {
           return (PossibleChars.IndexOf(c.ToString(), comparison) != -1) != Negate;
@@ -607,51 +602,51 @@ namespace EditorConfig.Core
       }
     }
 
-    abstract class Asterisk : IPatternElement
+    private abstract class Asterisk : IPatternElement
     {
       public Asterisk NextAsterisk                  { get; set; }
       public int      LiteralAfterAsterisk          { get; set; } = -1;
       public int      FixedItemsLengthAfterAsterisk { get; set; }
     }
 
-    class SimpleAsterisk : Asterisk
+    private class SimpleAsterisk : Asterisk
     {
     }
 
-    class DoubleAsterisk : Asterisk
+    private class DoubleAsterisk : Asterisk
     {
     }
 
-    class PathSeparator : IPatternElement
+    private class PathSeparator : IPatternElement
     {
       private PathSeparator() { }
       static PathSeparator() { }
       public static readonly PathSeparator Instance = new PathSeparator();
-    } 
+    }
 
     ///<summary>Creates a new GlobMatcher instance, parsing the pattern into a regex.</summary>
     public static GlobMatcher Create(string pattern, GlobMatcherOptions options = null)
     {
       if (pattern == null) throw new ArgumentNullException(nameof(pattern));
-      
+
       options = options ?? new GlobMatcherOptions();
       pattern = pattern.Trim();
       if (options.AllowWindowsPathsInPatterns)
         pattern = pattern.Replace('\\', '/');
-      
+
       // empty patterns and comments match nothing.
       if (!options.NoComment && !string.IsNullOrEmpty(pattern) && pattern[0] == '#')
       {
         return new GlobMatcher(options, comment: true);
       }
-      
-      if (String.IsNullOrEmpty(pattern))
+
+      if (string.IsNullOrEmpty(pattern))
       {
         return new GlobMatcher(options, empty: true);
       }
 
       // step 1: figure out negation, etc.
-      bool negate = ParseNegate(options, ref pattern);
+      var negate = ParseNegate(options, ref pattern);
 
       // step 2: expand braces
       var globSet = BraceExpand(pattern, options);
@@ -671,7 +666,7 @@ namespace EditorConfig.Core
       {
         var parsedSet = Parse(options, g);
         if (parsedSet == null) goto nextG;
-        
+
         list1.Add(parsedSet);
 
         nextG:;
@@ -686,8 +681,8 @@ namespace EditorConfig.Core
 
       if (options.NoNegate) return false;
 
-      bool negate = false;
-      
+      var negate = false;
+
       for (var i = 0; i < pattern.Length && pattern[i] == '!'; i++)
       {
         negate = !negate;
@@ -721,10 +716,10 @@ namespace EditorConfig.Core
         // shortcut. no need to expand.
         return new[] { pattern };
       }
-      
-      bool escaping = false;
+
+      var escaping = false;
       int i;
-      
+
       // examples and comments refer to this crazy pattern:
       // a{b,c{d,e},{f,g}h}x{y,z}
       // expected:
@@ -803,7 +798,7 @@ namespace EditorConfig.Core
             retVal.Add(w.ToString() + t);
           }
         }
-        
+
         return retVal;
       }
 
@@ -813,9 +808,9 @@ namespace EditorConfig.Core
       // If the closing brace isn't found, then the pattern is
       // interpreted as braceExpand("\\" + pattern) so that
       // the leading \{ will be interpreted literally.
-      int depth = 1;
+      var depth = 1;
       var set = new List<string>();
-      string member = "";
+      var member = "";
 
       for (i = 1; i < pattern.Length && depth > 0; i++)
       {
@@ -866,7 +861,7 @@ namespace EditorConfig.Core
               {
                 member += c;
               }
-              
+
               continue;
 
             default:
@@ -890,7 +885,7 @@ namespace EditorConfig.Core
       var addBraces = set.Count == 1;
 
       var set1 = new List<string>(set.Count);
-      foreach (string p in set) set1.AddRange(BraceExpand(p, options));
+      foreach (var p in set) set1.AddRange(BraceExpand(p, options));
       set = set1;
 
       if (addBraces)
@@ -907,16 +902,16 @@ namespace EditorConfig.Core
       // console.error("suffix", pattern.substr(i))
       var s2 = BraceExpand(pattern.Substring(i), options);
       var list1 = new List<string>(s2.Count * set.Count);
-      for (int index = 0; index < s2.Count; index++)
+      for (var index = 0; index < s2.Count; index++)
       {
-        string s1 = s2[index];
-        foreach (string s in set)
+        var s1 = s2[index];
+        foreach (var s in set)
           list1.Add(s + s1);
       }
 
       return list1;
     }
-    
+
     // parse a component of the expanded set.
     private static PatternCase Parse(GlobMatcherOptions options, string pattern)
     {
@@ -924,9 +919,9 @@ namespace EditorConfig.Core
 
       var result = new PatternCase();
       var sb = new StringBuilder();
-      
+
       bool escaping = false, inClass = false, negate = false, range = false;
-      int classStart = -1;
+      var classStart = -1;
 
       void FinishLiteral()
       {
@@ -942,10 +937,10 @@ namespace EditorConfig.Core
       {
         if (inClass && range)
         {
-          char firstChar = sb[sb.Length - 1];
+          var firstChar = sb[sb.Length - 1];
           firstChar++;
-          
-          for (char c2 = firstChar; c2 <= c1; c2++)
+
+          for (var c2 = firstChar; c2 <= c1; c2++)
           {
             sb.Append(c2);
           }
@@ -986,7 +981,7 @@ namespace EditorConfig.Core
                   sb.Append('\\');
                   escaping = false;
                 }
-                
+
                 FinishLiteral();
 
                 if (!(result.LastOrDefault() is PathSeparator))
@@ -994,7 +989,7 @@ namespace EditorConfig.Core
                   result.Add(PathSeparator.Instance);
                 }
               }
-              
+
               break;
 
             case '\\':
@@ -1079,7 +1074,7 @@ namespace EditorConfig.Core
               else
               {
                 if (range) sb.Append('-');
-                
+
                 // finish up the class.
                 inClass = false;
                 result.Add(new OneChar(sb.ToString(), negate));
@@ -1097,7 +1092,7 @@ namespace EditorConfig.Core
               {
                 range = true;
               }
-              
+
               break;
 
             default:
@@ -1114,7 +1109,7 @@ namespace EditorConfig.Core
             // Do not continue, because next check could be relevant
           }
         }
-        
+
         if (i == pattern.Length - 1)
         {
           if (escaping)
@@ -1128,12 +1123,12 @@ namespace EditorConfig.Core
             FinishLiteral();
           }
         }
-        
+
         void HandleOpenClass()
         {
           // handle the case where we left a class open.
           // "[abc" is valid, equivalent to "\[abc"
-            
+
           // split where the last [ was, and escape it
           // this is a huge pita.  We now have to re-walk
           // the contents of the would-be class to re-translate

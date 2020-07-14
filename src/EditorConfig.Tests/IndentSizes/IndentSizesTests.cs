@@ -6,12 +6,12 @@ using NUnit.Framework;
 namespace EditorConfig.Tests.IndentSizes
 {
 	[TestFixture]
-	class IndentSizesTests : EditorConfigTestBase
+	internal class IndentSizesTests : EditorConfigTestBase
 	{
 		[Test]
 		public void PositiveNumber()
 		{
-			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".positive.editorconfig");
+			var file = GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".positive.editorconfig");
 			file.IndentSize.Should().NotBeNull();
 			file.IndentSize.NumberOfColumns.Should().Be(2);
 			file.IndentSize.UseTabWidth.Should().BeFalse();
@@ -26,14 +26,14 @@ namespace EditorConfig.Tests.IndentSizes
 		[Test]
 		public void NegativeNumber()
 		{
-			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".negative.editorconfig");
+			var file = GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".negative.editorconfig");
 			file.IndentSize.Should().BeNull();
 		}
 
 		[Test]
 		public void Tab()
 		{
-			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".tab.editorconfig");
+			var file = GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".tab.editorconfig");
 			file.IndentSize.Should().NotBeNull();
 			file.IndentSize.NumberOfColumns.Should().NotHaveValue();
 			file.IndentSize.UseTabWidth.Should().BeTrue();
@@ -42,9 +42,9 @@ namespace EditorConfig.Tests.IndentSizes
 		[Test]
 		public void Bogus()
 		{
-			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".bogus.editorconfig");
+			var file = GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".bogus.editorconfig");
 			file.IndentSize.Should().BeNull();
-			this.HasBogusKey(file,"indent_size");
+			HasBogusKey(file,"indent_size");
 
 		}
 

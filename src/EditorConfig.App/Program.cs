@@ -8,8 +8,7 @@ using EditorConfig.Core;
 
 namespace EditorConfig.App
 {
-
-	class Program
+	internal static class Program
 	{
 		private static string _fullVersionInfo = "EditorConfig .NET Version " + EditorConfigParser.VersionString;
 		private static string _usage = @"
@@ -26,7 +25,8 @@ Options:
 	-f <path>      Specify conf filename other than "".editorconfig""
 	-b <version>   Specify version (used by devs to test compatibility)
 ";
-		static void Main(string[] args)
+
+		private static void Main(string[] args)
 		{
 			try
 			{
@@ -65,7 +65,7 @@ Options:
 			}
 		}
 
-		static void PrintParserResults(IList<FileConfiguration> configurations)
+		private static void PrintParserResults(IList<FileConfiguration> configurations)
 		{
 			Debug.WriteLine(":: OUTPUT ::::::::::::::::::");
 			foreach (var config in configurations)
@@ -83,7 +83,7 @@ Options:
 			}
 		}
 
-		static void PrintError(string errorMessageFormat, params object[] args)
+		private static void PrintError(string errorMessageFormat, params object[] args)
 		{
 			var d = Console.ForegroundColor;
 			Console.ForegroundColor = ConsoleColor.Red;
@@ -92,7 +92,7 @@ Options:
 			Console.ForegroundColor = d;
 		}
 
-		static void PrintUsage(string errorMessageFormat = null, params object[] args)
+		private static void PrintUsage(string errorMessageFormat = null, params object[] args)
 		{
 			if (!string.IsNullOrWhiteSpace(errorMessageFormat))
 				PrintError(errorMessageFormat, args);

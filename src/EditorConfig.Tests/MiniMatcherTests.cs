@@ -29,7 +29,7 @@ namespace EditorConfig.Tests
 			match.Should().BeTrue();
 		}
 
-		static void TestCase(string pattern, IList<string> expected, GlobMatcherOptions options = null, IEnumerable<string> input = null)
+		private static void TestCase(string pattern, IList<string> expected, GlobMatcherOptions options = null, IEnumerable<string> input = null)
 		{
 			input = input ?? files;
 
@@ -42,32 +42,30 @@ namespace EditorConfig.Tests
 			filtered = filtered.OrderBy(s => s);
 
 			Assert.AreEqual(
-				String.Join(Environment.NewLine, expected.OrderBy(s => s)),
-				String.Join(Environment.NewLine, filtered),
+				string.Join(Environment.NewLine, expected.OrderBy(s => s)),
+				string.Join(Environment.NewLine, filtered),
 				"Failure from `" + pattern + "`"
 			);
 		}
 
-		static void AddFiles(params string[] entries) { files.AddRange(entries); }
+		private static void AddFiles(params string[] entries) => files.AddRange(entries);
 
-		static void ReplaceFiles(params string[] entries)
+		private static void ReplaceFiles(params string[] entries)
 		{
 			files.Clear();
 			files.AddRange(entries);
 		}
 
-		static readonly List<string> files = new List<string>();
+		private static readonly List<string> files = new List<string>();
 
 		[SetUp]
-		public void DefaultFiles()
-		{
+		public void DefaultFiles() =>
 			ReplaceFiles(
 				"a", "b", "c", "d", "abc"
 				, "abd", "abe", "bb", "bcd"
 				, "ca", "cb", "dd", "de"
 				, "bdir/", "bdir/cfile"
 			);
-		}
 
 		[Test]
 		public void BashCookBook()

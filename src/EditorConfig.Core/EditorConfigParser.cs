@@ -23,17 +23,17 @@ namespace EditorConfig.Core
 		public static readonly Version Version = new Version(VersionString);
 
 		private readonly GlobMatcherOptions _globOptions = new GlobMatcherOptions { MatchBase = true, Dot = true, AllowWindowsPaths = true };
-		
+
 		/// <summary>
 		/// The configured name of the files holding editorconfig values, defaults to ".editorconfig"
 		/// </summary>
 		public string ConfigFileName { get; private set; }
-		
+
 		/// <summary>
 		/// The editor config parser version in use, defaults to latest <see cref="EditorConfigParser.Version"/>
 		/// </summary>
 		public Version ParseVersion { get; private set; }
-		
+
 		/// <summary>
 		/// The EditorConfigParser locates all relevant editorconfig files and makes sure they are merged correctly.
 		/// </summary>
@@ -64,17 +64,17 @@ namespace EditorConfig.Core
 		public FileConfiguration Parse(string fileName, IEnumerable<EditorConfigFile> editorConfigFiles = null)
 		{
 			var file = fileName.Trim('\r', '\n', ' ');
-			Debug.WriteLine(":: {0} :: {1}", this.ConfigFileName, file);
+			Debug.WriteLine(":: {0} :: {1}", ConfigFileName, file);
 
 			var fullPath = Path.GetFullPath(file);
 
 			//All the .editorconfig files going from root =>.fileName
-			editorConfigFiles = editorConfigFiles ?? this.GetConfigurationFilesTillRoot(file);
+			editorConfigFiles = editorConfigFiles ?? GetConfigurationFilesTillRoot(file);
 
 			var sections =
 				from configFile in editorConfigFiles
 				from section in configFile.Sections
-				where this.IsMatch(section.Glob, fullPath, configFile.Directory)
+				where IsMatch(section.Glob, fullPath, configFile.Directory)
 				select section;
 
 			return new FileConfiguration(ParseVersion, file, sections.ToList());
@@ -95,11 +95,11 @@ namespace EditorConfig.Core
 		public IList<EditorConfigFile> GetConfigurationFilesTillRoot(string file)
 		{
 			var fullPath = Path.GetFullPath(file);
-			var configFiles = this.AllParentConfigFiles(fullPath);
+			var configFiles = AllParentConfigFiles(fullPath);
 
-			return this.ParseConfigFilesTillRoot(configFiles).Reverse().ToList();
+			return ParseConfigFilesTillRoot(configFiles).Reverse().ToList();
 		}
-			
+
 		private IEnumerable<EditorConfigFile> ParseConfigFilesTillRoot(IEnumerable<string> configFiles)
 		{
 			foreach (var configFile in configFiles.Select(f=> new EditorConfigFile(f)))
@@ -109,13 +109,11 @@ namespace EditorConfig.Core
 			}
 		}
 
-		private IEnumerable<string> AllParentConfigFiles(string fullPath)
-		{
-			return from parent in this.AllParentDirectories(fullPath)
-				   let configFile = Path.Combine(parent, this.ConfigFileName)
-				   where File.Exists(configFile)
-				   select configFile;
-		}
+		private IEnumerable<string> AllParentConfigFiles(string fullPath) =>
+			from parent in AllParentDirectories(fullPath)
+			let configFile = Path.Combine(parent, ConfigFileName)
+			where File.Exists(configFile)
+			select configFile;
 
 		private IEnumerable<string> AllParentDirectories(string fullPath)
 		{

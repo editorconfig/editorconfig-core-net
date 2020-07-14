@@ -39,11 +39,11 @@ namespace EditorConfig.Core
 
 		public EditorConfigFile(string file)
 		{
-			this.Directory = Path.GetDirectoryName(file);
-			this.Parse(file);
+			Directory = Path.GetDirectoryName(file);
+			Parse(file);
 
-			if (this._globalDict.ContainsKey("root"))
-				bool.TryParse(this._globalDict["root"], out this._isRoot);
+			if (_globalDict.ContainsKey("root"))
+				bool.TryParse(_globalDict["root"], out _isRoot);
 
 		}
 
@@ -78,8 +78,8 @@ namespace EditorConfig.Core
 
 				if (!string.IsNullOrEmpty(sectionName))
 				{
-					var section = new ConfigSection(sectionName, this.Directory, activeDict);
-					this.Sections.Add(section);
+					var section = new ConfigSection(sectionName, Directory, activeDict);
+					Sections.Add(section);
 					reset = true;
 				}
 
@@ -89,8 +89,8 @@ namespace EditorConfig.Core
 
 			if (!reset)
 			{
-				var section = new ConfigSection(sectionName, this.Directory, activeDict);
-				this.Sections.Add(section);
+				var section = new ConfigSection(sectionName, Directory, activeDict);
+				Sections.Add(section);
 			}
 			
 		}

@@ -18,55 +18,55 @@ namespace EditorConfig.Core
 		{
 			Glob = FixGlob(name, configDirectory);
 			_backingDictionary = backingDictionary ?? new Dictionary<string, string>();
-			this.ParseKnownProperties();
-		} 
-		
+			ParseKnownProperties();
+		}
+
 		/// <summary> The glob pattern this section describes</summary>
 		public string Glob { get; }
-		
+
 		/// <summary>
 		/// set to tab or space to use hard tabs or soft tabs respectively.
 		/// </summary>
 		public IndentStyle? IndentStyle { get; private set; }
 
 		/// <summary>
-		/// a whole number defining the number of columns used for each indentation level and the width of soft tabs (when supported). 
+		/// a whole number defining the number of columns used for each indentation level and the width of soft tabs (when supported).
 		/// When set to tab, the value of tab_width (if specified) will be used.
 		/// </summary>
 		public IndentSize IndentSize { get; private set; }
-		
+
 		/// <summary>
-		/// a whole number defining the number of columns used to represent a tab character. 
+		/// a whole number defining the number of columns used to represent a tab character.
 		/// This defaults to the value of indent_size and doesn't usually need to be specified.
 		/// </summary>
 		public int? TabWidth { get; private set; }
-		
+
 		/// <summary>
 		/// set to lf, cr, or crlf to control how line breaks are represented.
 		/// </summary>
 		public EndOfLine? EndOfLine { get; private set; }
-		
+
 		/// <summary>
 		/// set to latin1, utf-8, utf-8-bom, utf-16be or utf-16le to control the character set. Use of utf-8-bom is discouraged.
 		/// </summary>
 		public Charset? Charset { get; private set; }
-		
+
 		/// <summary>
 		/// set to true to remove any whitespace characters preceding newline characters and false to ensure it doesn't.
 		/// </summary>
 		public bool? TrimTrailingWhitespace { get; private set; }
-		
+
 		/// <summary>
 		/// set to true ensure file ends with a newline when saving and false to ensure it doesn't.
 		/// </summary>
 		public bool? InsertFinalNewline { get; private set; }
-		
+
 		/// <summary>
 		/// Forces hard line wrapping after the amount of characters specified
 		/// </summary>
 		public int? MaxLineLength { get; private set; }
 
-		
+
 		private static string FixGlob(string glob, string directory)
 		{
 			switch (glob.IndexOf('/'))
@@ -79,133 +79,133 @@ namespace EditorConfig.Core
 
 			return directory + glob;
 		}
-		
+
 		private void ParseKnownProperties()
 		{
-			this.ParseIndentStyle();
-			this.ParseIndentSize();
-			this.ParseTabWidth();
-			this.ParseEndOfLine();
-			this.ParseCharset();
-			this.ParseTrimTrailingWhitespace();
-			this.ParseInsertFinalNewline();
-			this.ParseMaxLineLength();
+			ParseIndentStyle();
+			ParseIndentSize();
+			ParseTabWidth();
+			ParseEndOfLine();
+			ParseCharset();
+			ParseTrimTrailingWhitespace();
+			ParseInsertFinalNewline();
+			ParseMaxLineLength();
 		}
 
 		private void ParseIndentStyle()
 		{
-			if (!this.TryGetValue("indent_style", out var indentStyle)) return;
+			if (!TryGetValue("indent_style", out var indentStyle)) return;
 
 			switch (indentStyle)
 			{
 				case "space":
-					this.IndentStyle = EditorConfig.Core.IndentStyle.Space;
+					IndentStyle = EditorConfig.Core.IndentStyle.Space;
 					return;
 				case "tab":
-					this.IndentStyle = EditorConfig.Core.IndentStyle.Tab;
+					IndentStyle = EditorConfig.Core.IndentStyle.Tab;
 					return;
 			}
 		}
 
 		private void ParseIndentSize()
 		{
-			if (!this.TryGetValue("indent_size", out var indentSize)) return;
+			if (!TryGetValue("indent_size", out var indentSize)) return;
 
 			switch (indentSize)
 			{
 				case "unset":
-					this.IndentSize = IndentSize.Unset;
+					IndentSize = IndentSize.Unset;
 					return;
 				case "tab":
-					this.IndentSize = IndentSize.Tab;
+					IndentSize = IndentSize.Tab;
 					return;
 				default:
 					int size;
 					if (int.TryParse(indentSize, out size) && size > 0)
-						this.IndentSize = IndentSize.Columns(size);
+						IndentSize = IndentSize.Columns(size);
 					return;
 			}
 		}
 
 		private void ParseMaxLineLength()
 		{
-			if (!this.TryGetValue("max_line_length", out var maxLineLength)) return;
+			if (!TryGetValue("max_line_length", out var maxLineLength)) return;
 
 			if (int.TryParse(maxLineLength, out var length) && length > 0)
-				this.MaxLineLength = length;
+				MaxLineLength = length;
 		}
 
 		private void ParseTabWidth()
 		{
-			if (!this.TryGetValue("tab_width", out var tabWidth)) return;
+			if (!TryGetValue("tab_width", out var tabWidth)) return;
 
 			if (int.TryParse(tabWidth, out var width) && width > 0)
-				this.TabWidth = width;
+				TabWidth = width;
 		}
 
 		private void ParseEndOfLine()
 		{
-			if (!this.TryGetValue("end_of_line", out var endOfLine)) return;
+			if (!TryGetValue("end_of_line", out var endOfLine)) return;
 
 			switch (endOfLine)
 			{
 				case "lf":
-					this.EndOfLine = EditorConfig.Core.EndOfLine.LF;
+					EndOfLine = EditorConfig.Core.EndOfLine.LF;
 					return;
 				case "cr":
-					this.EndOfLine = EditorConfig.Core.EndOfLine.CR;
+					EndOfLine = EditorConfig.Core.EndOfLine.CR;
 					return;
 				case "crlf":
-					this.EndOfLine = EditorConfig.Core.EndOfLine.CRLF;
+					EndOfLine = EditorConfig.Core.EndOfLine.CRLF;
 					return;
 			}
 		}
 
 		private void ParseCharset()
 		{
-			if (!this.TryGetValue("charset", out var charset)) return;
+			if (!TryGetValue("charset", out var charset)) return;
 
 			switch (charset)
 			{
 				case "latin1":
-					this.Charset = EditorConfig.Core.Charset.Latin1;
+					Charset = EditorConfig.Core.Charset.Latin1;
 					return;
 				case "utf-16be":
-					this.Charset = EditorConfig.Core.Charset.UTF16BE;
+					Charset = EditorConfig.Core.Charset.UTF16BE;
 					return;
 				case "utf-16le":
-					this.Charset = EditorConfig.Core.Charset.UTF16LE;
+					Charset = EditorConfig.Core.Charset.UTF16LE;
 					return;
 				case "utf-8":
-					this.Charset = EditorConfig.Core.Charset.UTF8;
+					Charset = EditorConfig.Core.Charset.UTF8;
 					return;
 				case "utf-8-bom":
-					this.Charset = EditorConfig.Core.Charset.UTF8BOM;
+					Charset = EditorConfig.Core.Charset.UTF8BOM;
 					return;
 			}
 		}
 
 		private void ParseTrimTrailingWhitespace()
 		{
-			if (!this.TryGetValue("trim_trailing_whitespace", out var trimTrailingWhitespace)) return;
+			if (!TryGetValue("trim_trailing_whitespace", out var trimTrailingWhitespace)) return;
 
 			if (bool.TryParse(trimTrailingWhitespace, out var trim))
-				this.TrimTrailingWhitespace = trim;
+				TrimTrailingWhitespace = trim;
 		}
 
 		private void ParseInsertFinalNewline()
 		{
-			if (!this.TryGetValue("insert_final_newline", out var insertFinalNewline)) return;
+			if (!TryGetValue("insert_final_newline", out var insertFinalNewline)) return;
 
 			if (bool.TryParse(insertFinalNewline, out var insert))
-				this.InsertFinalNewline = insert;
+				InsertFinalNewline = insert;
 		}
 
-		IEnumerator<KeyValuePair<string, string>> IEnumerable<KeyValuePair<string, string>>.GetEnumerator() => 
+		IEnumerator<KeyValuePair<string, string>> IEnumerable<KeyValuePair<string, string>>.GetEnumerator() =>
 			((IEnumerable<KeyValuePair<string, string>>) _backingDictionary).GetEnumerator();
 
 		IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _backingDictionary).GetEnumerator();
-		
+
 		public int Count => _backingDictionary.Count;
 		public bool ContainsKey(string key) => _backingDictionary.ContainsKey(key);
 		public bool TryGetValue(string key, out string value) =>

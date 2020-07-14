@@ -10,7 +10,7 @@ namespace EditorConfig.Core
 	/// This allows you to reuse parsed <see cref="EditorConfigFile"/> instances without performing an IO call everytime
 	/// <see cref="EditorConfigParser.Parse(string[])"/> is called.
 	///
-	/// Will need to store all paths in a prefix tree to filter to relevant editorconfig files to apply to a given path 
+	/// Will need to store all paths in a prefix tree to filter to relevant editorconfig files to apply to a given path
 	/// </summary>
 	internal class EditorConfigWorkspace
 	{
@@ -20,19 +20,16 @@ namespace EditorConfig.Core
 		public EditorConfigWorkspace(FileInfo rootEditorConfigFile, string configFileName = ".editorconfig",
 			Version developmentVersion = null)
 		{
-			this._parser = new EditorConfigParser(configFileName, developmentVersion);
+			_parser = new EditorConfigParser(configFileName, developmentVersion);
 
 			var directory = rootEditorConfigFile.Directory;
-			this._editorconfigFiles = 
+			_editorconfigFiles =
 				directory.EnumerateFiles(configFileName, SearchOption.AllDirectories)
 					.Select(d=>new EditorConfigFile(d.Name));
 
 		}
 
 
-		public FileConfiguration Parse(FileInfo fileName)
-		{
-			return null;
-		}
+		public FileConfiguration Parse(FileInfo fileName) => null;
 	}
 }
