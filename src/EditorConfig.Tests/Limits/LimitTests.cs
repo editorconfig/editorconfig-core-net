@@ -5,11 +5,11 @@ using NUnit.Framework;
 namespace EditorConfig.Tests.Limits
 {
 	[TestFixture]
-	class LimitTests : EditorConfigTestBase
+	internal class LimitTests : EditorConfigTestBase
 	{
 		[Test] public void KeyLengths()
 		{
-			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "test1", ".limits.editorconfig");
+			var file = GetConfig(MethodBase.GetCurrentMethod(), "test1", ".limits.editorconfig");
 			file.Properties.Should().NotBeEmpty();
 
 			AssertHasProperty("00000000000000000000000000000000000000000000000001", file);
@@ -18,7 +18,7 @@ namespace EditorConfig.Tests.Limits
 		
 		[Test] public void ValueLengths()
 		{
-			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "test2", ".limits.editorconfig");
+			var file = GetConfig(MethodBase.GetCurrentMethod(), "test2", ".limits.editorconfig");
 			file.Properties.Should().NotBeEmpty();
 
 			AssertHasProperty("k255", file);
@@ -30,7 +30,7 @@ namespace EditorConfig.Tests.Limits
 		
 		[Test] public void Alternatives()
 		{
-			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "hello.vsct", ".limits.editorconfig");
+			var file = GetConfig(MethodBase.GetCurrentMethod(), "hello.vsct", ".limits.editorconfig");
 			file.Properties.Should().NotBeEmpty().And.HaveCount(1);
 			
 			AssertHasProperty("x", file);

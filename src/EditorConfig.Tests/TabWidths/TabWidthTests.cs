@@ -5,12 +5,12 @@ using NUnit.Framework;
 namespace EditorConfig.Tests.TabWidths
 {
 	[TestFixture]
-	class TabWidthTests : EditorConfigTestBase
+	internal class TabWidthTests : EditorConfigTestBase
 	{
 		[Test]
 		public void PositiveNumber()
 		{
-			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".positive.editorconfig");
+			var file = GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".positive.editorconfig");
 			file.TabWidth.Should().HaveValue();
 			file.TabWidth.Value.Should().Be(4);
 		}
@@ -18,14 +18,14 @@ namespace EditorConfig.Tests.TabWidths
 		[Test]
 		public void NegativeNumber()
 		{
-			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".negative.editorconfig");
+			var file = GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".negative.editorconfig");
 			file.TabWidth.Should().NotHaveValue();
 		}
 
 		[Test]
 		public void TabIndenSizeAndSpecifiedTabWidth()
 		{
-			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".tab.editorconfig");
+			var file = GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".tab.editorconfig");
 			file.TabWidth.Should().HaveValue();
 			file.TabWidth.Value.Should().Be(4);
 
@@ -37,9 +37,9 @@ namespace EditorConfig.Tests.TabWidths
 		[Test]
 		public void Bogus()
 		{
-			var file = this.GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".bogus.editorconfig");
+			var file = GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".bogus.editorconfig");
 			file.IndentSize.Should().BeNull();
-			this.HasBogusKey(file,"tab_width");
+			HasBogusKey(file,"tab_width");
 
 		}
 

@@ -22,7 +22,7 @@ namespace EditorConfig.Tests
 
 		protected FileConfiguration GetConfig(MethodBase method, string fileName, string configurationFile = ".editorconfig")
 		{
-			var file = this.GetFileFromMethod(method, fileName);
+			var file = GetFileFromMethod(method, fileName);
 			var parser = new EditorConfigParser(configurationFile);
 			var fileConfigs = parser.Parse(file);
 			fileConfigs.Should().NotBeNull();
@@ -44,13 +44,10 @@ namespace EditorConfig.Tests
 			string OutputPath(string configuration) => $"bin{folderSep}netcoreapp2.0{folderSep}{configuration}";
 		}
 
-		protected void AssertHasProperty(string property, FileConfiguration file)
-		{
+		protected void AssertHasProperty(string property, FileConfiguration file) =>
 			file.Properties.ContainsKey(property).Should().BeTrue($"Expected to find {property} in Properties for file: {file.FileName}");
-		}
-		protected void AssertHasNotProperty(string property, FileConfiguration file)
-		{
+
+		protected void AssertHasNotProperty(string property, FileConfiguration file) =>
 			file.Properties.ContainsKey(property).Should().BeFalse($"Did not expect to find {property} in Properties for file: {file.FileName}");
-		}
 	}
 }

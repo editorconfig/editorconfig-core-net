@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace EditorConfig.App
 {
-	class ArgumentsParser
+	internal class ArgumentsParser
 	{
-		public string[] FileNames { get; private set; } 
-		public string ConfigFileName { get; private set; } 
-		public Version DevelopVersion { get; private set; } 
+		public string[] FileNames { get; private set; }
+		public string ConfigFileName { get; private set; }
+		public Version DevelopVersion { get; private set; }
 
 		public bool PrintHelp { get; private set; }
 		public bool PrintVersion { get; private set; }
@@ -20,24 +20,24 @@ namespace EditorConfig.App
 		{
 			if (args.Length == 0)
 				throw new ApplicationArgumentException("Must specify atleast one FILEPATH");
-			
+
 			while (args.Length > 0 && args[0].StartsWith("-"))
 			{
 				switch (args[0])
 				{
 					case "-h":
 					case "--help":
-						this.PrintHelp = true;
+						PrintHelp = true;
 						return;
 					case "-v":
 					case "--version":
-						this.PrintVersion = true;
+						PrintVersion = true;
 						return;
 					case "-f":
 						if (args.Length == 1 || args[1].StartsWith("-"))
 							throw new ApplicationArgumentException("Option '-f' needs argument <path>");
 
-						this.ConfigFileName = args[1];
+						ConfigFileName = args[1];
 						args = args.Skip(2).ToArray();
 						break;
 					case "-b":
@@ -56,7 +56,7 @@ namespace EditorConfig.App
 			if (args.Length == 0)
 				throw new ApplicationArgumentException("You need to specify atleast one file");
 
-			this.FileNames = args;
+			FileNames = args;
 		}
 	}
 }

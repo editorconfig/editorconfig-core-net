@@ -95,44 +95,44 @@ namespace EditorConfig.Core
 			MaxLineLength = Sections.FirstOrDefault(s => s.MaxLineLength.HasValue)?.MaxLineLength;
 
 			//default tab_width to indent_size when indent size is a number
-			if (this.IndentSize != null && this.IndentSize.NumberOfColumns.HasValue)
+			if (IndentSize != null && IndentSize.NumberOfColumns.HasValue)
 			{
-				this.TabWidth = this.IndentSize.NumberOfColumns.Value;
-				properties["tab_width"] = this.TabWidth.Value.ToString();
+				TabWidth = IndentSize.NumberOfColumns.Value;
+				properties["tab_width"] = TabWidth.Value.ToString();
 			}
 
 			// Set indent_size to "tab" if indent_size is unspecified and indent_style is set to "tab".
-			if (this.IndentStyle.HasValue && this.IndentStyle == Core.IndentStyle.Tab && this.IndentSize == null
+			if (IndentStyle.HasValue && IndentStyle == Core.IndentStyle.Tab && IndentSize == null
 			    && Version >= new Version(0, 10))
 			{
-				this.IndentSize = IndentSize.Tab;
+				IndentSize = IndentSize.Tab;
 				properties["indent_size"] = "tab";
 			}
 
 			// Set tab_width to indent_size if indent_size is specified and tab_width is unspecified
-			if (this.IndentSize != null && !this.TabWidth.HasValue && !this.IndentSize.UseTabWidth)
+			if (IndentSize != null && !TabWidth.HasValue && !IndentSize.UseTabWidth)
 			{
 				//only set tab_width to indent_size if indent size holds a positive integer
-				if (this.IndentSize.NumberOfColumns.HasValue && this.IndentSize.NumberOfColumns.Value >= 0)
+				if (IndentSize.NumberOfColumns.HasValue && IndentSize.NumberOfColumns.Value >= 0)
 				{
-					this.TabWidth = this.IndentSize.NumberOfColumns.Value;
-					properties["tab_width"] = this.TabWidth.Value.ToString();
+					TabWidth = IndentSize.NumberOfColumns.Value;
+					properties["tab_width"] = TabWidth.Value.ToString();
 				}
 				
 				// unset carries over see:
 				//  ctest . -R "unset_indent_size"
-				else if (this.IndentSize.IsUnset)
+				else if (IndentSize.IsUnset)
 				{
-					this.TabWidth = new int?();
+					TabWidth = new int?();
 					properties["tab_width"] = "unset";
 				}
 			}
 
 			// Set indent_size to tab_width if indent_size is "tab"
-			if (this.IndentSize != null && this.TabWidth != null && this.IndentSize.UseTabWidth)
+			if (IndentSize != null && TabWidth != null && IndentSize.UseTabWidth)
 			{
-				this.IndentSize = IndentSize.Columns(this.TabWidth.Value);
-				properties["indent_size"] = this.TabWidth.Value.ToString();
+				IndentSize = IndentSize.Columns(TabWidth.Value);
+				properties["indent_size"] = TabWidth.Value.ToString();
 			}
 			
 			Properties = new ReadOnlyDictionary<string, string>(properties);

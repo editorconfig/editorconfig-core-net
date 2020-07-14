@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(editorconfig-core-test NONE)
 enable_testing()
-set(EDITORCONFIG_CMD dotnet "${PROJECT_SOURCE_DIR}/src/EditorConfig.App/bin/Debug/netcoreapp2.0/editorconfig.dll")
+set(EDITORCONFIG_CMD dotnet "${PROJECT_SOURCE_DIR}/src/EditorConfig.App/bin/Debug/netcoreapp3.1/EditorConfig.App.dll")
 # set(EDITORCONFIG_CMD "dotnet")
 add_subdirectory(tests)
