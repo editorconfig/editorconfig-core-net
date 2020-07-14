@@ -1,12 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
-		<AssemblyName>editorconfig</AssemblyName>
-		<OutputType>Exe</OutputType>
-		<Version>0.12.1</Version>
-		<Description>A .NET implementation of the editorconfig tooling</Description>
-	</PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <AssemblyName>EditorConfig.App</AssemblyName>
+    <RootNamespace>ReleaseNotes</RootNamespace>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>editorconfig</ToolCommandName>
+    <PackageId>editorconfig-tool</PackageId>
+    
+    <Title>editorconfig-tool: a dotnet tool to generate release notes from GitHub</Title>
+    <Description>A .NET tool allowing you to inspect the editorconfig settings for multiple files</Description>
+    
+    <IsPackable>true</IsPackable>
+    
+  </PropertyGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\EditorConfig.Core\EditorConfig.Core.csproj" />

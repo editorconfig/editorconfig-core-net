@@ -54,6 +54,6 @@ jobs:
       if: github.event_name == 'push' && startswith(github.ref, 'refs/tags')
       name: Create or update release for tag on github
       
-    - run: dotnet nuget push build/output/*.nupkg -k ${{secrets.NUGET_ORG_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols true
-      name: release to nuget.org
-      if: github.event_name == 'push' && startswith(github.ref, 'refs/tags')
+    #- run: dotnet nuget push build/output/*.nupkg -k ${{secrets.NUGET_ORG_API_KEY}} -s https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols true
+    # name: release to nuget.org
+    # if: github.event_name == 'push' && startswith(github.ref, 'refs/tags')

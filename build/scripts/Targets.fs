@@ -73,11 +73,13 @@ let private generateApiChanges (arguments:ParseResults<Arguments>) =
         let outputFile =
             let f = sprintf "breaking-changes-%s.md" p
             Path.Combine(output, f)
+        let folder = Paths.mapNugetToProject.TryFind p |> Option.defaultValue p
+        let tfm = Paths.mapNugetToTFM.TryFind p |> Option.defaultValue Paths.MainTFM
         let args =
             [
                 "assembly-differ"
-                (sprintf "previous-nuget|%s|%s|%s" p currentVersion Paths.MainTFM);
-                (sprintf "directory|src/%s/bin/Release/%s" p Paths.MainTFM);
+                (sprintf "previous-nuget|%s|%s|%s" p currentVersion tfm);
+                (sprintf "directory|src/%s/bin/Release/%s" folder tfm);
                 "-a"; "true"; "--target"; p; "-f"; "github-comment"; "--output"; outputFile
             ]
         
