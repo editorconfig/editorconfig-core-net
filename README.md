@@ -5,17 +5,18 @@ The EditorConfig .NET core provides the same functionality as the
 
 ## Installation
 
-The library exists on nuget under 
+The library exists on nuget as: 
 
 ```
 nuget install editorconfig
 ```
 
-The commandline tooling is uploaded to chocolatey under
+The .NET core tool exists under:
 
 ```
-cinst editorconfig.core
+dotnet tool install editorconfig-tool
 ```
+
 
 ## Usage
 
@@ -32,8 +33,10 @@ foreach (var kv in configuration.Properties)
 
 Usage as a command line tool:
 
+You can omit `dotnet` if you install this as a global tool
+
 ```
-> editorconfig.exe
+> dotnet editorconfig-tool
 
     Usage: editorconfig [OPTIONS] FILEPATH1 [FILEPATH2 FILEPATH3 ...]
 
@@ -51,7 +54,7 @@ Usage as a command line tool:
 
 Example:
 
-    > editorconfig.exe C:\Users\zoidberg\Documents\anatomy.md
+    > dotnet editorconfig-tool C:\Users\zoidberg\Documents\anatomy.md
     charset=utf-8
     insert_final_newline=true
     end_of_line=lf
