@@ -36,7 +36,7 @@ Usage as a command line tool:
 You can omit `dotnet` if you install this as a global tool
 
 ```
-> dotnet editorconfig-tool
+> dotnet editorconfig
 
     Usage: editorconfig [OPTIONS] FILEPATH1 [FILEPATH2 FILEPATH3 ...]
 
@@ -54,7 +54,7 @@ You can omit `dotnet` if you install this as a global tool
 
 Example:
 
-    > dotnet editorconfig-tool C:\Users\zoidberg\Documents\anatomy.md
+    > dotnet editorconfig C:\Users\zoidberg\Documents\anatomy.md
     charset=utf-8
     insert_final_newline=true
     end_of_line=lf
