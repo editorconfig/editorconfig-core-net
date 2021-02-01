@@ -69,7 +69,8 @@ namespace EditorConfig.Core
 					if (KnownProperties.Contains(key, StringComparer.OrdinalIgnoreCase))
 						value = value.ToLowerInvariant();
 					
-					activeDict.Add(key, value);
+					//! do not Add(), avoid exceptions on duplicate keys
+					activeDict[key] = value;
 					reset = false;
 					continue;
 				}
