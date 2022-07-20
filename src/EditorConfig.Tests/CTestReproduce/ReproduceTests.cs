@@ -38,7 +38,6 @@ namespace EditorConfig.Tests.CTestReproduce
 			file.Properties["tab_width"].Should().Be("unset");
 		}
 
-		//unset_indent_size_ML
 		[Test]
 		public void GithubReport18()
 		{
@@ -46,6 +45,15 @@ namespace EditorConfig.Tests.CTestReproduce
 
 			file.Properties["indent_style"].Should().Be("tab");
 			file.Properties["csharp_style_namespace_declarations"].Should().Be("file_scoped:warning");
+		}
+
+		[Test]
+		public void GithubReport13()
+		{
+			var file = GetConfig(MethodBase.GetCurrentMethod(), @"my.exe", "github_report_13.editorconfig");
+
+			file.TrimTrailingWhitespace.Should().BeFalse();
+			file.Properties["trim_trailing_whitespace"].Should().Be("false");
 		}
 
 	}
