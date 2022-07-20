@@ -1,16 +1,17 @@
 ﻿using System.Diagnostics;
 
+#pragma warning disable CS1591
 namespace EditorConfig.Core
 {
 	/// <summary>
-	/// a whole number defining the number of columns used for each indentation level and the width of soft tabs (when supported). 
+	/// a whole number defining the number of columns used for each indentation level and the width of soft tabs (when supported).
 	/// When set to tab, the value of tab_width (if specified) will be used.
 	/// </summary>
 	public class IndentSize
 	{
 		public static IndentSize Tab { get; } = new IndentSize(useTabs: true);
 		public static IndentSize Unset { get; } = new IndentSize();
-		
+
 		private static IndentSize Column1 { get; } = new IndentSize(1);
 		private static IndentSize Column2 { get; } = new IndentSize(2);
 		private static IndentSize Column3 { get; } = new IndentSize(3);
@@ -47,4 +48,5 @@ namespace EditorConfig.Core
 
 		private IndentSize(int numberOfColumns) => NumberOfColumns = numberOfColumns;
 	}
+#pragma warning restore CS1591
 }

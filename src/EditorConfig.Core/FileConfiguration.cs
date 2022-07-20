@@ -7,6 +7,9 @@ using System.Runtime.InteropServices;
 namespace EditorConfig.Core
 {
 
+	/// <summary>
+	/// Represents the result of <see cref="EditorConfigParser.Parse(string[])"/> and yields all configuration for a particular file
+	/// </summary>
 	public class FileConfiguration
 	{
 		private List<ConfigSection> Sections { get; }
@@ -69,7 +72,7 @@ namespace EditorConfig.Core
 		public Version Version { get; }
 
 		/// <summary>
-		/// Holds the editor configuration for a file, please use <see cref="EditorConfigParser.Parse"/> to get an instance
+		/// Holds the editor configuration for a file, please use <see cref="EditorConfigParser.Parse(string[])"/> to get an instance
 		/// </summary>
 		internal FileConfiguration(Version version, string fileName, List<ConfigSection> sections)
 		{
@@ -87,12 +90,12 @@ namespace EditorConfig.Core
 
 			IndentStyle = Sections.LastOrDefault(s => s.IndentStyle.HasValue)?.IndentStyle;
 			IndentSize = Sections.LastOrDefault(s => s.IndentSize != null)?.IndentSize;
-			TabWidth = Sections.LastOrDefault(s => s.TabWidth.HasValue)?.TabWidth;
-			EndOfLine = Sections.LastOrDefault(s => s.EndOfLine.HasValue)?.EndOfLine;
-			Charset = Sections.LastOrDefault(s => s.Charset.HasValue)?.Charset;
-			TrimTrailingWhitespace = Sections.LastOrDefault(s => s.TrimTrailingWhitespace.HasValue)?.TrimTrailingWhitespace;
-			InsertFinalNewline = Sections.LastOrDefault(s => s.InsertFinalNewline.HasValue)?.InsertFinalNewline;
-			MaxLineLength = Sections.LastOrDefault(s => s.MaxLineLength.HasValue)?.MaxLineLength;
+			TabWidth = Sections.FirstOrDefault(s => s.TabWidth.HasValue)?.TabWidth;
+			EndOfLine = Sections.FirstOrDefault(s => s.EndOfLine.HasValue)?.EndOfLine;
+			Charset = Sections.FirstOrDefault(s => s.Charset.HasValue)?.Charset;
+			TrimTrailingWhitespace = Sections.FirstOrDefault(s => s.TrimTrailingWhitespace.HasValue)?.TrimTrailingWhitespace;
+			InsertFinalNewline = Sections.FirstOrDefault(s => s.InsertFinalNewline.HasValue)?.InsertFinalNewline;
+			MaxLineLength = Sections.FirstOrDefault(s => s.MaxLineLength.HasValue)?.MaxLineLength;
 
 			//default tab_width to indent_size when indent size is a number
 			if (IndentSize != null && IndentSize.NumberOfColumns.HasValue)

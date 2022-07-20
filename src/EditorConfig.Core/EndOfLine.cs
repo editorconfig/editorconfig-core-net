@@ -6,9 +6,11 @@ namespace EditorConfig.Core
 	public enum EndOfLine
 	{
 // ReSharper disable InconsistentNaming
+#pragma warning disable CS1591
 		LF,
 		CR,
 		CRLF
+#pragma warning restore CS1591
 // ReSharper restore InconsistentNaming
 	}
 }

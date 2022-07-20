@@ -56,6 +56,9 @@ namespace EditorConfig.Core
 
   // ReSharper restore UnusedAutoPropertyAccessor.Global
 
+  /// <summary>
+  /// A simple glob matcher implementation, if you want a proper one please use a full fletched one from nuget.
+  /// </summary>
   public class GlobMatcher
   {
     private readonly GlobMatcherOptions myOptions;

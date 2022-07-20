@@ -89,7 +89,7 @@ namespace EditorConfig.Core
 		}
 
 		/// <summary>
-		/// Gets all relevant <see cref="EditorConfigFile"/> for <see cref="file"/> until the first config file upwards
+		/// Gets all relevant <see cref="EditorConfigFile"/> for <paramref name="file"/> until the first config file upwards
 		/// marked as root.
 		/// </summary>
 		public IList<EditorConfigFile> GetConfigurationFilesTillRoot(string file)
