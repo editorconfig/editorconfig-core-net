@@ -90,12 +90,12 @@ namespace EditorConfig.Core
 
 			IndentStyle = Sections.LastOrDefault(s => s.IndentStyle.HasValue)?.IndentStyle;
 			IndentSize = Sections.LastOrDefault(s => s.IndentSize != null)?.IndentSize;
-			TabWidth = Sections.FirstOrDefault(s => s.TabWidth.HasValue)?.TabWidth;
-			EndOfLine = Sections.FirstOrDefault(s => s.EndOfLine.HasValue)?.EndOfLine;
-			Charset = Sections.FirstOrDefault(s => s.Charset.HasValue)?.Charset;
-			TrimTrailingWhitespace = Sections.FirstOrDefault(s => s.TrimTrailingWhitespace.HasValue)?.TrimTrailingWhitespace;
-			InsertFinalNewline = Sections.FirstOrDefault(s => s.InsertFinalNewline.HasValue)?.InsertFinalNewline;
-			MaxLineLength = Sections.FirstOrDefault(s => s.MaxLineLength.HasValue)?.MaxLineLength;
+			TabWidth = Sections.LastOrDefault(s => s.TabWidth.HasValue)?.TabWidth;
+			EndOfLine = Sections.LastOrDefault(s => s.EndOfLine.HasValue)?.EndOfLine;
+			Charset = Sections.LastOrDefault(s => s.Charset.HasValue)?.Charset;
+			TrimTrailingWhitespace = Sections.LastOrDefault(s => s.TrimTrailingWhitespace.HasValue)?.TrimTrailingWhitespace;
+			InsertFinalNewline = Sections.LastOrDefault(s => s.InsertFinalNewline.HasValue)?.InsertFinalNewline;
+			MaxLineLength = Sections.LastOrDefault(s => s.MaxLineLength.HasValue)?.MaxLineLength;
 
 			//default tab_width to indent_size when indent size is a number
 			if (IndentSize != null && IndentSize.NumberOfColumns.HasValue)
