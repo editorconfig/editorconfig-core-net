@@ -17,6 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{2BEF5154
 		.github\workflows\verify.yaml = .github\workflows\verify.yaml
 		.github\workflows\ci.yml = .github\workflows\ci.yml
 		build.sh = build.sh
+		global.json = global.json
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EditorConfig.App", "src\EditorConfig.App\EditorConfig.App.csproj", "{D7CD5DEF-002E-4463-9FE8-AC6676DAA36C}"

@@ -13,9 +13,16 @@ jobs:
         git fetch --prune --unshallow --tags
         echo exit code $?
         git tag --list
-    - uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '3.1.201'
+          dotnet-version: |
+              3.0.103
+              3.1.421
+              6.0.302
+          source-url: https://nuget.pkg.github.com/editorconfig/index.json
+      env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
     - name: Prepare
       run: cmake --version && git submodule init && git submodule update
     - run: dotnet build -c Debug
@@ -27,16 +34,20 @@ jobs:
   windows:
     runs-on: windows-2019
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
     - run: |
         git fetch --prune --unshallow --tags
         echo exit code $?
         git tag --list
-    - uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '3.1.201'
+          dotnet-version: |
+              3.0.103
+              3.1.421
+              6.0.302
+          source-url: https://nuget.pkg.github.com/editorconfig/index.json
+      env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
     - name: Prepare
       shell: cmd
       run: cmake --version && git submodule init && git submodule update
