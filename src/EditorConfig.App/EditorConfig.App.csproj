@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
     <AssemblyName>EditorConfig.App</AssemblyName>
     <RootNamespace>ReleaseNotes</RootNamespace>
     <PackAsTool>true</PackAsTool>
@@ -21,7 +21,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net45" Version="1.0.0" PrivateAssets="all"/>
+		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net45" Version="1.0.0" PrivateAssets="all" />
+		<PackageReference Update="MinVer" Version="4.1.0" />
 	</ItemGroup>
 
 

@@ -10,6 +10,7 @@
 	
 	<ItemGroup>
 		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net45" Version="1.0.2" PrivateAssets="all" />
+		<PackageReference Update="MinVer" Version="4.1.0" />
 	</ItemGroup>
 
 </Project>

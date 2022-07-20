@@ -27,6 +27,12 @@ jobs:
         git tag --list
     - uses: actions/setup-dotnet@v1
       with:
+          dotnet-version: '3.1.201'
+          source-url: https://nuget.pkg.github.com/editorconfig/index.json
+      env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+    - uses: actions/setup-dotnet@v1
+      with:
         dotnet-version: '6.0.302'
         source-url: https://nuget.pkg.github.com/editorconfig/index.json
       env:

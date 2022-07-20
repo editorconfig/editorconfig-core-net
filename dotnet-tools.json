@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "minver-cli": {
-      "version": "2.2.0",
+      "version": "4.1.0",
       "commands": [
         "minver"
       ]
@@ -15,7 +15,7 @@
       ]
     },
     "release-notes": {
-      "version": "0.2.3",
+      "version": "0.4.6",
       "commands": [
         "release-notes"
       ]
