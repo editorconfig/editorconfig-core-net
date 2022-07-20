@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 namespace EditorConfig.Core
 {
 
-	public class FileConfiguration 
+	public class FileConfiguration
 	{
 		private List<ConfigSection> Sections { get; }
 
@@ -17,41 +17,41 @@ namespace EditorConfig.Core
 		public IndentStyle? IndentStyle { get; }
 
 		/// <summary>
-		/// a whole number defining the number of columns used for each indentation level and the width of soft tabs (when supported). 
+		/// a whole number defining the number of columns used for each indentation level and the width of soft tabs (when supported).
 		/// When set to tab, the value of tab_width (if specified) will be used.
 		/// </summary>
 		public IndentSize IndentSize { get; }
 
 		/// <summary>
-		/// a whole number defining the number of columns used to represent a tab character. 
+		/// a whole number defining the number of columns used to represent a tab character.
 		/// This defaults to the value of indent_size and doesn't usually need to be specified.
 		/// </summary>
 		public int? TabWidth { get; }
-		
+
 		/// <summary>
 		/// set to lf, cr, or crlf to control how line breaks are represented.
 		/// </summary>
-		public EndOfLine? EndOfLine { get; } 
-		
+		public EndOfLine? EndOfLine { get; }
+
 		/// <summary>
 		/// set to latin1, utf-8, utf-8-bom, utf-16be or utf-16le to control the character set. Use of utf-8-bom is discouraged.
 		/// </summary>
-		public Charset? Charset { get; } 
-		
+		public Charset? Charset { get; }
+
 		/// <summary>
 		/// set to true to remove any whitespace characters preceding newline characters and false to ensure it doesn't.
 		/// </summary>
-		public bool? TrimTrailingWhitespace { get; } 
-		
+		public bool? TrimTrailingWhitespace { get; }
+
 		/// <summary>
 		/// set to true ensure file ends with a newline when saving and false to ensure it doesn't.
 		/// </summary>
-		public bool? InsertFinalNewline { get; } 
-		
+		public bool? InsertFinalNewline { get; }
+
 		/// <summary>
 		/// Forces hard line wrapping after the amount of characters specified
 		/// </summary>
-		public int? MaxLineLength { get; } 
+		public int? MaxLineLength { get; }
 
 		/// <summary>
 		/// All the editorconfig properties relevant for this file
@@ -62,7 +62,7 @@ namespace EditorConfig.Core
 		/// The filename we asked the configuration for
 		/// </summary>
 		public string FileName { get; }
-		
+
 		/// <summary>
 		/// A reference to the version number of the parser
 		/// </summary>
@@ -85,14 +85,14 @@ namespace EditorConfig.Core
 			foreach (var kv in allProperties)
 				properties[kv.Key] = kv.Value;
 
-			IndentStyle = Sections.FirstOrDefault(s => s.IndentStyle.HasValue)?.IndentStyle;
+			IndentStyle = Sections.LastOrDefault(s => s.IndentStyle.HasValue)?.IndentStyle;
 			IndentSize = Sections.LastOrDefault(s => s.IndentSize != null)?.IndentSize;
-			TabWidth = Sections.FirstOrDefault(s => s.TabWidth.HasValue)?.TabWidth;
-			EndOfLine = Sections.FirstOrDefault(s => s.EndOfLine.HasValue)?.EndOfLine; 
-			Charset = Sections.FirstOrDefault(s => s.Charset.HasValue)?.Charset;
-			TrimTrailingWhitespace = Sections.FirstOrDefault(s => s.TrimTrailingWhitespace.HasValue)?.TrimTrailingWhitespace; 
-			InsertFinalNewline = Sections.FirstOrDefault(s => s.InsertFinalNewline.HasValue)?.InsertFinalNewline; 
-			MaxLineLength = Sections.FirstOrDefault(s => s.MaxLineLength.HasValue)?.MaxLineLength;
+			TabWidth = Sections.LastOrDefault(s => s.TabWidth.HasValue)?.TabWidth;
+			EndOfLine = Sections.LastOrDefault(s => s.EndOfLine.HasValue)?.EndOfLine;
+			Charset = Sections.LastOrDefault(s => s.Charset.HasValue)?.Charset;
+			TrimTrailingWhitespace = Sections.LastOrDefault(s => s.TrimTrailingWhitespace.HasValue)?.TrimTrailingWhitespace;
+			InsertFinalNewline = Sections.LastOrDefault(s => s.InsertFinalNewline.HasValue)?.InsertFinalNewline;
+			MaxLineLength = Sections.LastOrDefault(s => s.MaxLineLength.HasValue)?.MaxLineLength;
 
 			//default tab_width to indent_size when indent size is a number
 			if (IndentSize != null && IndentSize.NumberOfColumns.HasValue)
@@ -118,7 +118,7 @@ namespace EditorConfig.Core
 					TabWidth = IndentSize.NumberOfColumns.Value;
 					properties["tab_width"] = TabWidth.Value.ToString();
 				}
-				
+
 				// unset carries over see:
 				//  ctest . -R "unset_indent_size"
 				else if (IndentSize.IsUnset)
@@ -134,7 +134,7 @@ namespace EditorConfig.Core
 				IndentSize = IndentSize.Columns(TabWidth.Value);
 				properties["indent_size"] = TabWidth.Value.ToString();
 			}
-			
+
 			Properties = new ReadOnlyDictionary<string, string>(properties);
 		}
 	}
