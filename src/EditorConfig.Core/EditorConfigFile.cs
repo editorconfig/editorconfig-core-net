@@ -8,14 +8,14 @@ using System.Text.RegularExpressions;
 namespace EditorConfig.Core
 {
 	/// <summary>
-	/// Represents the raw config file as INI
+	/// Represents the raw config file as INI, please use <see cref="EditorConfigParser.GetConfigurationFilesTillRoot"/>
 	/// </summary>
 	public class EditorConfigFile
 	{
 		private static readonly Regex SectionRe = new Regex(@"^\s*\[(([^#;]|\\#|\\;)+)\]\s*([#;].*)?$");
 		private static readonly Regex CommentRe = new Regex(@"^\s*[#;]");
 		private static readonly Regex PropertyRe = new Regex(@"^\s*([\w\.\-_]+)\s*[=:]\s*(.*?)\s*([#;].*)?$");
-		
+
 		private static readonly string[] KnownProperties =
 		{
 			"indent_style",
@@ -29,15 +29,18 @@ namespace EditorConfig.Core
 			"root",
 		};
 
-		private readonly Dictionary<string, string> _globalDict = new Dictionary<string, string>(); 
-		public List<ConfigSection> Sections { get; } = new List<ConfigSection>(); 
+		private readonly Dictionary<string, string> _globalDict = new Dictionary<string, string>();
+		/// <summary> All discovered sections </summary>
+		public List<ConfigSection> Sections { get; } = new List<ConfigSection>();
 
+		/// <summary> The directory of the EditorConfig file </summary>
 		public string Directory { get; }
-		
+
 		private readonly bool _isRoot;
+		/// <summary> Indicates wheter the loaded editorconfig represents the root of the chain </summary>
 		public bool IsRoot => _isRoot;
 
-		public EditorConfigFile(string file)
+		internal EditorConfigFile(string file)
 		{
 			Directory = Path.GetDirectoryName(file);
 			Parse(file);
@@ -57,18 +60,18 @@ namespace EditorConfig.Core
 			foreach (var line in lines)
 			{
 				if (string.IsNullOrWhiteSpace(line)) continue;
-				
+
 				if (CommentRe.IsMatch(line)) continue;
 				var matches = PropertyRe.Matches(line);
 				if (matches.Count > 0)
 				{
 					var key = matches[0].Groups[1].Value.Trim();
 					var value = matches[0].Groups[2].Value.Trim();
-					
+
 					key = key.ToLowerInvariant();
 					if (KnownProperties.Contains(key, StringComparer.OrdinalIgnoreCase))
 						value = value.ToLowerInvariant();
-					
+
 					//! do not Add(), avoid exceptions on duplicate keys
 					activeDict[key] = value;
 					reset = false;
@@ -93,7 +96,7 @@ namespace EditorConfig.Core
 				var section = new ConfigSection(sectionName, Directory, activeDict);
 				Sections.Add(section);
 			}
-			
+
 		}
 	}
 }

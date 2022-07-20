@@ -5,7 +5,9 @@ namespace EditorConfig.Core
 	/// </summary>
 	public enum IndentStyle
 	{
+#pragma warning disable CS1591
 		Tab,
 		Space
+#pragma warning restore CS1591
 	}
 }

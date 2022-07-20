@@ -5,6 +5,7 @@
 	/// </summary>
 	public enum Charset
 	{
+#pragma warning disable CS1591
 		Latin1,
 		UTF8,
 		/// <summary>
@@ -13,6 +14,7 @@
 		UTF8BOM,
 		UTF16BE,
 		UTF16LE,
+#pragma warning restore CS1591
 
 	}
 }

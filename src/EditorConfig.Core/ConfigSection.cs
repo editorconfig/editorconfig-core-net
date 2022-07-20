@@ -12,8 +12,10 @@ namespace EditorConfig.Core
 		private readonly Dictionary<string, string> _backingDictionary;
 
 		private static readonly Dictionary<string, string> DefaultGlobalDictionary = new Dictionary<string, string>();
+		/// <summary> Represents an ini section within the editorconfig file </summary>
 		public ConfigSection() => _backingDictionary = DefaultGlobalDictionary;
 
+		/// <summary> Represents an ini section within the editorconfig file </summary>
 		public ConfigSection(string name, string configDirectory, Dictionary<string, string> backingDictionary)
 		{
 			Glob = FixGlob(name, configDirectory);
@@ -206,12 +208,18 @@ namespace EditorConfig.Core
 
 		IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _backingDictionary).GetEnumerator();
 
+		/// <inheritdoc cref="ICollection.Count"/>
 		public int Count => _backingDictionary.Count;
+		/// <inheritdoc cref="Dictionary{TKey,TValue}.ContainsKey"/>
 		public bool ContainsKey(string key) => _backingDictionary.ContainsKey(key);
+		/// <inheritdoc cref="Dictionary{TKey,TValue}.TryGetValue"/>
 		public bool TryGetValue(string key, out string value) =>
 			_backingDictionary.TryGetValue(key, out value);
+		/// <inheritdoc cref="Dictionary{TKey,TValue}.get_Item"/>
 		public string this[string key] => _backingDictionary[key];
+		/// <inheritdoc cref="Dictionary{TKey,TValue}.Keys"/>
 		public IEnumerable<string> Keys => _backingDictionary.Keys;
+		/// <inheritdoc cref="Dictionary{TKey,TValue}.Values"/>
 		public IEnumerable<string> Values => _backingDictionary.Values;
 	}
 }
