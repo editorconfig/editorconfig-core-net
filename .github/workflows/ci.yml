@@ -28,7 +28,8 @@ jobs:
     - uses: actions/setup-dotnet@v1
       with:
           dotnet-version: |
-              3.1.201
+              3.0.103
+              3.1.421
               6.0.302
           source-url: https://nuget.pkg.github.com/editorconfig/index.json
       env:
