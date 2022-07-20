@@ -13,14 +13,21 @@ jobs:
         git fetch --prune --unshallow --tags
         echo exit code $?
         git tag --list
-    - uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '3.1.201'
+          dotnet-version: |
+              3.0.103
+              3.1.421
+              6.0.302
+          source-url: https://nuget.pkg.github.com/editorconfig/index.json
+      env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
     - name: Prepare
       run: cmake --version && git submodule init && git submodule update
     - run: dotnet build -c Debug
       name: Build
-    - run: dotnet src/EditorConfig.App/bin/Debug/netcoreapp3.1/EditorConfig.App.dll .editorconfig src/EditorConfig.Tests/MiniMatcherTests.cs
+    - run: dotnet src/EditorConfig.App/bin/Debug/net6.0/EditorConfig.App.dll .editorconfig src/EditorConfig.Tests/MiniMatcherTests.cs
       name: SmokeTest
     - name: Core tests
       run: 'cmake . && ctest . -E "max_property_(name|value)|max_section_name_ignore" '
@@ -34,9 +41,16 @@ jobs:
         git fetch --prune --unshallow --tags
         echo exit code $?
         git tag --list
-    - uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '3.1.201'
+          dotnet-version: |
+              3.0.103
+              3.1.421
+              6.0.302
+          source-url: https://nuget.pkg.github.com/editorconfig/index.json
+      env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
     - name: Prepare
       shell: cmd
       run: cmake --version && git submodule init && git submodule update

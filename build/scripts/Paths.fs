@@ -31,7 +31,7 @@ let mapProjectToNuget =
           
 let mapNugetToTFM = 
     Map.empty
-          .Add("editorconfig-tool", "netcoreapp3.0")
+          .Add("editorconfig-tool", "net6.0")
           
 let mapNugetToProject = 
     mapProjectToNuget 

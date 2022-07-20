@@ -10,6 +10,7 @@
     <PackageReference Include="Bullseye" Version="3.3.0" />
     <PackageReference Include="Proc" Version="0.6.2" />
     <PackageReference Include="Fake.Tools.Git" Version="5.15.0" />
+    <PackageReference Update="MinVer" Version="4.1.0" />
   </ItemGroup>
 
   <ItemGroup>
