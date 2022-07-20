@@ -83,6 +83,7 @@ let private generateApiChanges (arguments:ParseResults<Arguments>) =
                 "-a"; "true"; "--target"; p; "-f"; "github-comment"; "--output"; outputFile
             ]
         
+        printfn "dotnet %A" args
         exec "dotnet" args |> ignore
     )
     
