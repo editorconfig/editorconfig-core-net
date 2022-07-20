@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>EditorConfig.App</AssemblyName>
     <RootNamespace>ReleaseNotes</RootNamespace>
     <PackAsTool>true</PackAsTool>
