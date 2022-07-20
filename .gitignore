@@ -48,7 +48,6 @@ CTest*
 *.vcxproj*
 *.log
 [Tt]est*/
-tests
 Makefile
 .idea
 cmake_install.cmake
