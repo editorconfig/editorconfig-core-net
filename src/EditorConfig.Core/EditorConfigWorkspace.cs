@@ -25,8 +25,7 @@ namespace EditorConfig.Core
 			var directory = rootEditorConfigFile.Directory;
 			_editorconfigFiles =
 				directory.EnumerateFiles(configFileName, SearchOption.AllDirectories)
-					.Select(d=>new EditorConfigFile(d.Name));
-
+					.Select(d=> EditorConfigFileCache.GetOrCreate(d.Name));
 		}
 
 

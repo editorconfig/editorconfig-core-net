@@ -102,7 +102,7 @@ namespace EditorConfig.Core
 
 		private IEnumerable<EditorConfigFile> ParseConfigFilesTillRoot(IEnumerable<string> configFiles)
 		{
-			foreach (var configFile in configFiles.Select(f=> new EditorConfigFile(f)))
+			foreach (var configFile in configFiles.Select(EditorConfigFileCache.GetOrCreate))
 			{
 				yield return configFile;
 				if (configFile.IsRoot) yield break;
