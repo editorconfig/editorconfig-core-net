@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EditorConfig.Core
 {
@@ -11,17 +10,17 @@ namespace EditorConfig.Core
 	{
 		private readonly Dictionary<string, string> _backingDictionary;
 
-		private static readonly Dictionary<string, string> DefaultGlobalDictionary = new Dictionary<string, string>();
 		/// <summary> Represents an ini section within the editorconfig file </summary>
-		public ConfigSection() => _backingDictionary = DefaultGlobalDictionary;
-
-		/// <summary> Represents an ini section within the editorconfig file </summary>
-		public ConfigSection(string name, string configDirectory, Dictionary<string, string> backingDictionary)
+		public ConfigSection(string name, IEditorConfigFile origin, Dictionary<string, string> backingDictionary)
 		{
-			Glob = FixGlob(name, configDirectory);
+			EditorConfigFile = origin;
+			Glob = FixGlob(name, origin.Directory);
 			_backingDictionary = backingDictionary ?? new Dictionary<string, string>();
 			ParseKnownProperties();
 		}
+
+		/// <summary> Originating <see cref="EditorConfigFile"/> </summary>
+		public IEditorConfigFile EditorConfigFile { get; }
 
 		/// <summary> The glob pattern this section describes</summary>
 		public string Glob { get; }

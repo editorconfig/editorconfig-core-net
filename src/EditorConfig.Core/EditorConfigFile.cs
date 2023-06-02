@@ -2,15 +2,31 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace EditorConfig.Core
 {
+	/// <summary> Information about the originating editor config file</summary>
+	public interface IEditorConfigFile
+	{
+		/// <summary> The directory of the EditorConfig file </summary>
+		public string Directory { get; }
+
+		/// <summary> The name of the EditorConfig file </summary>
+		public string FileName { get; }
+
+		/// <summary> A hint this instance of <see cref="EditorConfigFile"/> was cached</summary>
+		public string CacheKey { get; }
+
+		/// <summary> Indicates wheter the loaded editorconfig represents the root of the chain </summary>
+		public bool IsRoot { get;  }
+	}
+
+
 	/// <summary>
 	/// Represents the raw config file as INI, please use <see cref="EditorConfigParser.GetConfigurationFilesTillRoot"/>
 	/// </summary>
-	public class EditorConfigFile
+	public class EditorConfigFile : IEditorConfigFile
 	{
 		private static readonly Regex SectionRe = new Regex(@"^\s*\[(([^#;]|\\#|\\;)+)\]\s*([#;].*)?$");
 		private static readonly Regex CommentRe = new Regex(@"^\s*[#;]");
@@ -33,21 +49,28 @@ namespace EditorConfig.Core
 		/// <summary> All discovered sections </summary>
 		public List<ConfigSection> Sections { get; } = new List<ConfigSection>();
 
-		/// <summary> The directory of the EditorConfig file </summary>
+		/// <inheritdoc cref="IEditorConfigFile.Directory"/>
 		public string Directory { get; }
 
+		/// <inheritdoc cref="IEditorConfigFile.FileName"/>
+		public string FileName { get; }
+
+		/// <inheritdoc cref="IEditorConfigFile.CacheKey"/>
+		public string CacheKey { get; }
+
 		private readonly bool _isRoot;
-		/// <summary> Indicates wheter the loaded editorconfig represents the root of the chain </summary>
+		/// <inheritdoc cref="IEditorConfigFile.IsRoot"/>
 		public bool IsRoot => _isRoot;
 
-		internal EditorConfigFile(string file)
+		internal EditorConfigFile(string path, string cacheKey = null)
 		{
-			Directory = Path.GetDirectoryName(file);
-			Parse(file);
+			Directory = Path.GetDirectoryName(path);
+			FileName = Path.GetFileName(path);
+			CacheKey = cacheKey;
+			Parse(path);
 
-			if (_globalDict.ContainsKey("root"))
-				bool.TryParse(_globalDict["root"], out _isRoot);
-
+			if (_globalDict.TryGetValue("root", out var value))
+				bool.TryParse(value, out _isRoot);
 		}
 
 		private void Parse(string file)
@@ -82,7 +105,7 @@ namespace EditorConfig.Core
 
 				if (!string.IsNullOrEmpty(sectionName))
 				{
-					var section = new ConfigSection(sectionName, Directory, activeDict);
+					var section = new ConfigSection(sectionName, this, activeDict);
 					Sections.Add(section);
 					reset = true;
 				}
@@ -93,7 +116,7 @@ namespace EditorConfig.Core
 
 			if (!reset)
 			{
-				var section = new ConfigSection(sectionName, Directory, activeDict);
+				var section = new ConfigSection(sectionName, this, activeDict);
 				Sections.Add(section);
 			}
 

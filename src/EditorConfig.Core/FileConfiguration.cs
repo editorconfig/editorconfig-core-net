@@ -72,6 +72,11 @@ namespace EditorConfig.Core
 		public Version Version { get; }
 
 		/// <summary>
+		/// Editorconfig files that were used to construct this instance of <see cref="FileConfiguration"/>
+		/// </summary>
+		public IReadOnlyCollection<IEditorConfigFile> EditorConfigFiles { get; }
+
+		/// <summary>
 		/// Holds the editor configuration for a file, please use <see cref="EditorConfigParser.Parse(string[])"/> to get an instance
 		/// </summary>
 		internal FileConfiguration(Version version, string fileName, List<ConfigSection> sections)
@@ -79,6 +84,7 @@ namespace EditorConfig.Core
 			if (version == null) throw new ArgumentNullException(nameof(version));
 			if (string.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("file should not be null or whitespace", nameof(fileName));
 
+			EditorConfigFiles = sections.Select(s => s.EditorConfigFile).ToArray();
 			FileName = fileName;
 			Version = version;
 			Sections = sections;
