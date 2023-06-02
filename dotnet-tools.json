@@ -15,7 +15,7 @@
       ]
     },
     "release-notes": {
-      "version": "0.4.6",
+      "version": "0.5.2",
       "commands": [
         "release-notes"
       ]
