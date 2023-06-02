@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace EditorConfig.Core
 {
@@ -12,6 +11,8 @@ namespace EditorConfig.Core
 	/// </summary>
 	public class EditorConfigParser
 	{
+		private Func<string, EditorConfigFile> Factory { get; }
+
 		/// <summary>
 		/// The current (and latest parser supported) version as string
 		/// </summary>
@@ -40,7 +41,23 @@ namespace EditorConfig.Core
 		/// <param name="configFileName">The name of the file(s) holding the editorconfiguration values</param>
 		/// <param name="developmentVersion">Only used in testing, development to pass an older version to the parsing routine</param>
 		public EditorConfigParser(string configFileName = ".editorconfig", Version developmentVersion = null)
+			: this(f => new EditorConfigFile(f), configFileName, developmentVersion)
 		{
+
+		}
+
+		/// <summary>
+		/// The EditorConfigParser locates all relevant editorconfig files and makes sure they are merged correctly.
+		/// </summary>
+		/// <param name="factory">
+		/// Function that take the file name and constructs a new EditorConfigFile instance.
+		/// Pass `EditorConfigFileCache.GetOrCreate` to apply caching.
+		/// </param>
+		/// <param name="configFileName"></param>
+		/// <param name="developmentVersion"></param>
+		public EditorConfigParser(Func<string, EditorConfigFile> factory, string configFileName = ".editorconfig", Version developmentVersion = null)
+		{
+			Factory = factory;
 			ConfigFileName = configFileName ?? ".editorconfig";
 			ParseVersion = developmentVersion ?? Version;
 		}
@@ -102,7 +119,7 @@ namespace EditorConfig.Core
 
 		private IEnumerable<EditorConfigFile> ParseConfigFilesTillRoot(IEnumerable<string> configFiles)
 		{
-			foreach (var configFile in configFiles.Select(f=> new EditorConfigFile(f)))
+			foreach (var configFile in configFiles.Select(Factory))
 			{
 				yield return configFile;
 				if (configFile.IsRoot) yield break;

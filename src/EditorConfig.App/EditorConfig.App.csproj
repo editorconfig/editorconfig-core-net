@@ -4,7 +4,6 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>EditorConfig.App</AssemblyName>
-    <RootNamespace>ReleaseNotes</RootNamespace>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>editorconfig</ToolCommandName>
     <PackageId>editorconfig-tool</PackageId>
