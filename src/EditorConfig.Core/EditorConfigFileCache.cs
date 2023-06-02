@@ -31,6 +31,6 @@ public static class EditorConfigFileCache
 		if (!File.Exists(file)) return new EditorConfigFile(file);
 
 		var key = $"{file}_{GetFileHash(file)}";
-		return FileCache.GetOrAdd(key, _ => new EditorConfigFile(file));
+		return FileCache.GetOrAdd(key, _ => new EditorConfigFile(file, key));
 	}
 }
