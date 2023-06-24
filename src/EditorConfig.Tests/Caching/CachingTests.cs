@@ -2,6 +2,7 @@
 using EditorConfig.Core;
 using FluentAssertions;
 using NUnit.Framework;
+using System.IO.Abstractions;
 
 namespace EditorConfig.Tests.Caching
 {
@@ -13,7 +14,7 @@ namespace EditorConfig.Tests.Caching
 		{
 			var fileName = GetFileFromMethod(MethodBase.GetCurrentMethod(),  ".editorconfig");
 
-			var parser = new EditorConfigParser(EditorConfigFileCache.GetOrCreate);
+			var parser = new EditorConfigParser(f => EditorConfigFileCache.GetOrCreate(f, new FileSystem()));
 			var config1 = parser.Parse(fileName);
 			config1.EditorConfigFiles.Should().NotBeNullOrEmpty();
 			config1.EditorConfigFiles.Should().OnlyContain(f => !string.IsNullOrEmpty(f.CacheKey));

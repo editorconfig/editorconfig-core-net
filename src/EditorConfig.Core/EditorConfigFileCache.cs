@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.IO;
+using System.IO.Abstractions;
 
 namespace EditorConfig.Core;
 
@@ -9,10 +9,10 @@ namespace EditorConfig.Core;
 /// </summary>
 public static class EditorConfigFileCache
 {
-	private static string GetFileHash(string filename)
+	private static string GetFileHash(string filename, IFileSystem fileSystem)
 	{
 		using var sha256 = System.Security.Cryptography.SHA256.Create();
-		using var stream = File.OpenRead(filename);
+		using var stream = fileSystem.File.OpenRead(filename);
 		var hash = sha256.ComputeHash(stream);
 		return BitConverter.ToString(hash).Replace("-", "");
 	}
@@ -25,12 +25,14 @@ public static class EditorConfigFileCache
 	/// </summary>
 	/// <remarks>This function is thread safe. The cache will not be hit when the file does not exist.</remarks>
 	/// <param name="file"></param>
+	/// <param name="fileSystem"></param>
 	/// <returns></returns>
-	public static EditorConfigFile GetOrCreate(string file)
+	public static EditorConfigFile GetOrCreate(string file, IFileSystem fileSystem = null)
 	{
-		if (!File.Exists(file)) return new EditorConfigFile(file);
+		fileSystem ??= new FileSystem();
+		if (!fileSystem.File.Exists(file)) return new EditorConfigFile(file, fileSystem);
 
-		var key = $"{file}_{GetFileHash(file)}";
-		return FileCache.GetOrAdd(key, _ => new EditorConfigFile(file, key));
+		var key = $"{file}_{GetFileHash(file, fileSystem)}";
+		return FileCache.GetOrAdd(key, _ => new EditorConfigFile(file, fileSystem, key));
 	}
 }

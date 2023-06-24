@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 
 namespace EditorConfig.Core
@@ -36,14 +36,19 @@ namespace EditorConfig.Core
 		public Version ParseVersion { get; private set; }
 
 		/// <summary>
+		/// The IFileSystem in use, defaults to <see cref="FileSystem"/>
+		/// </summary>
+		public IFileSystem FileSystem { get; private set; }
+
+		/// <summary>
 		/// The EditorConfigParser locates all relevant editorconfig files and makes sure they are merged correctly.
 		/// </summary>
 		/// <param name="configFileName">The name of the file(s) holding the editorconfiguration values</param>
 		/// <param name="developmentVersion">Only used in testing, development to pass an older version to the parsing routine</param>
-		public EditorConfigParser(string configFileName = ".editorconfig", Version developmentVersion = null)
-			: this(f => new EditorConfigFile(f), configFileName, developmentVersion)
+		/// <param name="fileSystem">The <see cref="IFileSystem"/> to use. Can be used for testing.</param>
+		public EditorConfigParser(string configFileName = ".editorconfig", Version developmentVersion = null, IFileSystem fileSystem = null)
+			: this(f => new EditorConfigFile(f, fileSystem ?? new FileSystem()), configFileName, developmentVersion, fileSystem)
 		{
-
 		}
 
 		/// <summary>
@@ -55,11 +60,13 @@ namespace EditorConfig.Core
 		/// </param>
 		/// <param name="configFileName"></param>
 		/// <param name="developmentVersion"></param>
-		public EditorConfigParser(Func<string, EditorConfigFile> factory, string configFileName = ".editorconfig", Version developmentVersion = null)
+		/// <param name="fileSystem"></param>
+		public EditorConfigParser(Func<string, EditorConfigFile> factory, string configFileName = ".editorconfig", Version developmentVersion = null, IFileSystem fileSystem = null)
 		{
 			Factory = factory;
 			ConfigFileName = configFileName ?? ".editorconfig";
 			ParseVersion = developmentVersion ?? Version;
+			FileSystem = fileSystem ?? new FileSystem();
 		}
 
 		/// <summary>
@@ -83,7 +90,7 @@ namespace EditorConfig.Core
 			var file = fileName.Trim('\r', '\n', ' ');
 			Debug.WriteLine(":: {0} :: {1}", ConfigFileName, file);
 
-			var fullPath = Path.GetFullPath(file);
+			var fullPath = FileSystem.Path.GetFullPath(file);
 
 			//All the .editorconfig files going from root =>.fileName
 			editorConfigFiles = editorConfigFiles ?? GetConfigurationFilesTillRoot(file);
@@ -111,7 +118,7 @@ namespace EditorConfig.Core
 		/// </summary>
 		public IList<EditorConfigFile> GetConfigurationFilesTillRoot(string file)
 		{
-			var fullPath = Path.GetFullPath(file);
+			var fullPath = FileSystem.Path.GetFullPath(file);
 			var configFiles = AllParentConfigFiles(fullPath);
 
 			return ParseConfigFilesTillRoot(configFiles).Reverse().ToList();
@@ -128,19 +135,19 @@ namespace EditorConfig.Core
 
 		private IEnumerable<string> AllParentConfigFiles(string fullPath) =>
 			from parent in AllParentDirectories(fullPath)
-			let configFile = Path.Combine(parent, ConfigFileName)
-			where File.Exists(configFile)
+			let configFile = FileSystem.Path.Combine(parent, ConfigFileName)
+			where FileSystem.File.Exists(configFile)
 			select configFile;
 
 		private IEnumerable<string> AllParentDirectories(string fullPath)
 		{
-			var root = new DirectoryInfo(fullPath).Root.FullName;
-			var dir = Path.GetDirectoryName(fullPath);
+			var root = FileSystem.DirectoryInfo.New(fullPath).Root.FullName;
+			var dir = FileSystem.Path.GetDirectoryName(fullPath);
 			do
 			{
 				if (dir == null) yield break;
 				yield return dir;
-				var dirInfo = new DirectoryInfo(dir);
+				var dirInfo = FileSystem.DirectoryInfo.New(dir);
 				if (dirInfo.Parent == null) yield break;
 				dir = dirInfo.Parent.FullName;
 			} while (dir != root);
