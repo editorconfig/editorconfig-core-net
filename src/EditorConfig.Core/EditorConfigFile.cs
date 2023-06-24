@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -62,20 +62,20 @@ namespace EditorConfig.Core
 		/// <inheritdoc cref="IEditorConfigFile.IsRoot"/>
 		public bool IsRoot => _isRoot;
 
-		internal EditorConfigFile(string path, string cacheKey = null)
+		internal EditorConfigFile(string path, IFileSystem fileSystem, string cacheKey = null)
 		{
-			Directory = Path.GetDirectoryName(path);
-			FileName = Path.GetFileName(path);
+			Directory = fileSystem.Path.GetDirectoryName(path);
+			FileName = fileSystem.Path.GetFileName(path);
 			CacheKey = cacheKey;
-			Parse(path);
+			Parse(path, fileSystem);
 
 			if (_globalDict.TryGetValue("root", out var value))
 				bool.TryParse(value, out _isRoot);
 		}
 
-		private void Parse(string file)
+		private void Parse(string file, IFileSystem fileSystem)
 		{
-			var lines = File.ReadLines(file);
+			var lines = fileSystem.File.ReadLines(file);
 
 			var activeDict = _globalDict;
 			var sectionName = string.Empty;
