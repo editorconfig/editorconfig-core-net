@@ -62,25 +62,49 @@ namespace EditorConfig.Core
 		/// <inheritdoc cref="IEditorConfigFile.IsRoot"/>
 		public bool IsRoot => _isRoot;
 
-		internal EditorConfigFile(string path, string cacheKey = null)
+		private EditorConfigFile(
+			string fileName,
+			string directory,
+			TextReader reader,
+			string cacheKey = null)
 		{
-			Directory = Path.GetDirectoryName(path);
-			FileName = Path.GetFileName(path);
+			Directory = directory;
+			FileName = fileName;
 			CacheKey = cacheKey;
-			Parse(path);
+			ReadAndParse(reader);
 
 			if (_globalDict.TryGetValue("root", out var value))
 				bool.TryParse(value, out _isRoot);
 		}
 
-		private void Parse(string file)
-		{
-			var lines = File.ReadLines(file);
+		/// <summary> Parses EditorConfig file from the file path. </summary>
+		/// <param name="path"> File path in a physical file system. </param>
+		/// <returns> Parsed EditorConfig file. </returns>
+		public static EditorConfigFile Parse(string path) => Parse(path, cacheKey: null);
 
+		/// <summary> Parses EditorConfig file from the text reader. </summary>
+		/// <param name="reader"> Text reader. </param>
+		/// <param name="directory"> EditorConfig directory files to be matched to. </param>
+		/// <param name="fileName"> EditorConfig file name. </param>
+		/// <returns> Parsed EditorConfig file. </returns>
+		public static EditorConfigFile Parse(TextReader reader, string directory, string fileName = ".editorconfig") =>
+			new(fileName, directory, reader);
+
+		internal static EditorConfigFile Parse(string path, string cacheKey)
+		{
+			using var file = File.OpenRead(path);
+			using var reader = new StreamReader(file);
+			return new EditorConfigFile(
+				Path.GetFileName(path), Path.GetDirectoryName(path),
+				reader, cacheKey);
+		}
+
+		private void ReadAndParse(TextReader reader)
+		{
 			var activeDict = _globalDict;
 			var sectionName = string.Empty;
 			var reset = false;
-			foreach (var line in lines)
+			while (reader.ReadLine() is { } line)
 			{
 				if (string.IsNullOrWhiteSpace(line)) continue;
 

@@ -41,7 +41,7 @@ namespace EditorConfig.Core
 		/// <param name="configFileName">The name of the file(s) holding the editorconfiguration values</param>
 		/// <param name="developmentVersion">Only used in testing, development to pass an older version to the parsing routine</param>
 		public EditorConfigParser(string configFileName = ".editorconfig", Version developmentVersion = null)
-			: this(f => new EditorConfigFile(f), configFileName, developmentVersion)
+			: this(EditorConfigFile.Parse, configFileName, developmentVersion)
 		{
 
 		}
