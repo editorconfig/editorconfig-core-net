@@ -70,6 +70,8 @@ namespace EditorConfig.Core
 
 		private static string FixGlob(string glob, string directory)
 		{
+			if (string.IsNullOrEmpty(directory)) return glob;
+
 			switch (glob.IndexOf('/'))
 			{
 				case -1: glob = "**/" + glob; break;

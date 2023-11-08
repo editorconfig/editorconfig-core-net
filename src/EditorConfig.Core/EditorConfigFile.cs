@@ -84,10 +84,10 @@ namespace EditorConfig.Core
 
 		/// <summary> Parses EditorConfig file from the text reader. </summary>
 		/// <param name="reader"> Text reader. </param>
-		/// <param name="directory"> EditorConfig directory files to be matched to. </param>
-		/// <param name="fileName"> EditorConfig file name. </param>
+		/// <param name="directory"> EditorConfig base directory to match file sections to. Default is null. </param>
+		/// <param name="fileName"> EditorConfig file name. Default is '.editorconfig'. </param>
 		/// <returns> Parsed EditorConfig file. </returns>
-		public static EditorConfigFile Parse(TextReader reader, string directory, string fileName = ".editorconfig") =>
+		public static EditorConfigFile Parse(TextReader reader, string directory = null, string fileName = ".editorconfig") =>
 			new(fileName, directory, reader);
 
 		internal static EditorConfigFile Parse(string path, string cacheKey)

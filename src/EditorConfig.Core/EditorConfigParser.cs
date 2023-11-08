@@ -91,13 +91,13 @@ namespace EditorConfig.Core
 			var sections =
 				from configFile in editorConfigFiles
 				from section in configFile.Sections
-				where IsMatch(section.Glob, fullPath, configFile.Directory)
+				where IsMatch(section.Glob, fullPath)
 				select section;
 
 			return new FileConfiguration(ParseVersion, file, sections.ToList());
 		}
 
-		private bool IsMatch(string glob, string fileName, string directory)
+		private bool IsMatch(string glob, string fileName)
 		{
 			var matcher = GlobMatcher.Create(glob, _globOptions);
 			var isMatch = matcher.IsMatch(fileName);
