@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using EditorConfig.Core;
 using FluentAssertions;
+using Microsoft.VisualBasic;
 using NUnit.Framework;
 
 namespace EditorConfig.Tests.InMemory
@@ -30,6 +31,8 @@ namespace EditorConfig.Tests.InMemory
 		[Test]
 		public void InMemoryConfigIsUsableWithVirtualPath()
 		{
+			var virtualDirectory = Path.Combine(Directory.GetDirectoryRoot("."), "VirtualPath");
+
 			var configContent = @"""
 			                    root = true
 
@@ -37,15 +40,18 @@ namespace EditorConfig.Tests.InMemory
 			                    end_of_line = lf
 			                    """;
 			var stringReader = new StringReader(configContent);
-			var editorConfigFile = EditorConfigFile.Parse(stringReader, "C://VirtualPath");
+			var editorConfigFile = EditorConfigFile.Parse(stringReader, virtualDirectory);
 
 			var parser = new EditorConfigParser();
 
-			var config1 = parser.Parse("C://VirtualPath/myfile.cs", new[] { editorConfigFile });
+			var file = Path.Combine(virtualDirectory, "myfile.cs");
+			var config1 = parser.Parse(file, new[] { editorConfigFile });
 			config1.EditorConfigFiles.Should().ContainSingle(f => f.IsRoot);
 			config1.EndOfLine.Should().Be(EndOfLine.LF);
 
-			var config2 = parser.Parse("C://DifferentFolder/myfile.cs", new[] { editorConfigFile });
+			var directoryOutOfScope = Path.Combine(Directory.GetDirectoryRoot("."), "DifferentDirectory");
+			var fileOutOfScope = Path.Combine(directoryOutOfScope, "myfile.cs");
+			var config2 = parser.Parse(fileOutOfScope, new[] { editorConfigFile });
 			config2.EditorConfigFiles.Should().BeEmpty();
 		}
 	}
