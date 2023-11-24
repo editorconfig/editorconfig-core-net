@@ -28,9 +28,9 @@ public static class EditorConfigFileCache
 	/// <returns></returns>
 	public static EditorConfigFile GetOrCreate(string file)
 	{
-		if (!File.Exists(file)) return new EditorConfigFile(file);
+		if (!File.Exists(file)) return EditorConfigFile.Parse(file);
 
 		var key = $"{file}_{GetFileHash(file)}";
-		return FileCache.GetOrAdd(key, _ => new EditorConfigFile(file, key));
+		return FileCache.GetOrAdd(key, _ => EditorConfigFile.Parse(file, key));
 	}
 }

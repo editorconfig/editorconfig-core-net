@@ -41,7 +41,7 @@ namespace EditorConfig.Core
 		/// <param name="configFileName">The name of the file(s) holding the editorconfiguration values</param>
 		/// <param name="developmentVersion">Only used in testing, development to pass an older version to the parsing routine</param>
 		public EditorConfigParser(string configFileName = ".editorconfig", Version developmentVersion = null)
-			: this(f => new EditorConfigFile(f), configFileName, developmentVersion)
+			: this(EditorConfigFile.Parse, configFileName, developmentVersion)
 		{
 
 		}
@@ -91,13 +91,13 @@ namespace EditorConfig.Core
 			var sections =
 				from configFile in editorConfigFiles
 				from section in configFile.Sections
-				where IsMatch(section.Glob, fullPath, configFile.Directory)
+				where IsMatch(section.Glob, fullPath)
 				select section;
 
 			return new FileConfiguration(ParseVersion, file, sections.ToList());
 		}
 
-		private bool IsMatch(string glob, string fileName, string directory)
+		private bool IsMatch(string glob, string fileName)
 		{
 			var matcher = GlobMatcher.Create(glob, _globOptions);
 			var isMatch = matcher.IsMatch(fileName);
