@@ -43,7 +43,7 @@ Target "BuildApp" (fun _ ->
       ("Configuration","Release"); 
     ]
 
-    //Compile each csproj and output it seperately in build/output/PROJECTNAME
+    //Compile each csproj and output it separately in build/output/PROJECTNAME
     !! "src/**/*.csproj"
       |> Seq.map(fun f -> (f, buildDir + directoryInfo(f).Name.Replace(".csproj", "")))
       |> Seq.iter(fun (f,d) -> MSBuild d "Build" msbuildProperties (seq { yield f }) |> ignore)
@@ -110,11 +110,11 @@ let validateSignedAssembly = fun name ->
     let token = (tokenMessage.Replace("Public key token is", "")).Trim();
 
     let valid = (out.ExitCode, token)
-    let oficialToken = "fe6ce3ea283749f2"
+    let officialToken = "fe6ce3ea283749f2"
     match valid with
-    | (0, t) when t = oficialToken  -> 
+    | (0, t) when t = officialToken  -> 
       trace (sprintf "%s was signed with official key token %s" name t) 
-    | (_, t) -> traceFAKE "%s was not signed with the official token: %s but %s" name oficialToken t
+    | (_, t) -> traceFAKE "%s was not signed with the official token: %s but %s" name officialToken t
 
 let nugetPack = fun _ ->
     let package = @"build\nuget.nuspec"
@@ -176,7 +176,7 @@ let getAssemblyVersion = (fun _ ->
   
     match (assemblySuffix, version.Minor, version.Patch) with
     | (s, m, p) when s <> "" && s <> "ci" && (m <> 0 || p <> 0)  -> failwithf "Cannot create prereleases for minor or major builds!"
-    | ("", _, _) -> traceFAKE "Building fileversion %s for asssembly version %s" fileVersion assemblyVersion
+    | ("", _, _) -> traceFAKE "Building file version %s for assembly version %s" fileVersion assemblyVersion
     | _ -> traceFAKE "Building prerelease %s for major assembly version %s " fileVersion assemblyVersion
 
     assemblyVersion

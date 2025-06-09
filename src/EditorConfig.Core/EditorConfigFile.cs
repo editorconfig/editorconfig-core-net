@@ -18,7 +18,7 @@ namespace EditorConfig.Core
 		/// <summary> A hint this instance of <see cref="EditorConfigFile"/> was cached</summary>
 		public string CacheKey { get; }
 
-		/// <summary> Indicates wheter the loaded editorconfig represents the root of the chain </summary>
+		/// <summary> Indicates whether the loaded editorconfig represents the root of the chain </summary>
 		public bool IsRoot { get;  }
 	}
 

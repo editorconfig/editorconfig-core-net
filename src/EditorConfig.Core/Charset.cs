@@ -9,7 +9,7 @@
 		Latin1,
 		UTF8,
 		/// <summary>
-		/// Usage of UFT8BOM is discouraged
+		/// Usage of UTF8BOM is discouraged
 		/// </summary>
 		UTF8BOM,
 		UTF16BE,

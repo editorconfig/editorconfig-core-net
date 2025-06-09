@@ -23,7 +23,7 @@ namespace EditorConfig.Tests.TabWidths
 		}
 
 		[Test]
-		public void TabIndenSizeAndSpecifiedTabWidth()
+		public void TabIndentSizeAndSpecifiedTabWidth()
 		{
 			var file = GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".tab.editorconfig");
 			file.TabWidth.Should().HaveValue();

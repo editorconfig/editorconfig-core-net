@@ -15,7 +15,7 @@ namespace EditorConfig.App
 		public ArgumentsParser(string[] args)
 		{
 			if (args.Length == 0)
-				throw new ApplicationArgumentException("Must specify atleast one FILEPATH");
+				throw new ApplicationArgumentException("Must specify at least one FILEPATH");
 
 			while (args.Length > 0 && args[0].StartsWith("-"))
 			{
@@ -50,7 +50,7 @@ namespace EditorConfig.App
 				}
 			}
 			if (args.Length == 0)
-				throw new ApplicationArgumentException("You need to specify atleast one file");
+				throw new ApplicationArgumentException("You need to specify at least one file");
 
 			FileNames = args;
 		}

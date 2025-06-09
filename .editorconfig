@@ -33,7 +33,7 @@ end_of_line = lf
 # ---
 
 # ---
-# langugage conventions https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#language-conventions
+# language conventions https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference#language-conventions
 
 # Sort using and Import directives with System.* appearing first
 dotnet_sort_system_directives_first = true

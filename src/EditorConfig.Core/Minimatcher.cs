@@ -47,10 +47,10 @@ namespace EditorConfig.Core
     ///<summary>If set, then patterns without slashes will be matched against the basename of the path if it contains slashes. For example, <c>a?b</c> would match the path <c>/xyz/123/acb</c>, but not <c>/xyz/acb/123</c>.</summary>
     public bool MatchBase { get; set; }
 
-    ///<summary>If true, backslahes in paths will be treated as forward slashes.</summary>
+    ///<summary>If true, backslashes in paths will be treated as forward slashes.</summary>
     public bool AllowWindowsPaths { get; set; }
 
-    ///<summary>If true, backslahes in patterns will be treated as forward slashes. This disables escape characters.</summary>
+    ///<summary>If true, backslashes in patterns will be treated as forward slashes. This disables escape characters.</summary>
     public bool AllowWindowsPathsInPatterns { get; set; }
   }
 
@@ -481,7 +481,7 @@ namespace EditorConfig.Core
 
       private bool CheckDot(int dotPos)
       {
-        // .x should not match neither *x, nor **x, nor ?x, unless
+        // .x should match neither *x, nor **x, nor ?x, unless
         // myOptions.Dot is set.
         // . and .. are *never* matched by *, ** or ?, for explosively
         // exponential reasons.
@@ -780,7 +780,7 @@ namespace EditorConfig.Core
       // {b,c{d,e},{f,g}h}x{y,z}
       // walk through the set, expanding each part, until
       // the set ends.  then, we'll expand the suffix.
-      // If the set only has a single member, then'll put the {} back
+      // If the set only has a single member, then we'll put the {} back
 
       // first, handle numeric sets, since they're easier
       var numset = ourNumericSet.Match(pattern);
