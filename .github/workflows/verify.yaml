@@ -34,7 +34,7 @@ jobs:
     - name: Core tests
       run: 'cmake . && ctest . -E "max_property_(name|value)|max_section_name_ignore" '
   windows:
-    runs-on: windows-2019
+    runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
       with:
