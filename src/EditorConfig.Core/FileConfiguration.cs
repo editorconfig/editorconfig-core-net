@@ -92,10 +92,15 @@ namespace EditorConfig.Core
 			Version = version;
 			Sections = sections;
 
-			// Single reverse pass: last section wins for each typed property and raw key.
-			// This replaces 8 separate LastOrDefault passes and a SelectMany enumeration.
+			// Forward pass for raw properties: last-wins on duplicate keys, keys inserted in
+			// first-encounter order (preserving output order expected by the conformance suite).
 			var properties = new Dictionary<string, string>(capacity: 16);
+			foreach (var sec in sections)
+				foreach (var kv in sec)
+					properties[kv.Key] = kv.Value;
 
+			// Reverse pass for the 8 typed properties: first non-null found in reverse = last section wins.
+			// Kept separate so the raw dict retains forward key-insertion order.
 			IndentStyle? indentStyle = null;
 			IndentSize indentSize = null;
 			int? tabWidth = null;
@@ -108,13 +113,6 @@ namespace EditorConfig.Core
 			for (var i = sections.Count - 1; i >= 0; i--)
 			{
 				var sec = sections[i];
-
-				// Raw properties: first-wins in reverse order = last-wins in forward order
-				foreach (var kv in sec)
-					if (!properties.ContainsKey(kv.Key))
-						properties[kv.Key] = kv.Value;
-
-				// Typed: take the first non-null found when iterating in reverse
 				if (indentStyle == null && sec.IndentStyle.HasValue)   indentStyle   = sec.IndentStyle;
 				if (indentSize  == null && sec.IndentSize  != null)    indentSize    = sec.IndentSize;
 				if (tabWidth    == null && sec.TabWidth.HasValue)       tabWidth      = sec.TabWidth;
