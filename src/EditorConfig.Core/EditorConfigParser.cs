@@ -57,11 +57,34 @@ namespace EditorConfig.Core
 		public IFileSystem FileSystem { get; private set; }
 
 		/// <summary>
-		/// The EditorConfigParser locates all relevant editorconfig files and makes sure they are merged correctly.
+		/// Creates an <see cref="EditorConfigParser"/> with the default filesystem and
+		/// <see cref="EditorConfigFileCache"/> enabled. This is the recommended constructor
+		/// for most use cases.
 		/// </summary>
-		/// <param name="configFileName">The name of the file(s) holding the editorconfiguration values</param>
-		/// <param name="developmentVersion">Only used in testing, development to pass an older version to the parsing routine</param>
-		/// <param name="fileSystem">The <see cref="IFileSystem"/> to use. Can be used for testing.</param>
+		public EditorConfigParser() : this((IFileSystem)null) { }
+
+		/// <summary>
+		/// Creates an <see cref="EditorConfigParser"/> with the provided filesystem and
+		/// <see cref="EditorConfigFileCache"/> enabled.
+		/// </summary>
+		/// <param name="fileSystem">The <see cref="IFileSystem"/> to use.</param>
+		/// <param name="configFileName">The name of the editorconfig file. Defaults to <c>.editorconfig</c>.</param>
+		/// <param name="developmentVersion">Only used in testing to simulate an older parser version.</param>
+		public EditorConfigParser(IFileSystem fileSystem, string configFileName = ".editorconfig", Version developmentVersion = null)
+		{
+			fileSystem ??= new FileSystem();
+			Factory = path => EditorConfigFileCache.GetOrCreate(path, fileSystem);
+			ConfigFileName = configFileName ?? ".editorconfig";
+			ParseVersion = developmentVersion ?? Version;
+			FileSystem = fileSystem;
+		}
+
+		/// <summary>
+		/// Creates an <see cref="EditorConfigParser"/> without file caching.
+		/// </summary>
+		/// <param name="configFileName">The name of the editorconfig file. Defaults to <c>.editorconfig</c>.</param>
+		/// <param name="developmentVersion">Only used in testing to simulate an older parser version.</param>
+		/// <param name="fileSystem">The <see cref="IFileSystem"/> to use. Defaults to <see cref="FileSystem"/>.</param>
 		public EditorConfigParser(string configFileName = ".editorconfig", Version developmentVersion = null, IFileSystem fileSystem = null)
 		{
 			fileSystem ??= new FileSystem();
@@ -72,15 +95,14 @@ namespace EditorConfig.Core
 		}
 
 		/// <summary>
-		/// The EditorConfigParser locates all relevant editorconfig files and makes sure they are merged correctly.
+		/// Creates an <see cref="EditorConfigParser"/> with a custom factory.
 		/// </summary>
 		/// <param name="factory">
-		/// Function that take the file name and constructs a new EditorConfigFile instance.
-		/// Pass `EditorConfigFileCache.GetOrCreate` to apply caching.
+		/// Function that produces an <see cref="EditorConfigFile"/> from a path.
 		/// </param>
-		/// <param name="configFileName"></param>
-		/// <param name="developmentVersion"></param>
-		/// <param name="fileSystem">The <see cref="IFileSystem"/> to use. Can be used for testing.</param>
+		/// <param name="configFileName">The name of the editorconfig file. Defaults to <c>.editorconfig</c>.</param>
+		/// <param name="developmentVersion">Only used in testing to simulate an older parser version.</param>
+		/// <param name="fileSystem">The <see cref="IFileSystem"/> to use. Defaults to <see cref="FileSystem"/>.</param>
 		public EditorConfigParser(Func<string, EditorConfigFile> factory, string configFileName = ".editorconfig", Version developmentVersion = null, IFileSystem fileSystem = null)
 		{
 			Factory = factory;

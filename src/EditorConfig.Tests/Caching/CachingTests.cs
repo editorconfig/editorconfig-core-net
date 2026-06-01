@@ -1,4 +1,3 @@
-using System.IO.Abstractions;
 using System.Reflection;
 using AwesomeAssertions;
 using EditorConfig.Core;
@@ -13,10 +12,7 @@ namespace EditorConfig.Tests.Caching
 		{
 			var fileName = GetFileFromMethod(MethodBase.GetCurrentMethod(), ".editorconfig");
 
-			var fileSystem = new FileSystem();
-			var parser = new EditorConfigParser(
-				f => EditorConfigFileCache.GetOrCreate(f, fileSystem),
-				fileSystem: fileSystem);
+			var parser = new EditorConfigParser();
 			var config1 = parser.Parse(fileName);
 			config1.EditorConfigFiles.Should().NotBeNullOrEmpty();
 			config1.EditorConfigFiles.Should().OnlyContain(f => !string.IsNullOrEmpty(f.CacheKey));

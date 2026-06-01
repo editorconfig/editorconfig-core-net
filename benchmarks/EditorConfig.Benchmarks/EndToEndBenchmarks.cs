@@ -90,7 +90,7 @@ public class EndToEndBenchmarks
         }
 
         _parser       = new EditorConfigParser();
-        _cachedParser = new EditorConfigParser(f => EditorConfigFileCache.GetOrCreate(f));
+        _cachedParser = new EditorConfigParser();
 
         // Warm up the file cache and chain cache so disk I/O doesn't dominate
         _cachedParser.Parse(_targetFile);
