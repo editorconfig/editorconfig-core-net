@@ -58,17 +58,26 @@ namespace EditorConfig.Core
 
 		/// <summary>
 		/// Creates an <see cref="EditorConfigParser"/> with the default filesystem and
-		/// <see cref="EditorConfigFileCache"/> enabled. This is the recommended constructor
-		/// for most use cases.
+		/// <see cref="EditorConfigFileCache"/> enabled.
 		/// </summary>
 		public EditorConfigParser() : this((IFileSystem)null) { }
+
+		/// <summary>
+		/// Creates an <see cref="EditorConfigParser"/> with a custom config file name and
+		/// optional development version. Uses the default filesystem and
+		/// <see cref="EditorConfigFileCache"/>.
+		/// </summary>
+		/// <param name="configFileName">The config file name to look for. Defaults to <c>.editorconfig</c>.</param>
+		/// <param name="developmentVersion">Only used in testing to simulate an older parser version.</param>
+		public EditorConfigParser(string configFileName, Version developmentVersion = null)
+			: this((IFileSystem)null, configFileName, developmentVersion) { }
 
 		/// <summary>
 		/// Creates an <see cref="EditorConfigParser"/> with the provided filesystem and
 		/// <see cref="EditorConfigFileCache"/> enabled.
 		/// </summary>
 		/// <param name="fileSystem">The <see cref="IFileSystem"/> to use.</param>
-		/// <param name="configFileName">The name of the editorconfig file. Defaults to <c>.editorconfig</c>.</param>
+		/// <param name="configFileName">The config file name to look for. Defaults to <c>.editorconfig</c>.</param>
 		/// <param name="developmentVersion">Only used in testing to simulate an older parser version.</param>
 		public EditorConfigParser(IFileSystem fileSystem, string configFileName = ".editorconfig", Version developmentVersion = null)
 		{
@@ -80,27 +89,12 @@ namespace EditorConfig.Core
 		}
 
 		/// <summary>
-		/// Creates an <see cref="EditorConfigParser"/> without file caching.
-		/// </summary>
-		/// <param name="configFileName">The name of the editorconfig file. Defaults to <c>.editorconfig</c>.</param>
-		/// <param name="developmentVersion">Only used in testing to simulate an older parser version.</param>
-		/// <param name="fileSystem">The <see cref="IFileSystem"/> to use. Defaults to <see cref="FileSystem"/>.</param>
-		public EditorConfigParser(string configFileName = ".editorconfig", Version developmentVersion = null, IFileSystem fileSystem = null)
-		{
-			fileSystem ??= new FileSystem();
-			Factory = path => EditorConfigFile.Parse(path, fileSystem);
-			ConfigFileName = configFileName ?? ".editorconfig";
-			ParseVersion = developmentVersion ?? Version;
-			FileSystem = fileSystem;
-		}
-
-		/// <summary>
 		/// Creates an <see cref="EditorConfigParser"/> with a custom factory.
+		/// Use this for advanced scenarios such as testing with a mock factory or
+		/// supplying pre-loaded <see cref="EditorConfigFile"/> instances.
 		/// </summary>
-		/// <param name="factory">
-		/// Function that produces an <see cref="EditorConfigFile"/> from a path.
-		/// </param>
-		/// <param name="configFileName">The name of the editorconfig file. Defaults to <c>.editorconfig</c>.</param>
+		/// <param name="factory">Function that produces an <see cref="EditorConfigFile"/> from a path.</param>
+		/// <param name="configFileName">The config file name to look for. Defaults to <c>.editorconfig</c>.</param>
 		/// <param name="developmentVersion">Only used in testing to simulate an older parser version.</param>
 		/// <param name="fileSystem">The <see cref="IFileSystem"/> to use. Defaults to <see cref="FileSystem"/>.</param>
 		public EditorConfigParser(Func<string, EditorConfigFile> factory, string configFileName = ".editorconfig", Version developmentVersion = null, IFileSystem fileSystem = null)
