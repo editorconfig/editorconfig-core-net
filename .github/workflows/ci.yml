@@ -139,7 +139,7 @@ jobs:
           until dotnet nuget push 'build/output/*.nupkg' \
             -k ${{ secrets.GITHUB_TOKEN }} \
             --skip-duplicate \
-            --no-symbols true; do echo "Retrying"; sleep 1; done
+            --no-symbols; do echo "Retrying"; sleep 1; done
 
       - name: Generate release notes (tag push)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
@@ -156,4 +156,4 @@ jobs:
             -k ${{ secrets.NUGET_ORG_API_KEY }} \
             -s https://api.nuget.org/v3/index.json \
             --skip-duplicate \
-            --no-symbols true
+            --no-symbols
