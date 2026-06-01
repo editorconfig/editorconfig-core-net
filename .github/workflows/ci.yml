@@ -28,6 +28,7 @@ permissions:
 jobs:
   aot-pack:
     strategy:
+      fail-fast: false  # a preempted arm runner shouldn't cancel the whole matrix
       matrix:
         include:
           - rid: linux-x64
