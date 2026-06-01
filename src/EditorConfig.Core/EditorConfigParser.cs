@@ -153,7 +153,6 @@ namespace EditorConfig.Core
 
 		private IEnumerable<string> AllParentDirectories(string fullPath)
 		{
-			var root = FileSystem.DirectoryInfo.New(fullPath).Root.FullName;
 			var dir = FileSystem.Path.GetDirectoryName(fullPath);
 			do
 			{
@@ -162,7 +161,7 @@ namespace EditorConfig.Core
 				var dirInfo = FileSystem.DirectoryInfo.New(dir);
 				if (dirInfo.Parent == null) yield break;
 				dir = dirInfo.Parent.FullName;
-			} while (dir != root);
+			} while (true);
 		}
 	}
 }
