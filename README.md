@@ -31,6 +31,29 @@ foreach (var kv in configuration.Properties)
 }
 ```
 
+### Injecting a file system
+
+Pass an [`IFileSystem`](https://www.nuget.org/packages/System.IO.Abstractions) from [System.IO.Abstractions](https://github.com/TestableIO/System.IO.Abstractions) when you need a testable or virtual file system (for example, to align with libraries that already abstract `System.IO`):
+
+```csharp
+using System.IO.Abstractions;
+
+var fileSystem = new FileSystem();
+var parser = new EditorConfigParser(fileSystem: fileSystem);
+var configuration = parser.Parse(fileName);
+```
+
+With file caching, pass the same instance to both the parser and the cache:
+
+```csharp
+var fileSystem = new FileSystem();
+var parser = new EditorConfigParser(
+    f => EditorConfigFileCache.GetOrCreate(f, fileSystem),
+    fileSystem: fileSystem);
+```
+
+When `fileSystem` is omitted, the library uses `new FileSystem()` (the real disk).
+
 Usage as a command line tool:
 
 You can omit `dotnet` if you install this as a global tool

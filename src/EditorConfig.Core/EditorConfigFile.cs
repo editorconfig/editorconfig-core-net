@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Abstractions;
 using System.Text.RegularExpressions;
 
 namespace EditorConfig.Core
@@ -93,8 +94,10 @@ namespace EditorConfig.Core
 
 		/// <summary> Parses EditorConfig file from the file path. </summary>
 		/// <param name="path"> File path in a physical file system. </param>
+		/// <param name="fileSystem"> The <see cref="IFileSystem"/> to use. Defaults to <see cref="FileSystem"/>. </param>
 		/// <returns> Parsed EditorConfig file. </returns>
-		public static EditorConfigFile Parse(string path) => Parse(path, cacheKey: null);
+		public static EditorConfigFile Parse(string path, IFileSystem fileSystem = null) =>
+			Parse(path, cacheKey: null, fileSystem);
 
 		/// <summary> Parses EditorConfig file from the text reader. </summary>
 		/// <param name="reader"> Text reader. </param>
@@ -108,12 +111,13 @@ namespace EditorConfig.Core
 		internal static EditorConfigFile Parse(TextReader reader, string directory, string fileName, string cacheKey) =>
 			new(fileName, directory, reader, cacheKey);
 
-		internal static EditorConfigFile Parse(string path, string cacheKey)
+		internal static EditorConfigFile Parse(string path, string cacheKey, IFileSystem fileSystem = null)
 		{
-			using var file = File.OpenRead(path);
+			fileSystem ??= new FileSystem();
+			using var file = fileSystem.File.OpenRead(path);
 			using var reader = new StreamReader(file);
 			return new EditorConfigFile(
-				System.IO.Path.GetFileName(path), System.IO.Path.GetDirectoryName(path),
+				fileSystem.Path.GetFileName(path), fileSystem.Path.GetDirectoryName(path),
 				reader, cacheKey);
 		}
 

@@ -24,4 +24,8 @@
 		<PackageReference Include="System.Memory" Version="4.6.3" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<PackageReference Include="System.IO.Abstractions" Version="22.1.1" />
+	</ItemGroup>
+
 </Project>

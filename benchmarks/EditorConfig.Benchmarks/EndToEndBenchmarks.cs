@@ -77,7 +77,7 @@ public class EndToEndBenchmarks
         File.WriteAllText(_targetFile, "// placeholder");
 
         _parser = new EditorConfigParser();
-        _cachedParser = new EditorConfigParser(EditorConfigFileCache.GetOrCreate);
+        _cachedParser = new EditorConfigParser(f => EditorConfigFileCache.GetOrCreate(f));
 
         // Warm up the file cache so disk I/O doesn't dominate
         _cachedParser.Parse(_targetFile);
