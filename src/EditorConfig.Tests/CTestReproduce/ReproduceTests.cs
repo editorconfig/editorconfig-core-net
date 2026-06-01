@@ -1,11 +1,10 @@
-﻿using System.Reflection;
+using System.Reflection;
+using AwesomeAssertions;
 using EditorConfig.Core;
-using FluentAssertions;
-using NUnit.Framework;
+using TUnit;
 
 namespace EditorConfig.Tests.CTestReproduce
 {
-	[TestFixture]
 	public class ReproduceTests : EditorConfigTestBase
 	{
 		[Test]
@@ -55,6 +54,5 @@ namespace EditorConfig.Tests.CTestReproduce
 			file.TrimTrailingWhitespace.Should().BeFalse();
 			file.Properties["trim_trailing_whitespace"].Should().Be("false");
 		}
-
 	}
 }

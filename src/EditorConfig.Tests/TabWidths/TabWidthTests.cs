@@ -1,10 +1,9 @@
-﻿using System.Reflection;
-using FluentAssertions;
-using NUnit.Framework;
+using System.Reflection;
+using AwesomeAssertions;
+using TUnit;
 
 namespace EditorConfig.Tests.TabWidths
 {
-	[TestFixture]
 	internal class TabWidthTests : EditorConfigTestBase
 	{
 		[Test]
@@ -39,9 +38,7 @@ namespace EditorConfig.Tests.TabWidths
 		{
 			var file = GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".bogus.editorconfig");
 			file.IndentSize.Should().BeNull();
-			HasBogusKey(file,"tab_width");
-
+			HasBogusKey(file, "tab_width");
 		}
-
 	}
 }

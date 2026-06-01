@@ -1,13 +1,11 @@
-﻿using System.IO;
+using System.IO;
+using AwesomeAssertions;
 using EditorConfig.Core;
-using FluentAssertions;
-using Microsoft.VisualBasic;
-using NUnit.Framework;
+using TUnit;
 
 namespace EditorConfig.Tests.InMemory
 {
-	[TestFixture]
-	public class CachingTests : EditorConfigTestBase
+	public class InMemoryConfigTests : EditorConfigTestBase
 	{
 		[Test]
 		public void InMemoryConfigIsUsable()

@@ -1,17 +1,16 @@
-﻿using System.Reflection;
+using System.Reflection;
+using AwesomeAssertions;
 using EditorConfig.Core;
-using FluentAssertions;
-using NUnit.Framework;
+using TUnit;
 
 namespace EditorConfig.Tests.Caching
 {
-	[TestFixture]
 	public class CachingTests : EditorConfigTestBase
 	{
 		[Test]
 		public void FileShouldCached()
 		{
-			var fileName = GetFileFromMethod(MethodBase.GetCurrentMethod(),  ".editorconfig");
+			var fileName = GetFileFromMethod(MethodBase.GetCurrentMethod(), ".editorconfig");
 
 			var parser = new EditorConfigParser(EditorConfigFileCache.GetOrCreate);
 			var config1 = parser.Parse(fileName);

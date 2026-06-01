@@ -1,11 +1,10 @@
-﻿using System.Reflection;
+using System.Reflection;
+using AwesomeAssertions;
 using EditorConfig.Core;
-using FluentAssertions;
-using NUnit.Framework;
+using TUnit;
 
 namespace EditorConfig.Tests.TrimTrailing
 {
-	[TestFixture]
 	internal class TrimTrailingWhitespaceTests : EditorConfigTestBase
 	{
 		[Test]
@@ -29,6 +28,5 @@ namespace EditorConfig.Tests.TrimTrailing
 			file.TrimTrailingWhitespace.Should().NotHaveValue();
 			HasBogusKey(file, "trim_trailing_whitespace");
 		}
-
 	}
 }

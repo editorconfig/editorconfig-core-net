@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using AwesomeAssertions;
 using EditorConfig.Core;
-using FluentAssertions;
-using NUnit.Framework;
+using TUnit;
 
 /*
  * (c) 2018 JetBrains s.r.o., SLaks, EditorConfig Team
@@ -14,7 +14,9 @@ using NUnit.Framework;
 
 namespace EditorConfig.Tests
 {
-	[TestFixture]
+	// The tests in this class share mutable static state (the `files` list) that is
+	// reset by [Before(Test)] DefaultFiles(). They must not run in parallel.
+	[NotInParallel]
 	public class MiniMatcherTests
 	{
 		private readonly GlobMatcherOptions _globOptions = new GlobMatcherOptions { MatchBase = true, Dot = true, AllowWindowsPaths = true };
@@ -41,11 +43,11 @@ namespace EditorConfig.Tests
 
 			filtered = filtered.OrderBy(s => s);
 
-			Assert.AreEqual(
-				string.Join(Environment.NewLine, expected.OrderBy(s => s)),
-				string.Join(Environment.NewLine, filtered),
-				"Failure from `" + pattern + "`"
-			);
+			string.Join(Environment.NewLine, filtered)
+				.Should().Be(
+					string.Join(Environment.NewLine, expected.OrderBy(s => s)),
+					$"Failure from `{pattern}`"
+				);
 		}
 
 		private static void AddFiles(params string[] entries) => files.AddRange(entries);
@@ -58,7 +60,7 @@ namespace EditorConfig.Tests
 
 		private static readonly List<string> files = new List<string>();
 
-		[SetUp]
+		[Before(Test)]
 		public void DefaultFiles() =>
 			ReplaceFiles(
 				"a", "b", "c", "d", "abc"
@@ -99,8 +101,8 @@ namespace EditorConfig.Tests
 				"/^root:/{s/^[^:]*:[^:]*:([^:]*).*$/\\1/"
 				, new[] { "/^root:/{s/^[^:]*:[^:]*:([^:]*).*$/\\1/" }, new GlobMatcherOptions { NoNull = true });
 			TestCase(
-				"/^root:/{s/^[^:]*:[^:]*:([^:]*).*$/\u0001/"
-				, new[] { "/^root:/{s/^[^:]*:[^:]*:([^:]*).*$/\u0001/" }, new GlobMatcherOptions { NoNull = true });
+				"/^root:/{s/^[^:]*:[^:]*:([^:]*).*$//"
+				, new[] { "/^root:/{s/^[^:]*:[^:]*:([^:]*).*$//" }, new GlobMatcherOptions { NoNull = true });
 		}
 
 		[Test]
@@ -401,38 +403,35 @@ namespace EditorConfig.Tests
 			TestCase("**/.x/**", new[] { ".x/", ".x/a", ".x/a/b", "a/.x/b", "a/b/.x/", "a/b/.x/c", "a/b/.x/c/d", "a/b/.x/c/d/e" });
 		}
 
-		[TestCase("a*/**b**", "abc/ss/aa/vv/ggbbhh/qq", true)]
-		[TestCase("a*/**b**", "abc/ss/aa/vv/gghh/qq", false)]
-		[TestCase("**/bin/**.exe", "My/BiN/Debug/program.exe", true)]
-		[TestCase("**/bin/**.exe", "My/BiN/Debug/program.dll", false)]
-		[TestCase("**/bin/**.exe", "bin/program.exe", true)]
-		[TestCase("**aaa**ddd***ccc**", "aaa/aaa/ddd/ddd/ccc/ccc", true)]
-		[TestCase("**aaa**ddd***ccc**", "aaa/aaa/ccc/ccc", false)]
-		//[TestCase(".\\s.slN", "S.sln", true)]
-		//[TestCase("s.slN", ".\\S.sln", true)]
-		[TestCase(".", "", false)]
-		[TestCase("/a/b/*", "/a/b/c", true)]
-
-		[TestCase("*.txt", "/a/b/c/d/e/x.txt", false)]
-		[TestCase("**.txt", "/a/b/c/d/e/x.txt", true)]
-		[TestCase("**/*.txt", "/a/b/c/d/e/x.txt", true)]
-
-		[TestCase("**/*.resx", @"C:\Repositories\ReSharperUp\ReSharperAutomationTools\test\data\CleanupCode\functional\Smoke\SampleSolution_2008\Properties\Resources.resx", true)]
-		[TestCase("**/*.resx", @"SampleSolution_2008\Properties\Resources.resx", true)]
-		[TestCase("**/*.resx", @"SampleSolution_2008\\Properties\\Resources.resx", true)]
-
-		[TestCase("**.resx", @"C:\Repositories\ReSharperUp\ReSharperAutomationTools\test\data\CleanupCode\functional\Smoke\SampleSolution_2008\Properties\Resources.resx", true)]
-		[TestCase("**.resx", @"SampleSolution_2008\Properties\Resources.resx", true)]
-		[TestCase("**.resx", @"SampleSolution_2008\\Properties\\Resources.resx", true)]
-
-		[TestCase("*.resx", @"C:\Repositories\ReSharperUp\ReSharperAutomationTools\test\data\CleanupCode\functional\Smoke\SampleSolution_2008\Properties\Resources.resx", false)]
-		[TestCase("*.resx", @"SampleSolution_2008\Properties\Resources.resx", false)]
-		[TestCase("*.resx", @"SampleSolution_2008\\Properties\\Resources.resx", false)]
+		[Test]
+		[Arguments("a*/**b**", "abc/ss/aa/vv/ggbbhh/qq", true)]
+		[Arguments("a*/**b**", "abc/ss/aa/vv/gghh/qq", false)]
+		[Arguments("**/bin/**.exe", "My/BiN/Debug/program.exe", true)]
+		[Arguments("**/bin/**.exe", "My/BiN/Debug/program.dll", false)]
+		[Arguments("**/bin/**.exe", "bin/program.exe", true)]
+		[Arguments("**aaa**ddd***ccc**", "aaa/aaa/ddd/ddd/ccc/ccc", true)]
+		[Arguments("**aaa**ddd***ccc**", "aaa/aaa/ccc/ccc", false)]
+		//[Arguments(".\\s.slN", "S.sln", true)]
+		//[Arguments("s.slN", ".\\S.sln", true)]
+		[Arguments(".", "", false)]
+		[Arguments("/a/b/*", "/a/b/c", true)]
+		[Arguments("*.txt", "/a/b/c/d/e/x.txt", false)]
+		[Arguments("**.txt", "/a/b/c/d/e/x.txt", true)]
+		[Arguments("**/*.txt", "/a/b/c/d/e/x.txt", true)]
+		[Arguments("**/*.resx", @"C:\Repositories\ReSharperUp\ReSharperAutomationTools\test\data\CleanupCode\functional\Smoke\SampleSolution_2008\Properties\Resources.resx", true)]
+		[Arguments("**/*.resx", @"SampleSolution_2008\Properties\Resources.resx", true)]
+		[Arguments("**/*.resx", @"SampleSolution_2008\\Properties\\Resources.resx", true)]
+		[Arguments("**.resx", @"C:\Repositories\ReSharperUp\ReSharperAutomationTools\test\data\CleanupCode\functional\Smoke\SampleSolution_2008\Properties\Resources.resx", true)]
+		[Arguments("**.resx", @"SampleSolution_2008\Properties\Resources.resx", true)]
+		[Arguments("**.resx", @"SampleSolution_2008\\Properties\\Resources.resx", true)]
+		[Arguments("*.resx", @"C:\Repositories\ReSharperUp\ReSharperAutomationTools\test\data\CleanupCode\functional\Smoke\SampleSolution_2008\Properties\Resources.resx", false)]
+		[Arguments("*.resx", @"SampleSolution_2008\Properties\Resources.resx", false)]
+		[Arguments("*.resx", @"SampleSolution_2008\\Properties\\Resources.resx", false)]
 		public void MatchesTest(string pattern, string fileName, bool expectsMatch)
 		{
 			var wildcard = GlobMatcher.Create(pattern, new GlobMatcherOptions { IgnoreCase = true, AllowWindowsPaths = true });
 			var match = wildcard.IsMatch(fileName);
-			Assert.AreEqual(expectsMatch, match, $"Failure with pattern {pattern}, fileName {fileName}, should match {expectsMatch}");
+			match.Should().Be(expectsMatch, $"Failure with pattern {pattern}, fileName {fileName}, should match {expectsMatch}");
 		}
 	}
 }

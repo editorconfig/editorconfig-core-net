@@ -1,28 +1,30 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
-    <AssemblyName>EditorConfig.App</AssemblyName>
-    <PackAsTool>true</PackAsTool>
-    <ToolCommandName>editorconfig</ToolCommandName>
-    <PackageId>editorconfig-tool</PackageId>
-    
-    <Title>editorconfig-tool: a dotnet tool to generate release notes from GitHub</Title>
-    <Description>A .NET tool allowing you to inspect the editorconfig settings for multiple files</Description>
-    
-    <IsPackable>true</IsPackable>
-    
-  </PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net10.0</TargetFramework>
+		<AssemblyName>EditorConfig.App</AssemblyName>
+
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>editorconfig</ToolCommandName>
+		<PackageId>editorconfig-tool</PackageId>
+		<Title>editorconfig-tool: inspect editorconfig settings for files from the command line</Title>
+		<Description>A .NET tool allowing you to inspect the editorconfig settings for multiple files</Description>
+		<IsPackable>true</IsPackable>
+
+		<!-- Native-AOT tool packaging: per-RID native + 'any' framework-dependent fallback.
+		     The root package's DotnetToolSettings.xml (v2) maps each RID to its per-RID package.
+		     Installing this tool requires the .NET 10 SDK. -->
+		<RuntimeIdentifiers>linux-x64;linux-arm64;win-x64;win-arm64;osx-x64;osx-arm64;any</RuntimeIdentifiers>
+		<PublishAot>true</PublishAot>
+		<PublishSelfContained>true</PublishSelfContained>
+		<StripSymbols>true</StripSymbols>
+		<RollForward>Major</RollForward>
+		<InvariantGlobalization>true</InvariantGlobalization>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\EditorConfig.Core\EditorConfig.Core.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-		<PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net45" Version="1.0.0" PrivateAssets="all" />
-		<PackageReference Update="MinVer" Version="4.1.0" />
-	</ItemGroup>
-
 
 </Project>

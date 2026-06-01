@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using AwesomeAssertions;
 using EditorConfig.Core;
-using FluentAssertions;
 
 namespace EditorConfig.Tests
 {
@@ -41,7 +37,7 @@ namespace EditorConfig.Tests
 			file = Path.Combine(cwd.Replace(OutputPath("Release"), "").Replace(OutputPath("Debug"), ""), file);
 			return file;
 
-			string OutputPath(string configuration) => $"bin{folderSep}netcoreapp2.0{folderSep}{configuration}";
+			string OutputPath(string configuration) => $"bin{folderSep}net10.0{folderSep}{configuration}";
 		}
 
 		protected void AssertHasProperty(string property, FileConfiguration file) =>
