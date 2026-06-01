@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Concurrent;
-using System.IO;
+using System.IO.Abstractions;
 
 namespace EditorConfig.Core;
 
@@ -20,13 +20,14 @@ public static class EditorConfigFileCache
 	/// Cache lookup requires only a single cheap metadata stat — the file content is never
 	/// read on a cache hit.
 	/// </remarks>
-	public static EditorConfigFile GetOrCreate(string file)
+	public static EditorConfigFile GetOrCreate(string file, IFileSystem fileSystem = null)
 	{
-		if (!File.Exists(file)) return EditorConfigFile.Parse(file);
+		fileSystem ??= new FileSystem();
+		if (!fileSystem.File.Exists(file)) return EditorConfigFile.Parse(file, fileSystem);
 
-		var info = new FileInfo(file);
+		var info = fileSystem.FileInfo.New(file);
 		var key = $"{file}|{info.LastWriteTimeUtc.Ticks}|{info.Length}";
 
-		return FileCache.GetOrAdd(key, _ => EditorConfigFile.Parse(file, key));
+		return FileCache.GetOrAdd(key, _ => EditorConfigFile.Parse(file, key, fileSystem));
 	}
 }
