@@ -1,8 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace EditorConfig.Core
 {
@@ -84,24 +82,62 @@ namespace EditorConfig.Core
 			if (version == null) throw new ArgumentNullException(nameof(version));
 			if (string.IsNullOrWhiteSpace(fileName)) throw new ArgumentException("file should not be null or whitespace", nameof(fileName));
 
-			EditorConfigFiles = sections.Select(s => s.EditorConfigFile).ToArray();
+			// Collect originating config files — use a HashSet to deduplicate
+			var configFiles = new HashSet<IEditorConfigFile>();
+			foreach (var s in sections)
+				configFiles.Add(s.EditorConfigFile);
+			EditorConfigFiles = new List<IEditorConfigFile>(configFiles);
+
 			FileName = fileName;
 			Version = version;
 			Sections = sections;
 
-			var allProperties = sections.SelectMany(section => section);
-			var properties = new Dictionary<string, string>();
-			foreach (var kv in allProperties)
-				properties[kv.Key] = kv.Value;
+			// Single reverse pass: last section wins for each typed property and raw key.
+			// This replaces 8 separate LastOrDefault passes and a SelectMany enumeration.
+			var properties = new Dictionary<string, string>(capacity: 16);
 
-			IndentStyle = Sections.LastOrDefault(s => s.IndentStyle.HasValue)?.IndentStyle;
-			IndentSize = Sections.LastOrDefault(s => s.IndentSize != null)?.IndentSize;
-			TabWidth = Sections.LastOrDefault(s => s.TabWidth.HasValue)?.TabWidth;
-			EndOfLine = Sections.LastOrDefault(s => s.EndOfLine.HasValue)?.EndOfLine;
-			Charset = Sections.LastOrDefault(s => s.Charset.HasValue)?.Charset;
-			TrimTrailingWhitespace = Sections.LastOrDefault(s => s.TrimTrailingWhitespace.HasValue)?.TrimTrailingWhitespace;
-			InsertFinalNewline = Sections.LastOrDefault(s => s.InsertFinalNewline.HasValue)?.InsertFinalNewline;
-			MaxLineLength = Sections.LastOrDefault(s => s.MaxLineLength.HasValue)?.MaxLineLength;
+			IndentStyle? indentStyle = null;
+			IndentSize indentSize = null;
+			int? tabWidth = null;
+			EndOfLine? endOfLine = null;
+			Charset? charset = null;
+			bool? trimTrailingWhitespace = null;
+			bool? insertFinalNewline = null;
+			int? maxLineLength = null;
+
+			for (var i = sections.Count - 1; i >= 0; i--)
+			{
+				var sec = sections[i];
+
+				// Raw properties: first-wins in reverse order = last-wins in forward order
+				foreach (var kv in sec)
+					if (!properties.ContainsKey(kv.Key))
+						properties[kv.Key] = kv.Value;
+
+				// Typed: take the first non-null found when iterating in reverse
+				if (indentStyle == null && sec.IndentStyle.HasValue)   indentStyle   = sec.IndentStyle;
+				if (indentSize  == null && sec.IndentSize  != null)    indentSize    = sec.IndentSize;
+				if (tabWidth    == null && sec.TabWidth.HasValue)       tabWidth      = sec.TabWidth;
+				if (endOfLine   == null && sec.EndOfLine.HasValue)      endOfLine     = sec.EndOfLine;
+				if (charset     == null && sec.Charset.HasValue)        charset       = sec.Charset;
+				if (trimTrailingWhitespace == null && sec.TrimTrailingWhitespace.HasValue)
+					trimTrailingWhitespace = sec.TrimTrailingWhitespace;
+				if (insertFinalNewline == null && sec.InsertFinalNewline.HasValue)
+					insertFinalNewline = sec.InsertFinalNewline;
+				if (maxLineLength == null && sec.MaxLineLength.HasValue)
+					maxLineLength = sec.MaxLineLength;
+			}
+
+			IndentStyle = indentStyle;
+			IndentSize  = indentSize;
+			TabWidth    = tabWidth;
+			EndOfLine   = endOfLine;
+			Charset     = charset;
+			TrimTrailingWhitespace = trimTrailingWhitespace;
+			InsertFinalNewline     = insertFinalNewline;
+			MaxLineLength          = maxLineLength;
+
+			// Apply spec normalization rules (indent_size/tab_width interplay)
 
 			//default tab_width to indent_size when indent size is a number
 			if (IndentSize != null && IndentSize.NumberOfColumns.HasValue)

@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -59,7 +58,7 @@ namespace EditorConfig.Core
   /// <summary>
   /// A simple glob matcher implementation, if you want a proper one please use a full fletched one from nuget.
   /// </summary>
-  public class GlobMatcher
+  public partial class GlobMatcher
   {
     private readonly GlobMatcherOptions myOptions;
     private readonly List<PatternCase>  mySet;
@@ -82,39 +81,95 @@ namespace EditorConfig.Core
     ///<summary>Checks whether a given string matches this pattern.</summary>
     public bool IsMatch(string input)
     {
-      // short-circuit in the case of busted things.
-      // comments, etc.
       if (myComment) return false;
       if (myEmpty) return input == "";
+      return IsMatchCore(input.AsSpan());
+    }
 
-      // just ONE of the pattern sets in this.set needs to match
-      // in order for it to be valid.  If negating, then just one
-      // match means that we have failed.
-      // Either way, return on the first hit.
+    ///<summary>Checks whether a given character span matches this pattern.</summary>
+    public bool IsMatch(ReadOnlySpan<char> input)
+    {
+      if (myComment) return false;
+      if (myEmpty) return input.IsEmpty;
+      return IsMatchCore(input);
+    }
 
+    private bool IsMatchCore(ReadOnlySpan<char> input)
+    {
       foreach (var pattern in mySet)
       {
         var hit = new MatchContext(myOptions, input, pattern).MatchOne();
         if (hit)
         {
           if (myOptions.FlipNegate) return true;
-
           return !myNegate;
         }
       }
 
-      // didn't get any hits.  this is success if it's a negative
-      // pattern, failure otherwise.
       if (myOptions.FlipNegate) return false;
-
       return myNegate;
     }
 
-    private struct MatchContext
+    // ---------------------------------------------------------------------------
+    // Allocation-free helpers used by MatchContext for span-based searching
+    // ---------------------------------------------------------------------------
+
+    /// <summary>
+    /// Span-safe IndexOf with StringComparison, avoiding string allocations.
+    /// Falls back to a manual OrdinalIgnoreCase loop on targets without the span overload.
+    /// </summary>
+    internal static int SpanIndexOf(ReadOnlySpan<char> span, ReadOnlySpan<char> value, StringComparison comparison)
+    {
+      if (value.IsEmpty) return 0;
+      if (span.Length < value.Length) return -1;
+
+      if (comparison == StringComparison.Ordinal)
+        return span.IndexOf(value);
+
+      // OrdinalIgnoreCase: sliding-window char-by-char comparison using ToUpperInvariant.
+      // Semantically correct for editorconfig paths (ASCII range).
+      int end = span.Length - value.Length;
+      for (int i = 0; i <= end; i++)
+      {
+        bool match = true;
+        for (int j = 0; j < value.Length; j++)
+        {
+          if (char.ToUpperInvariant(span[i + j]) != char.ToUpperInvariant(value[j]))
+          {
+            match = false;
+            break;
+          }
+        }
+        if (match) return i;
+      }
+      return -1;
+    }
+
+    /// <summary>
+    /// Span-safe equality with StringComparison, no allocation.
+    /// </summary>
+    internal static bool SpanEquals(ReadOnlySpan<char> span, ReadOnlySpan<char> value, StringComparison comparison)
+    {
+      if (span.Length != value.Length) return false;
+      if (comparison == StringComparison.Ordinal)
+        return span.SequenceEqual(value);
+
+      // OrdinalIgnoreCase
+      for (int i = 0; i < span.Length; i++)
+        if (char.ToUpperInvariant(span[i]) != char.ToUpperInvariant(value[i]))
+          return false;
+      return true;
+    }
+
+    // ---------------------------------------------------------------------------
+    // MatchContext — the per-call matching state machine (ref struct for span field)
+    // ---------------------------------------------------------------------------
+
+    private ref struct MatchContext
     {
       private readonly GlobMatcherOptions myOptions;
       private readonly PatternCase        myPatternCase;
-      private readonly string             myStr;
+      private readonly ReadOnlySpan<char> myStr;
       private          int                myStartOffset;
       private          int                myEndOffset;
       private          int                myStartItem;
@@ -122,10 +177,15 @@ namespace EditorConfig.Core
       private          int                myLastAsteriskItem;
       private          int                myNextPositionForAsterisk;
 
-      private StringComparison ComparisonType     => myOptions.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-      private char[]           PathSeparatorChars => myOptions.AllowWindowsPaths ? ourWinPathSeparators : ourUnixPathSeparators;
+      private StringComparison ComparisonType => myOptions.IgnoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
-      public MatchContext(GlobMatcherOptions options, string str, PatternCase patternCase)
+      // Returns a span of the path-separator characters appropriate for this match.
+      private ReadOnlySpan<char> PathSeparatorSpan =>
+        myOptions.AllowWindowsPaths
+          ? new ReadOnlySpan<char>(ourWinPathSeparators)
+          : new ReadOnlySpan<char>(ourUnixPathSeparators);
+
+      public MatchContext(GlobMatcherOptions options, ReadOnlySpan<char> str, PatternCase patternCase)
       {
         myOptions = options;
         myStr = str;
@@ -146,7 +206,10 @@ namespace EditorConfig.Core
           {
             SkipLastPathSeparators();
 
-            var lastSeparator = myStr.LastIndexOfAny(PathSeparatorChars, myEndOffset - 1, myEndOffset - myStartOffset);
+            // LastIndexOfAny via span slice — re-base to absolute index
+            var searchSpan = myStr.Slice(myStartOffset, myEndOffset - myStartOffset);
+            var rel = searchSpan.LastIndexOfAny(PathSeparatorSpan);
+            var lastSeparator = rel == -1 ? -1 : myStartOffset + rel;
             if (lastSeparator != -1)
             {
               myStartOffset = lastSeparator + 1;
@@ -180,12 +243,13 @@ namespace EditorConfig.Core
               return true;
 
             case Literal literal:
-              if (myEndOffset - myStartOffset < literal.Source.Length) return false; // Not enough chars
+              if (myEndOffset - myStartOffset < literal.Source.Length) return false;
 
-              var pos = myStr.LastIndexOf(literal.Source, myEndOffset - 1, literal.Source.Length, ComparisonType);
-              if (pos == -1) return false;
+              // Span equality check replaces LastIndexOf(value, startIndex, count) where count == value.Length
+              var endSlice = myStr.Slice(myEndOffset - literal.Source.Length, literal.Source.Length);
+              if (!SpanEquals(endSlice, literal.Source.AsSpan(), ComparisonType)) return false;
 
-              myEndOffset = pos;
+              myEndOffset -= literal.Source.Length;
               break;
 
             case PathSeparator _:
@@ -250,26 +314,6 @@ namespace EditorConfig.Core
             case Asterisk asterisk:
               if (myStartItem == myEndItem) return CheckMatchedByAsterisk(asterisk, true, myStartOffset, myEndOffset); // Last asterisk just matches everything
 
-              // Suppose we have two asterisks in a pattern, so pattern looks like this:
-              // <part1>*<part2>*<part3>
-              // where <part2> doesn't contain asterisks,
-              // and we have a string with several possible matches for <part2>, like this:
-              // <MatchingPart1><Something1><MatchingPart2_a><Something2><MatchingPart2_b><Something3><MatchingPart3>.
-
-              // If we can match <part2> to <MatchingPart2_b> so that the whole string matches to pattern, with
-              // asterisk1 matching to <Something1><MatchingPart2_a><Something2>
-              // and asterisk2 matching to <Something3>,
-              // then we can also match the string to pattern with <part2> matching to <MatchingPart2_a>, because we can
-              // match asterisk1 to <Something1>
-              // and asterisk2 to <Something2><MatchingPart2_b><Something3>.
-
-              // Because of this we can just take a first match for pattern part between two asterisks, and
-              // don't need to iterate any further recursively.
-
-              // The same works for two globstars (**) and for * and **. But it doesn't work between ** and *, because
-              // if <MatchingPart2_a> or <Something2> contains slashes, then we cannot move then to match *.
-              // So in that case we need to make recursion.
-
               myLastAsteriskItem = myStartItem;
 
               if (!(item is DoubleAsterisk) || !(asterisk.NextAsterisk is SimpleAsterisk))
@@ -279,24 +323,7 @@ namespace EditorConfig.Core
                 break;
               }
 
-              // We have to use recursion here, see discussion above
-
-              // Take the rest of the pattern after
-              // the **, and see if it would match the file remainder.
-              // If so, return success.
-              // If not, the ** "swallows" a segment, and try again.
-              // This is recursively awful.
-              //
-              // a/**/*test*/**/*.cs matching a/b/c/mytestfolder/d/e.cs should go like this
-              // - a matches a
-              // - doublestar followed by *
-              //       - matchOne(b/c/mytestfolder/d/e.cs, *test*/**/*.cs) -> no
-              //       - matchOne(/c/mytestfolder/d/e.cs, /*test*/**/*.cs) -> no
-              //       - matchOne(/mytestfolder/d/e.cs, /*test*/**/*.cs)
-              //             - /mytestfolder/ matches /*test*/
-              //             - doublestar followed by *
-              //                     - matchOne(d/e.cs, *.cs) -> no
-              //                     - matchOne(/e.cs, /*.cs) -> yes, hit
+              // Recursion for ** followed by * (see original comments)
               var first = true;
               var oldLastAsteriskItem = myLastAsteriskItem;
               while (true)
@@ -331,12 +358,13 @@ namespace EditorConfig.Core
               break;
 
             case Literal literal:
-              if (myEndOffset - myStartOffset < literal.Source.Length) return false; // Not enough chars
+              if (myEndOffset - myStartOffset < literal.Source.Length) return false;
 
-              var pos = myStr.IndexOf(literal.Source, myStartOffset, literal.Source.Length, ComparisonType);
-              if (pos == -1) goto Mismatch;
+              // Span equality check replaces IndexOf(value, startIndex, count) where count == value.Length
+              var fwdSlice = myStr.Slice(myStartOffset, literal.Source.Length);
+              if (!SpanEquals(fwdSlice, literal.Source.AsSpan(), ComparisonType)) goto Mismatch;
 
-              myStartOffset = pos + literal.Source.Length;
+              myStartOffset += literal.Source.Length;
               break;
 
             case OneChar oneChar:
@@ -403,7 +431,11 @@ namespace EditorConfig.Core
           var numberOfOneCharItemsBefore = literalAfterAsterisk - myLastAsteriskItem - 1;
           if (myPatternCase[literalAfterAsterisk] is Literal literal)
           {
-            var pos = myStr.IndexOf(literal.Source, myStartOffset + numberOfOneCharItemsBefore, myEndOffset - myStartOffset - numberOfOneCharItemsBefore, ComparisonType);
+            // Span IndexOf replaces string.IndexOf(value, startIndex, count, comparison) — re-base result
+            var searchStart = myStartOffset + numberOfOneCharItemsBefore;
+            var searchCount = myEndOffset - myStartOffset - numberOfOneCharItemsBefore;
+            var relPos = SpanIndexOf(myStr.Slice(searchStart, searchCount), literal.Source.AsSpan(), ComparisonType);
+            var pos = relPos == -1 ? -1 : searchStart + relPos;
             if (pos == -1) return false;
 
             myStartOffset = pos - numberOfOneCharItemsBefore;
@@ -422,10 +454,14 @@ namespace EditorConfig.Core
               return true;
             }
 
-            var pos = myStr.IndexOfAny(PathSeparatorChars, myStartOffset + numberOfOneCharItemsBefore, myEndOffset - myStartOffset - numberOfOneCharItemsBefore);
-            if (pos == -1) return false;
+            // Span IndexOfAny replaces string.IndexOfAny(chars, startIndex, count) — re-base result
+            var searchStart2 = myStartOffset + numberOfOneCharItemsBefore;
+            var searchCount2 = myEndOffset - myStartOffset - numberOfOneCharItemsBefore;
+            var relPos2 = myStr.Slice(searchStart2, searchCount2).IndexOfAny(PathSeparatorSpan);
+            var pos2 = relPos2 == -1 ? -1 : searchStart2 + relPos2;
+            if (pos2 == -1) return false;
 
-            myStartOffset = pos - numberOfOneCharItemsBefore;
+            myStartOffset = pos2 - numberOfOneCharItemsBefore;
             if (myEndOffset - myStartOffset < fixedItemsLengthAfterAsterisk) return false;
           }
         }
@@ -453,7 +489,8 @@ namespace EditorConfig.Core
 
           if (newStartPos > oldStartPos)
           {
-            if (myStr.IndexOfAny(PathSeparatorChars, oldStartPos, newStartPos - oldStartPos) != -1) return false;
+            // Span IndexOfAny replaces string.IndexOfAny(chars, startIndex, count) — re-base not needed: just check != -1
+            if (myStr.Slice(oldStartPos, newStartPos - oldStartPos).IndexOfAny(PathSeparatorSpan) != -1) return false;
 
             if (first && myStr[oldStartPos] == '.' && !CheckDot(oldStartPos)) return false;
           }
@@ -469,7 +506,9 @@ namespace EditorConfig.Core
             length++;
           }
 
-          var dotPos = myStr.IndexOf('.', oldStartPos, length);
+          // Span IndexOf(char) replaces string.IndexOf(char, startIndex, count) — re-base result
+          var relDotPos = myStr.Slice(oldStartPos, length).IndexOf('.');
+          var dotPos = relDotPos == -1 ? -1 : oldStartPos + relDotPos;
           if (dotPos != -1)
           {
             if (!CheckDot(dotPos)) return false;
@@ -481,28 +520,20 @@ namespace EditorConfig.Core
 
       private bool CheckDot(int dotPos)
       {
-        // .x should match neither *x, nor **x, nor ?x, unless
-        // myOptions.Dot is set.
-        // . and .. are *never* matched by *, ** or ?, for explosively
-        // exponential reasons.
-        // also **.* should not match /., /.. and /.x (unless myOptions.Dot is set)
+        if (dotPos != 0 && !IsPathSeparator(myOptions, myStr[dotPos - 1])) return true;
+        if (!myOptions.Dot) return false;
 
-        if (dotPos != 0 && !IsPathSeparator(myOptions, myStr[dotPos - 1])) return true; // ok, dot is in the middle of file/directory name
-        if (!myOptions.Dot) return false;                                             // implicit dot at the beginning is prohibited
+        if (dotPos == myStr.Length - 1) return false;
+        if (IsPathSeparator(myOptions, myStr[dotPos + 1])) return false;
+        if (myStr[dotPos + 1] != '.') return true;
+        if (dotPos + 1 == myStr.Length - 1) return false;
+        if (IsPathSeparator(myOptions, myStr[dotPos + 2])) return false;
 
-        if (dotPos == myStr.Length - 1) return false;                    // file name is ".", prohibited
-        if (IsPathSeparator(myOptions, myStr[dotPos + 1])) return false; // directory name is ".", prohibited
-        if (myStr[dotPos + 1] != '.') return true;                       // it's not "..", allow this
-        if (dotPos + 1 == myStr.Length - 1) return false;                // file name is "..", prohibited
-        if (IsPathSeparator(myOptions, myStr[dotPos + 2])) return false; // directory name is "..", prohibited
-
-        return true; // just a file/directory name that starts with "..", allow this
+        return true;
       }
     }
 
     private static bool IsPathSeparator(GlobMatcherOptions options, char c) =>
-	    // windows: need to use /, not \
-	    // On other platforms, \ is a valid (albeit bad) filename char.
 	    c == '/' || options.AllowWindowsPaths && c == '\\';
 
 
@@ -598,7 +629,27 @@ namespace EditorConfig.Core
 
         if (PossibleChars != null)
         {
-          return (PossibleChars.IndexOf(c.ToString(), comparison) != -1) != Negate;
+          bool found;
+          if (comparison == StringComparison.Ordinal)
+          {
+            // Ordinal: direct char lookup, no allocation
+            found = PossibleChars.IndexOf(c) != -1;
+          }
+          else
+          {
+            // OrdinalIgnoreCase: ToUpperInvariant comparison to avoid allocating c.ToString()
+            var upper = char.ToUpperInvariant(c);
+            found = false;
+            foreach (var pc in PossibleChars)
+            {
+              if (char.ToUpperInvariant(pc) == upper)
+              {
+                found = true;
+                break;
+              }
+            }
+          }
+          return found != Negate;
         }
 
         return true;
@@ -654,16 +705,7 @@ namespace EditorConfig.Core
       // step 2: expand braces
       var globSet = BraceExpand(pattern, options);
 
-      // step 3: now we have a set, so turn each one into a series of path-portion
-      // matching patterns.
-      /*var list = new List<string>(globSet.Count);
-      for (var index = 0; index < globSet.Count; index++)
-      {
-        var s = globSet[index];
-        list.Add(ourSlashSplit.Split(s));
-      }*/
-
-      // glob --> regexps
+      // glob --> pattern cases
       var list1 = new List<PatternCase>(globSet.Count);
       foreach (var g in globSet)
       {
@@ -697,57 +739,32 @@ namespace EditorConfig.Core
       return negate;
     }
 
-    private static readonly Regex ourHasBraces = new Regex(@"\{.*\}");
-
+    // ourHasBraces regex replaced with IndexOf check (see BraceExpand below)
     private static readonly Regex ourNumericSet = new Regex(@"^\{(-?[0-9]+)\.\.(-?[0-9]+)\}");
 
-    // Brace expansion:
-    // a{b,c}d -> abd acd
-    // a{b,}c -> abc ac
-    // a{0..3}d -> a0d a1d a2d a3d
-    // a{b,c{d,e}f}g -> abg acdfg acefg
-    // a{b,c}d{e,f}g -> abdeg acdeg abdeg abdfg
-    //
-    // Invalid sets are not expanded.
-    // a{2..}b -> a{2..}b
-    // a{b}c -> a{b}c
     ///<summary>Expands all brace ranges in a pattern, returning a sequence containing every possible combination.</summary>
     private static IList<string> BraceExpand(string pattern, GlobMatcherOptions options)
     {
-      if (options.NoBrace || !ourHasBraces.IsMatch(pattern))
+      // Replaced ourHasBraces.IsMatch(pattern) with allocation-free IndexOf check
+      if (options.NoBrace)
       {
-        // shortcut. no need to expand.
+        return new[] { pattern };
+      }
+      var openBrace = pattern.IndexOf('{');
+      if (openBrace == -1 || pattern.IndexOf('}', openBrace + 1) == -1)
+      {
         return new[] { pattern };
       }
 
       var escaping = false;
       int i;
 
-      // examples and comments refer to this crazy pattern:
-      // a{b,c{d,e},{f,g}h}x{y,z}
-      // expected:
-      // abxy
-      // abxz
-      // acdxy
-      // acdxz
-      // acexy
-      // acexz
-      // afhxy
-      // afhxz
-      // aghxy
-      // aghxz
-
-      // everything before the first \{ is just a prefix.
-      // So, we pluck that off, and work with the rest,
-      // and then prepend it to everything we find.
       if (pattern[0] != '{')
       {
-        // console.error(pattern)
         string prefix = null;
         for (i = 0; i < pattern.Length; i++)
         {
           var c = pattern[i];
-          // console.error(i, c)
           if (c == '\\')
           {
             escaping = !escaping;
@@ -759,10 +776,8 @@ namespace EditorConfig.Core
           }
         }
 
-        // actually no sets, all { were escaped.
         if (prefix == null)
         {
-          // console.error("no sets")
           return new[] { pattern };
         }
 
@@ -776,18 +791,12 @@ namespace EditorConfig.Core
         return braceExpand;
       }
 
-      // now we have something like:
-      // {b,c{d,e},{f,g}h}x{y,z}
-      // walk through the set, expanding each part, until
-      // the set ends.  then, we'll expand the suffix.
-      // If the set only has a single member, then we'll put the {} back
-
-      // first, handle numeric sets, since they're easier
+      // handle numeric sets first
       var numset = ourNumericSet.Match(pattern);
       if (numset.Success)
       {
-        // console.error("numset", numset[1], numset[2])
-        var suf = BraceExpand(pattern.Substring(numset.Length), options).ToList();
+        // Use IList<string> directly — no .ToList() allocation needed
+        var suf = BraceExpand(pattern.Substring(numset.Length), options);
         int start = int.Parse(numset.Groups[1].Value),
           end = int.Parse(numset.Groups[2].Value),
           inc = start > end ? -1 : 1;
@@ -795,7 +804,6 @@ namespace EditorConfig.Core
         var retVal = new List<string>(Math.Abs(end + inc - start) * suf.Count);
         for (var w = start; w != (end + inc); w += inc)
         {
-          // append all the suffixes
           foreach (var t in suf)
           {
             retVal.Add(w.ToString() + t);
@@ -805,25 +813,20 @@ namespace EditorConfig.Core
         return retVal;
       }
 
-      // ok, walk through the set
-      // We hope, somewhat optimistically, that there
-      // will be a } at the end.
-      // If the closing brace isn't found, then the pattern is
-      // interpreted as braceExpand("\\" + pattern) so that
-      // the leading \{ will be interpreted literally.
+      // Walk through the set, expanding each part.
       var depth = 1;
       var set = new List<string>();
-      var member = "";
+      // Use StringBuilder for member accumulation instead of string += c
+      var member = new StringBuilder(pattern.Length);
 
       for (i = 1; i < pattern.Length && depth > 0; i++)
       {
         var c = pattern[i];
-        // console.error("", i, c)
 
         if (escaping)
         {
           escaping = false;
-          member += "\\" + c;
+          member.Append('\\').Append(c);
         }
         else
         {
@@ -835,56 +838,48 @@ namespace EditorConfig.Core
 
             case '{':
               depth++;
-              member += "{";
+              member.Append('{');
               continue;
 
             case '}':
               depth--;
-              // if this closes the actual set, then we're done
               if (depth == 0)
               {
-                set.Add(member);
-                member = "";
-                // pluck off the close-brace
+                set.Add(member.ToString());
+                member.Clear();
                 break;
               }
               else
               {
-                member += c;
+                member.Append(c);
                 continue;
               }
 
             case ',':
               if (depth == 1)
               {
-                set.Add(member);
-                member = "";
+                set.Add(member.ToString());
+                member.Clear();
               }
               else
               {
-                member += c;
+                member.Append(c);
               }
 
               continue;
 
             default:
-              member += c;
+              member.Append(c);
               continue;
           } // switch
         } // else
       } // for
 
-      // now we've either finished the set, and the suffix is
-      // pattern.substr(i), or we have *not* closed the set,
-      // and need to escape the leading brace
       if (depth != 0)
       {
-        // console.error("didn't close", pattern)
         return BraceExpand("\\" + pattern, options);
       }
 
-      // ["b", "c{d,e}","{f,g}h"] ->
-      //   ["b", "cd", "ce", "fh", "gh"]
       var addBraces = set.Count == 1;
 
       var set1 = new List<string>(set.Count);
@@ -899,10 +894,6 @@ namespace EditorConfig.Core
         }
       }
 
-      // now attach the suffixes.
-      // x{y,z} -> ["xy", "xz"]
-      // console.error("set", set)
-      // console.error("suffix", pattern.substr(i))
       var s2 = BraceExpand(pattern.Substring(i), options);
       var list1 = new List<string>(s2.Count * set.Count);
       for (var index = 0; index < s2.Count; index++)
@@ -960,7 +951,6 @@ namespace EditorConfig.Core
       {
         var c = pattern[i];
 
-        // skip over any that are escaped.
         if (escaping && c != '/')
         {
           AppendChar(c);
@@ -973,7 +963,6 @@ namespace EditorConfig.Core
             case '/':
               if (inClass)
               {
-                // Class is left open
                 HandleOpenClass();
                 continue;
               }
@@ -987,7 +976,8 @@ namespace EditorConfig.Core
 
                 FinishLiteral();
 
-                if (!(result.LastOrDefault() is PathSeparator))
+                // Replace result.LastOrDefault() with direct index access — no LINQ allocation
+                if (!(result.Count > 0 && result[result.Count - 1] is PathSeparator))
                 {
                   result.Add(PathSeparator.Instance);
                 }
@@ -1003,7 +993,6 @@ namespace EditorConfig.Core
             case '^':
               if (inClass && i == classStart + 1)
               {
-                // the glob [!a] means negation
                 negate = true;
               }
               else
@@ -1034,12 +1023,14 @@ namespace EditorConfig.Core
               else
               {
                 FinishLiteral();
-                if (result.LastOrDefault() is Asterisk && !options.NoGlobStar)
+                // Replace result.LastOrDefault() with direct index access — no LINQ allocation
+                var last = result.Count > 0 ? result[result.Count - 1] : null;
+                if (last is Asterisk && !options.NoGlobStar)
                 {
                   result.RemoveAt(result.Count - 1);
                   result.Add(new DoubleAsterisk());
                 }
-                else if (!(result.LastOrDefault() is SimpleAsterisk))
+                else if (!(last is SimpleAsterisk))
                 {
                   result.Add(new SimpleAsterisk());
                 }
@@ -1047,7 +1038,6 @@ namespace EditorConfig.Core
 
               break;
 
-            // these are mostly the same in regexp and glob
             case '[':
 
               if (inClass)
@@ -1066,10 +1056,6 @@ namespace EditorConfig.Core
               break;
 
             case ']':
-              //  a right bracket shall lose its special
-              //  meaning and represent itself in
-              //  a bracket expression if it occurs
-              //  first in the list.  -- POSIX.2 2.8.3.2
               if (i == classStart + 1 || negate && i == classStart + 2 || !inClass)
               {
                 AppendChar(c);
@@ -1078,7 +1064,6 @@ namespace EditorConfig.Core
               {
                 if (range) sb.Append('-');
 
-                // finish up the class.
                 inClass = false;
                 result.Add(new OneChar(sb.ToString(), negate));
                 sb.Clear();
@@ -1109,7 +1094,6 @@ namespace EditorConfig.Core
           if (inClass)
           {
             HandleOpenClass();
-            // Do not continue, because next check could be relevant
           }
         }
 
@@ -1129,16 +1113,10 @@ namespace EditorConfig.Core
 
         void HandleOpenClass()
         {
-          // handle the case where we left a class open.
-          // "[abc" is valid, equivalent to "\[abc"
-
-          // split where the last [ was, and escape it
-          // this is a huge pita.  We now have to re-walk
-          // the contents of the would-be class to re-translate
-          // any characters that were passed through as-is
-
           sb.Clear();
-          if (result.LastOrDefault() is Literal literal)
+          // Replace result.LastOrDefault() with direct index access — no LINQ allocation
+          var lastItem = result.Count > 0 ? result[result.Count - 1] : null;
+          if (lastItem is Literal literal)
           {
             sb.Append(literal.Source);
             result.RemoveAt(result.Count - 1);
@@ -1149,7 +1127,7 @@ namespace EditorConfig.Core
           escaping = false;
           i = classStart;
           inClass = false;
-        } // Handle open class
+        }
       } // for
 
       result.Build();

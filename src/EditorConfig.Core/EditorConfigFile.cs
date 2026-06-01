@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace EditorConfig.Core
@@ -26,13 +25,28 @@ namespace EditorConfig.Core
 	/// <summary>
 	/// Represents the raw config file as INI, please use <see cref="EditorConfigParser.GetConfigurationFilesTillRoot"/>
 	/// </summary>
-	public class EditorConfigFile : IEditorConfigFile
+	public partial class EditorConfigFile : IEditorConfigFile
 	{
-		private static readonly Regex SectionRe = new Regex(@"^\s*\[(([^#;]|\\#|\\;)+)\]\s*([#;].*)?$");
-		private static readonly Regex CommentRe = new Regex(@"^\s*[#;]");
-		private static readonly Regex PropertyRe = new Regex(@"^\s*([\w\.\-_]+)\s*[=:]\s*(.*?)\s*([#;].*)?$");
+#if NET7_0_OR_GREATER
+		[GeneratedRegex(@"^\s*\[(([^#;]|\\#|\\;)+)\]\s*([#;].*)?$")]
+		private static partial Regex SectionRe();
 
-		private static readonly string[] KnownProperties =
+		[GeneratedRegex(@"^\s*[#;]")]
+		private static partial Regex CommentRe();
+
+		[GeneratedRegex(@"^\s*([\w\.\-_]+)\s*[=:]\s*(.*?)\s*([#;].*)?$")]
+		private static partial Regex PropertyRe();
+#else
+		private static readonly Regex _sectionRe  = new Regex(@"^\s*\[(([^#;]|\\#|\\;)+)\]\s*([#;].*)?$", RegexOptions.Compiled);
+		private static readonly Regex _commentRe  = new Regex(@"^\s*[#;]", RegexOptions.Compiled);
+		private static readonly Regex _propertyRe = new Regex(@"^\s*([\w\.\-_]+)\s*[=:]\s*(.*?)\s*([#;].*)?$", RegexOptions.Compiled);
+
+		private static Regex SectionRe()  => _sectionRe;
+		private static Regex CommentRe()  => _commentRe;
+		private static Regex PropertyRe() => _propertyRe;
+#endif
+
+		private static readonly HashSet<string> KnownProperties = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 		{
 			"indent_style",
 			"indent_size",
@@ -90,12 +104,16 @@ namespace EditorConfig.Core
 		public static EditorConfigFile Parse(TextReader reader, string directory = null, string fileName = ".editorconfig") =>
 			new(fileName, directory, reader);
 
+		/// <summary> Parses EditorConfig file from a text reader with an explicit cache key (used by EditorConfigFileCache). </summary>
+		internal static EditorConfigFile Parse(TextReader reader, string directory, string fileName, string cacheKey) =>
+			new(fileName, directory, reader, cacheKey);
+
 		internal static EditorConfigFile Parse(string path, string cacheKey)
 		{
 			using var file = File.OpenRead(path);
 			using var reader = new StreamReader(file);
 			return new EditorConfigFile(
-				Path.GetFileName(path), Path.GetDirectoryName(path),
+				System.IO.Path.GetFileName(path), System.IO.Path.GetDirectoryName(path),
 				reader, cacheKey);
 		}
 
@@ -108,15 +126,17 @@ namespace EditorConfig.Core
 			{
 				if (string.IsNullOrWhiteSpace(line)) continue;
 
-				if (CommentRe.IsMatch(line)) continue;
-				var matches = PropertyRe.Matches(line);
-				if (matches.Count > 0)
+				if (CommentRe().IsMatch(line)) continue;
+
+				// Use Match (not Matches) — we only need the first match, avoid MatchCollection allocation
+				var propMatch = PropertyRe().Match(line);
+				if (propMatch.Success)
 				{
-					var key = matches[0].Groups[1].Value.Trim();
-					var value = matches[0].Groups[2].Value.Trim();
+					var key   = propMatch.Groups[1].Value.Trim();
+					var value = propMatch.Groups[2].Value.Trim();
 
 					key = key.ToLowerInvariant();
-					if (KnownProperties.Contains(key, StringComparer.OrdinalIgnoreCase))
+					if (KnownProperties.Contains(key))
 						value = value.ToLowerInvariant();
 
 					//! do not Add(), avoid exceptions on duplicate keys
@@ -124,8 +144,9 @@ namespace EditorConfig.Core
 					reset = false;
 					continue;
 				}
-				matches = SectionRe.Matches(line);
-				if (matches.Count <= 0) continue;
+
+				var sectionMatch = SectionRe().Match(line);
+				if (!sectionMatch.Success) continue;
 
 				if (!string.IsNullOrEmpty(sectionName))
 				{
@@ -134,7 +155,7 @@ namespace EditorConfig.Core
 					reset = true;
 				}
 
-				sectionName = matches[0].Groups[1].Value;
+				sectionName = sectionMatch.Groups[1].Value;
 				activeDict = new Dictionary<string, string>();
 			}
 
@@ -143,7 +164,6 @@ namespace EditorConfig.Core
 				var section = new ConfigSection(sectionName, this, activeDict);
 				Sections.Add(section);
 			}
-
 		}
 	}
 }

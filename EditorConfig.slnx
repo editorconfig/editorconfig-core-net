@@ -13,6 +13,9 @@
     <File Path=".github/workflows/verify.yaml" />
     <Project Path="build/scripts/scripts.fsproj" />
   </Folder>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/EditorConfig.Benchmarks/EditorConfig.Benchmarks.csproj" />
+  </Folder>
   <Folder Name="/src/">
     <File Path="src/Directory.Build.props" />
     <Project Path="src/EditorConfig.Core/EditorConfig.Core.csproj" />
