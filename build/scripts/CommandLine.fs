@@ -25,11 +25,11 @@ with
     interface IArgParserTemplate with
         member this.Usage =
             match this with
-            | Clean _ -> "clean known output locations"
-            | Build _ -> "Run build"
-            | Test _ -> "Runs build then tests"
-            | Release _ -> "runs build, tests, and create and validates the packages shy of publishing them"
-            | Publish _ -> "Runs the full release"
+            | Clean -> "clean known output locations"
+            | Build -> "Run build"
+            | Test -> "Runs build then tests"
+            | Release -> "runs build, tests, and create and validates the packages shy of publishing them"
+            | Publish -> "Runs the full release"
             
             | SingleTarget _ -> "Runs the provided sub command without running their dependencies"
             | Token _ -> "Token to be used to authenticate with github"

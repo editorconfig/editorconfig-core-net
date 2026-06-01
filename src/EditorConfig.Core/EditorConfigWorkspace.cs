@@ -7,7 +7,7 @@ namespace EditorConfig.Core
 {
 	/// <summary>
 	/// Not ready yet the idea is to create a class that you can load and reuse in a long running process.
-	/// This allows you to reuse parsed <see cref="EditorConfigFile"/> instances without performing an IO call everytime
+	/// This allows you to reuse parsed <see cref="EditorConfigFile"/> instances without performing an IO call every time
 	/// <see cref="EditorConfigParser.Parse(string[])"/> is called.
 	///
 	/// Will need to store all paths in a prefix tree to filter to relevant editorconfig files to apply to a given path

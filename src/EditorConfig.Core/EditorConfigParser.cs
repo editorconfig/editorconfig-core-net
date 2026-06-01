@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -24,6 +25,13 @@ namespace EditorConfig.Core
 		public static readonly Version Version = new Version(VersionString);
 
 		private readonly GlobMatcherOptions _globOptions = new GlobMatcherOptions { MatchBase = true, Dot = true, AllowWindowsPaths = true };
+
+		/// <summary>
+		/// Cache of compiled <see cref="GlobMatcher"/> instances keyed by glob string.
+		/// Safe to key on the glob string alone because <see cref="_globOptions"/> is a fixed
+		/// per-instance field — the cache is scoped to this parser instance.
+		/// </summary>
+		private readonly ConcurrentDictionary<string, GlobMatcher> _matcherCache = new ConcurrentDictionary<string, GlobMatcher>();
 
 		/// <summary>
 		/// The configured name of the files holding editorconfig values, defaults to ".editorconfig"
@@ -85,7 +93,7 @@ namespace EditorConfig.Core
 
 			var fullPath = Path.GetFullPath(file);
 
-			//All the .editorconfig files going from root =>.fileName
+			//All the .editorconfig files going from root => fileName
 			editorConfigFiles = editorConfigFiles ?? GetConfigurationFilesTillRoot(file);
 
 			var sections =
@@ -99,7 +107,7 @@ namespace EditorConfig.Core
 
 		private bool IsMatch(string glob, string fileName)
 		{
-			var matcher = GlobMatcher.Create(glob, _globOptions);
+			var matcher = _matcherCache.GetOrAdd(glob, g => GlobMatcher.Create(g, _globOptions));
 			var isMatch = matcher.IsMatch(fileName);
 			Debug.WriteLine("{0} :: {1} \t\t:: {2}", isMatch ? "?" : "?", glob, fileName);
 			return isMatch;

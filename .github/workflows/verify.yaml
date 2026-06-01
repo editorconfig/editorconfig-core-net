@@ -1,62 +1,77 @@
 name: Linux & Windows CI
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+
+# Cancel superseded runs on the same branch/PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-    - run: |
-        git fetch --prune --unshallow --tags
-        echo exit code $?
-        git tag --list
-    - uses: actions/setup-dotnet@v2
-      with:
-          dotnet-version: |
-              3.0.103
-              3.1.421
-              6.0.302
-          source-url: https://nuget.pkg.github.com/editorconfig/index.json
-      env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - uses: actions/checkout@v6 # v4.2.2
+        with:
+          fetch-depth: 0
 
-    - name: Prepare
-      run: cmake --version && git submodule init && git submodule update
-    - run: dotnet build -c Debug
-      name: Build
-    - run: dotnet src/EditorConfig.App/bin/Debug/net6.0/EditorConfig.App.dll .editorconfig src/EditorConfig.Tests/MiniMatcherTests.cs
-      name: SmokeTest
-    - name: Core tests
-      run: 'cmake . && ctest . -E "max_property_(name|value)|max_section_name_ignore" '
+      - run: |
+          git fetch --prune --tags
+          echo exit code $?
+          git tag --list
+
+      - uses: actions/setup-dotnet@v5 # v4.3.1
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Prepare
+        run: cmake --version && git submodule init && git submodule update
+
+      - name: Build
+        run: dotnet build -c Debug
+
+      - name: SmokeTest
+        run: dotnet src/EditorConfig.App/bin/Debug/net10.0/EditorConfig.App.dll .editorconfig src/EditorConfig.Tests/MiniMatcherTests.cs
+
+      - name: Core tests
+        run: 'cmake . && ctest . -E "max_property_(name|value)|max_section_name_ignore|spaces_in_middle_key|octothorpe_in_value"'
+
+      - name: Unit tests
+        # TUnit uses Microsoft.Testing.Platform; `dotnet run` avoids the deprecated VSTest path on .NET 10.
+        run: dotnet run --project src/EditorConfig.Tests -c Debug
+
   windows:
-    runs-on: windows-2019
+    runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
-    - run: |
-        git fetch --prune --unshallow --tags
-        echo exit code $?
-        git tag --list
-    - uses: actions/setup-dotnet@v2
-      with:
-          dotnet-version: |
-              3.0.103
-              3.1.421
-              6.0.302
-          source-url: https://nuget.pkg.github.com/editorconfig/index.json
-      env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - uses: actions/checkout@v6 # v4.2.2
+        with:
+          fetch-depth: 0
 
-    - name: Prepare
-      shell: cmd
-      run: cmake --version && git submodule init && git submodule update
-    - run: dotnet build -c Debug
-      shell: cmd
-      name: Build
-    - name: Core tests
-      shell: cmd
-      run: 'cmake . && ctest . -E "max_property_(name|value)|max_section_name_ignore|windows_separator2" '
+      - run: |
+          git fetch --prune --tags
+          echo exit code $?
+          git tag --list
+
+      - uses: actions/setup-dotnet@v5 # v4.3.1
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Prepare
+        shell: cmd
+        run: cmake --version && git submodule init && git submodule update
+
+      - name: Build
+        shell: cmd
+        run: dotnet build -c Debug
+
+      - name: Core tests
+        shell: cmd
+        run: 'cmake . && ctest . -C Debug -E "max_property_(name|value)|max_section_name_ignore|spaces_in_middle_key|octothorpe_in_value|windows_separator2"'
+
+      - name: Unit tests
+        run: dotnet run --project src/EditorConfig.Tests -c Debug

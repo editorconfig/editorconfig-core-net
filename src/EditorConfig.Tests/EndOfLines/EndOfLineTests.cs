@@ -1,11 +1,10 @@
-﻿using System.Reflection;
+using System.Reflection;
+using AwesomeAssertions;
 using EditorConfig.Core;
-using FluentAssertions;
-using NUnit.Framework;
+using TUnit;
 
 namespace EditorConfig.Tests.EndOfLines
 {
-	[TestFixture]
 	internal class EndOfLineTests : EditorConfigTestBase
 	{
 		[Test]
@@ -36,6 +35,5 @@ namespace EditorConfig.Tests.EndOfLines
 			file.EndOfLine.Should().BeNull();
 			HasBogusKey(file, "end_of_line");
 		}
-
 	}
 }

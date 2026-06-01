@@ -1,0 +1,27 @@
+version: 2
+updates:
+  # NuGet package dependencies
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      all-nuget:
+        patterns:
+          - "*"
+
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    groups:
+      all-actions:
+        patterns:
+          - "*"
+
+  # Git submodules (editorconfig-core-test)
+  - package-ecosystem: gitsubmodule
+    directory: "/"
+    schedule:
+      interval: weekly

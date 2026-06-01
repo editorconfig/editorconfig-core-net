@@ -1,10 +1,9 @@
-﻿using System.Reflection;
-using FluentAssertions;
-using NUnit.Framework;
+using System.Reflection;
+using AwesomeAssertions;
+using TUnit;
 
 namespace EditorConfig.Tests.InsertFinal
 {
-	[TestFixture]
 	internal class InsertFinalNewlineTests : EditorConfigTestBase
 	{
 		[Test]
@@ -28,6 +27,5 @@ namespace EditorConfig.Tests.InsertFinal
 			file.InsertFinalNewline.Should().NotHaveValue();
 			HasBogusKey(file, "insert_final_newline");
 		}
-
 	}
 }

@@ -1,11 +1,10 @@
-﻿using System.Reflection;
+using System.Reflection;
+using AwesomeAssertions;
 using EditorConfig.Core;
-using FluentAssertions;
-using NUnit.Framework;
+using TUnit;
 
 namespace EditorConfig.Tests.IndentSizes
 {
-	[TestFixture]
 	internal class IndentSizesTests : EditorConfigTestBase
 	{
 		[Test]
@@ -15,10 +14,10 @@ namespace EditorConfig.Tests.IndentSizes
 			file.IndentSize.Should().NotBeNull();
 			file.IndentSize.NumberOfColumns.Should().Be(2);
 			file.IndentSize.UseTabWidth.Should().BeFalse();
-			
+
 			file.TabWidth.Should().Be(file.IndentSize.NumberOfColumns);
-			
-			//tab_width is unspecified and indent_size is a positive integer, editorconfig dictates 
+
+			//tab_width is unspecified and indent_size is a positive integer, editorconfig dictates
 			//that tabwidth should thus default to indent_size
 			file.Properties.Should().HaveCount(2);
 		}
@@ -44,9 +43,7 @@ namespace EditorConfig.Tests.IndentSizes
 		{
 			var file = GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".bogus.editorconfig");
 			file.IndentSize.Should().BeNull();
-			HasBogusKey(file,"indent_size");
-
+			HasBogusKey(file, "indent_size");
 		}
-
 	}
 }

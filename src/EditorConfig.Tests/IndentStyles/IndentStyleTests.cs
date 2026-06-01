@@ -1,11 +1,10 @@
-﻿using System.Reflection;
+using System.Reflection;
+using AwesomeAssertions;
 using EditorConfig.Core;
-using FluentAssertions;
-using NUnit.Framework;
+using TUnit;
 
 namespace EditorConfig.Tests.IndentStyles
 {
-	[TestFixture]
 	internal class IndentStyleTests : EditorConfigTestBase
 	{
 		[Test]
@@ -23,7 +22,7 @@ namespace EditorConfig.Tests.IndentStyles
 
 			file.IndentSize.Should().NotBeNull();
 			file.IndentSize.UseTabWidth.Should().BeTrue();
-			
+
 			// Set indent_size to "tab" if indent_size is unspecified and indent_style is set to "tab".
 			file.Properties.Should().HaveCount(2);
 		}
@@ -35,6 +34,5 @@ namespace EditorConfig.Tests.IndentStyles
 			file.IndentStyle.Should().BeNull();
 			HasBogusKey(file, "indent_style");
 		}
-
 	}
 }

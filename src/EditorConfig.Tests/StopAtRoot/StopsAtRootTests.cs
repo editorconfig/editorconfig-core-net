@@ -1,10 +1,9 @@
-﻿using System.Reflection;
-using FluentAssertions;
-using NUnit.Framework;
+using System.Reflection;
+using AwesomeAssertions;
+using TUnit;
 
 namespace EditorConfig.Tests.StopAtRoot
 {
-	[TestFixture]
 	internal class StopsAtRootTests : EditorConfigTestBase
 	{
 		[Test]
@@ -24,7 +23,7 @@ namespace EditorConfig.Tests.StopAtRoot
 			file.Properties.Should().NotBeEmpty();
 			AssertHasNotProperty("outer_prop", file);
 		}
-		
+
 		[Test]
 		public void ChildrenDoNotInterfere()
 		{

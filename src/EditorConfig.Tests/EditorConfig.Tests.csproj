@@ -1,19 +1,16 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<IsTestProject>True</IsTestProject>
+		<TargetFramework>net10.0</TargetFramework>
+		<OutputType>Exe</OutputType>
 	</PropertyGroup>
-	
+
 	<ItemGroup>
 		<ProjectReference Include="..\EditorConfig.Core\EditorConfig.Core.csproj" />
-		<PackageReference Include="FluentAssertions" Version="5.10.3" />
-		<PackageReference Include="NUnit" Version="3.13.3" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
-		<PackageReference Include="NUnit3TestAdapter" Version="4.2.1" />
-		<PackageReference Update="MinVer" Version="4.1.0" />
+		<PackageReference Include="TUnit" Version="1.48.6" />
+		<PackageReference Include="AwesomeAssertions" Version="9.4.0" />
 	</ItemGroup>
-	
+
 	<ItemGroup>
 		<None Include="*\*.editorconfig">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -28,7 +25,8 @@
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="CTestReproduce\unset\unset.editorconfig">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
+
 </Project>

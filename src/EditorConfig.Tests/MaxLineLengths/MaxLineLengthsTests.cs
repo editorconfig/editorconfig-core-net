@@ -1,10 +1,9 @@
-﻿using System.Reflection;
-using FluentAssertions;
-using NUnit.Framework;
+using System.Reflection;
+using AwesomeAssertions;
+using TUnit;
 
 namespace EditorConfig.Tests.MaxLineLengths
 {
-	[TestFixture]
 	internal class MaxLineLengthsTests : EditorConfigTestBase
 	{
 		[Test]
@@ -27,9 +26,7 @@ namespace EditorConfig.Tests.MaxLineLengths
 		{
 			var file = GetConfig(MethodBase.GetCurrentMethod(), "f.x", ".bogus.editorconfig");
 			file.MaxLineLength.Should().NotHaveValue();
-			HasBogusKey(file,"max_line_length");
-
+			HasBogusKey(file, "max_line_length");
 		}
-
 	}
 }
