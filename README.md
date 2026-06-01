@@ -5,58 +5,84 @@ The EditorConfig .NET core provides the same functionality as the
 
 ## Installation
 
-The library exists on nuget as: 
+**Library** (NuGet):
 
 ```
-nuget install editorconfig
+dotnet add package editorconfig
 ```
 
-The .NET core tool exists under:
+**CLI tool**:
 
 ```
-dotnet tool install editorconfig-tool
+dotnet tool install --global editorconfig-tool
 ```
 
+The tool ships as a **native AOT binary** for each supported platform. When you
+run `dotnet tool install`, the correct pre-compiled native binary is selected
+automatically — no .NET runtime required at invocation time:
+
+| Platform | RID |
+|---|---|
+| Linux x64 | `linux-x64` |
+| Linux Arm64 | `linux-arm64` |
+| Windows x64 | `win-x64` |
+| Windows Arm64 | `win-arm64` |
+| macOS Apple Silicon | `osx-arm64` |
+
+A framework-dependent fallback (`any`) is included for other platforms.
 
 ## Usage
 
-Usage as a library:
+### Library
+
+```csharp
+// Recommended: caching and default filesystem
+var parser = new EditorConfigParser();
+var config = parser.Parse(fileName);
+foreach (var kv in config.Properties)
+    Console.WriteLine("{0}={1}", kv.Key, kv.Value);
+```
+
+#### Parsing many files efficiently
+
+When processing many files in one run (e.g. a formatter or linter), reuse the
+same `EditorConfigParser` instance. The parser caches both compiled glob matchers
+and the resolved `.editorconfig` chain per directory — so the second and subsequent
+files in the same directory cost only a dictionary lookup plus glob matching,
+with zero traversal overhead.
 
 ```csharp
 var parser = new EditorConfigParser();
-var configuration = parser.Parse(fileName);
-foreach (var kv in configuration.Properties)
-{
-    Console.WriteLine("{0}={1}", kv.Key, kv.Value);
-}
+
+// All files share one parser instance; files in the same directory
+// share one resolved chain automatically.
+var results = parser.Parse(file1, file2, file3 /*, ... */);
 ```
 
-### Injecting a file system
-
-Pass an [`IFileSystem`](https://www.nuget.org/packages/System.IO.Abstractions) from [System.IO.Abstractions](https://github.com/TestableIO/System.IO.Abstractions) when you need a testable or virtual file system (for example, to align with libraries that already abstract `System.IO`):
+For explicit control (e.g. grouping files by directory yourself):
 
 ```csharp
-using System.IO.Abstractions;
-
-var fileSystem = new FileSystem();
-var parser = new EditorConfigParser(fileSystem: fileSystem);
-var configuration = parser.Parse(fileName);
+var chain = parser.GetResolvedChain(file1);   // traverses once for this directory
+var cfg1  = parser.Parse(file1, chain);
+var cfg2  = parser.Parse(file2, chain);       // zero traversal — same directory
 ```
 
-With file caching, pass the same instance to both the parser and the cache:
+#### Injecting a file system
+
+Pass an [`IFileSystem`](https://www.nuget.org/packages/System.IO.Abstractions)
+from [System.IO.Abstractions](https://github.com/TestableIO/System.IO.Abstractions)
+when you need a testable or virtual file system:
 
 ```csharp
-var fileSystem = new FileSystem();
-var parser = new EditorConfigParser(
-    f => EditorConfigFileCache.GetOrCreate(f, fileSystem),
-    fileSystem: fileSystem);
+// Caching is enabled automatically
+var parser = new EditorConfigParser(fileSystem: myFileSystem);
 ```
 
-When `fileSystem` is omitted, the library uses `new FileSystem()` (the real disk).
+When `fileSystem` is omitted the library uses `new FileSystem()` (the real disk).
 
-Usage as a command line tool:
+### CLI tool
 
-You can omit `dotnet` if you install this as a global tool
+You can omit `dotnet` if installed as a global tool:
 
 ```
 > dotnet editorconfig
@@ -64,8 +90,6 @@ You can omit `dotnet` if you install this as a global tool
     Usage: editorconfig [OPTIONS] FILEPATH1 [FILEPATH2 FILEPATH3 ...]
 
     EditorConfig .NET Core Version 0.12
-
-    FILEPATH can be a hyphen (-) if you want path(s) to be read from stdin.
 
     Options:
 
@@ -77,58 +101,79 @@ You can omit `dotnet` if you install this as a global tool
 
 Example:
 
-    > dotnet editorconfig C:\Users\zoidberg\Documents\anatomy.md
-    charset=utf-8
-    insert_final_newline=true
-    end_of_line=lf
-    tab_width=8
-    trim_trailing_whitespace=sometimes
+```
+> dotnet editorconfig anatomy.md
+charset=utf-8
+insert_final_newline=true
+end_of_line=lf
+tab_width=8
+trim_trailing_whitespace=sometimes
+```
 
+## Performance
+
+The library is designed to be high-performance and allocation-light.
+
+- **Zero-allocation glob matching** — the match engine is a `ref struct` over
+  `ReadOnlySpan<char>`, so matching produces no heap allocations.
+- **Source-generated regexes** — the INI parser uses `[GeneratedRegex]` on
+  .NET 7+ for optimal regex throughput.
+- **Per-directory chain cache** — `.editorconfig` files are resolved once per
+  directory per parser instance. For a repository with thousands of source files,
+  the traversal and `File.Exists` checks are paid at most once per unique directory.
+- **File-content cache** — `EditorConfigFileCache` (used by default) caches
+  parsed files by path + modification time + size. Cache hits require only a
+  single metadata stat with no file read.
+
+Benchmark results on Apple M2 Pro · .NET 10 · Arm64:
+
+| Scenario | Time | Allocations |
+|---|---:|---:|
+| Single file, warm parser | 1.3 μs | 1.5 KB |
+| 50 files, same directory, warm parser | 63 μs | 82 KB |
+| Glob match (pre-compiled, per match) | 4.7 μs | **0 B** |
+
+## Target frameworks
+
+The library targets `netstandard2.0`, `net462`, and `net10.0`. All three targets
+are functionally equivalent. The `net10.0` target enables additional performance
+features (source-generated regexes, AOT compatibility).
 
 ## Development
 
-Clone this repos and init the test submodule
+Clone the repository and initialise the conformance test submodule:
+
 ```
 git clone git@github.com:editorconfig/editorconfig-core-net.git
 git submodule init
 git submodule update
 ```
 
-building in visual studio should just work (tm)
-
-Building on the command line (will run all the unit tests too)
+Build:
 
 ```
-build
+dotnet build
 ```
 
-Release builds can be made using
+Run unit tests ([TUnit](https://github.com/thomhurst/TUnit)):
 
 ```
-build release X.X.X
+dotnet run --project src/EditorConfig.Tests -c Release
 ```
 
-# Testing
-
-We have several NUnit tests that you can run from visual studio or the build scripts. 
-
-If you want to run the official editorconfig tests you'll need to install [CMAKE](http://www.cmake.org) and call
+Run the upstream [editorconfig conformance suite](https://github.com/editorconfig/editorconfig-core-test)
+(requires [CMake](https://cmake.org)):
 
 ```
 cmake .
-``` 
-
-in the root of this repository once.
-
-After which you can simply call 
-
-```
 ctest .
 ```
 
-To run the official editorconfig tests located in `/tests` right now we pass all but one related to utf-8 which fails 
-when run from `ctest .` but when I run it directly from the commandline it succeeds.
+Run benchmarks ([BenchmarkDotNet](https://benchmarkdotnet.org)):
+
+```
+dotnet run -c Release --project benchmarks/EditorConfig.Benchmarks
+```
 
 [EditorConfig C Core]: https://github.com/editorconfig/editorconfig-core
 [EditorConfig Python Core]: https://github.com/editorconfig/editorconfig-core-py
-[cmake]: http://www.cmake.org
