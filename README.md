@@ -80,36 +80,6 @@ var parser = new EditorConfigParser(fileSystem: myFileSystem);
 
 When `fileSystem` is omitted the library uses `new FileSystem()` (the real disk).
 
-### CLI tool
-
-You can omit `dotnet` if installed as a global tool:
-
-```
-> dotnet editorconfig
-
-    Usage: editorconfig [OPTIONS] FILEPATH1 [FILEPATH2 FILEPATH3 ...]
-
-    EditorConfig .NET Core Version 0.12
-
-    Options:
-
-        -h, --help     output usage information
-        -V, --version  output the version number
-        -f <path>      Specify conf filename other than ".editorconfig"
-        -b <version>   Specify version (used by devs to test compatibility)
-```
-
-Example:
-
-```
-> dotnet editorconfig anatomy.md
-charset=utf-8
-insert_final_newline=true
-end_of_line=lf
-tab_width=8
-trim_trailing_whitespace=sometimes
-```
-
 ## Performance
 
 The library is designed to be high-performance and allocation-light.
@@ -138,6 +108,36 @@ Benchmark results on Apple M2 Pro · .NET 10 · Arm64:
 The library targets `netstandard2.0`, `net462`, and `net10.0`. All three targets
 are functionally equivalent. The `net10.0` target enables additional performance
 features (source-generated regexes, AOT compatibility).
+
+## CLI tool
+
+You can omit `dotnet` if installed as a global tool:
+
+```
+> dotnet editorconfig
+
+    Usage: editorconfig [OPTIONS] FILEPATH1 [FILEPATH2 FILEPATH3 ...]
+
+    EditorConfig .NET Core Version 0.12
+
+    Options:
+
+        -h, --help     output usage information
+        -V, --version  output the version number
+        -f <path>      Specify conf filename other than ".editorconfig"
+        -b <version>   Specify version (used by devs to test compatibility)
+```
+
+Example:
+
+```
+> dotnet editorconfig anatomy.md
+charset=utf-8
+insert_final_newline=true
+end_of_line=lf
+tab_width=8
+trim_trailing_whitespace=sometimes
+```
 
 ## Development
 
