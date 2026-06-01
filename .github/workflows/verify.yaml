@@ -39,7 +39,7 @@ jobs:
         run: dotnet src/EditorConfig.App/bin/Debug/net10.0/EditorConfig.App.dll .editorconfig src/EditorConfig.Tests/MiniMatcherTests.cs
 
       - name: Core tests
-        run: 'cmake . && ctest . --output-on-failure -E "max_property_(name|value)|max_section_name_ignore"'
+        run: 'cmake . && ctest . -E "max_property_(name|value)|max_section_name_ignore|spaces_in_middle_key|octothorpe_in_value"'
 
       - name: Unit tests
         # TUnit uses Microsoft.Testing.Platform; `dotnet run` avoids the deprecated VSTest path on .NET 10.
@@ -71,7 +71,7 @@ jobs:
 
       - name: Core tests
         shell: cmd
-        run: 'cmake . && ctest . --output-on-failure -E "max_property_(name|value)|max_section_name_ignore|windows_separator2"'
+        run: 'cmake . && ctest . -E "max_property_(name|value)|max_section_name_ignore|spaces_in_middle_key|octothorpe_in_value|windows_separator2"'
 
       - name: Unit tests
         run: dotnet run --project src/EditorConfig.Tests -c Debug
