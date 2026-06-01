@@ -14,4 +14,14 @@
 		<IsAotCompatible>true</IsAotCompatible>
 	</PropertyGroup>
 
+	<!-- PolySharp: source-only polyfills for modern C# language features -->
+	<ItemGroup>
+		<PackageReference Include="PolySharp" Version="1.16.0" PrivateAssets="all" />
+	</ItemGroup>
+
+	<!-- System.Memory: Span<T>/ReadOnlySpan<T>/MemoryExtensions on legacy TFMs -->
+	<ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='net462'">
+		<PackageReference Include="System.Memory" Version="4.6.3" />
+	</ItemGroup>
+
 </Project>
