@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Reflection;
 
 namespace EditorConfig.Core
 {
@@ -15,14 +16,35 @@ namespace EditorConfig.Core
 		private Func<string, EditorConfigFile> Factory { get; }
 
 		/// <summary>
-		/// The current (and latest parser supported) version as string
+		/// The library version as a string, derived from the assembly's informational version
+		/// (set by MinVer at build time). The git commit hash suffix is stripped.
 		/// </summary>
-		public static readonly string VersionString = "0.12.1";
+		public static readonly string VersionString = GetVersionString();
 
 		/// <summary>
-		/// The current editorconfig version
+		/// The library version as a <see cref="Version"/>, derived from <see cref="VersionString"/>
+		/// with any pre-release label stripped so it is parseable as a numeric version.
 		/// </summary>
-		public static readonly Version Version = new Version(VersionString);
+		public static readonly Version Version = GetVersion();
+
+		private static string GetVersionString()
+		{
+			var informational = typeof(EditorConfigParser).Assembly
+				.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+				?.InformationalVersion ?? "0.0.0";
+			// Strip git commit hash (everything after '+')
+			var plusIdx = informational.IndexOf('+');
+			return plusIdx >= 0 ? informational.Substring(0, plusIdx) : informational;
+		}
+
+		private static Version GetVersion()
+		{
+			// Strip pre-release suffix (e.g. "-canary.0.5") so Version.TryParse succeeds
+			var s = VersionString;
+			var dashIdx = s.IndexOf('-');
+			var numeric = dashIdx >= 0 ? s.Substring(0, dashIdx) : s;
+			return System.Version.TryParse(numeric, out var v) ? v : new Version(0, 0, 0);
+		}
 
 		private readonly GlobMatcherOptions _globOptions = new GlobMatcherOptions { MatchBase = true, Dot = true, AllowWindowsPaths = true };
 
