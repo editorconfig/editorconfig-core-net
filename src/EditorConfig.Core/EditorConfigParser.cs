@@ -34,6 +34,14 @@ namespace EditorConfig.Core
 		private readonly ConcurrentDictionary<string, GlobMatcher> _matcherCache = new ConcurrentDictionary<string, GlobMatcher>();
 
 		/// <summary>
+		/// Cache of resolved <see cref="EditorConfigResolvedChain"/> instances keyed by source
+		/// directory path. All files in the same directory share the same chain.
+		/// Valid for the lifetime of this parser instance — recreate to pick up structural
+		/// changes to the <c>.editorconfig</c> tree.
+		/// </summary>
+		private readonly ConcurrentDictionary<string, EditorConfigResolvedChain> _chainCache = new ConcurrentDictionary<string, EditorConfigResolvedChain>();
+
+		/// <summary>
 		/// The configured name of the files holding editorconfig values, defaults to ".editorconfig"
 		/// </summary>
 		public string ConfigFileName { get; private set; }
@@ -92,28 +100,65 @@ namespace EditorConfig.Core
 		/// </summary>
 		/// <param name="fileName">The path to the file we want to know it's editorconfig settings for</param>
 		/// <param name="editorConfigFiles">
-		/// If null will traverse the file path to find all relevant editorconfig files. <para/>
-		/// This can be costly if repeated multiple times, if you call this for the same file multiple times look in to
-		/// using <see cref="GetConfigurationFilesTillRoot"/> and passing that explicitly to <paramref name="editorConfigFiles"/>
+		/// If null will use <see cref="GetResolvedChain"/> to find all relevant editorconfig files. <para/>
+		/// For repeated calls in the same directory prefer <see cref="GetResolvedChain"/> or
+		/// <see cref="Parse(string, EditorConfigResolvedChain)"/> which avoid re-traversal.
 		/// </param>
 		/// <returns></returns>
 		public FileConfiguration Parse(string fileName, IEnumerable<EditorConfigFile> editorConfigFiles = null)
 		{
 			var file = fileName.Trim('\r', '\n', ' ');
 			Debug.WriteLine(":: {0} :: {1}", ConfigFileName, file);
-
 			var fullPath = FileSystem.Path.GetFullPath(file);
 
-			//All the .editorconfig files going from root => fileName
-			editorConfigFiles = editorConfigFiles ?? GetConfigurationFilesTillRoot(file);
+			if (editorConfigFiles != null)
+			{
+				// Caller supplied an explicit list — use it directly (backwards-compat path)
+				var sections =
+					from configFile in editorConfigFiles
+					from section in configFile.Sections
+					where IsMatch(section.Glob, fullPath)
+					select section;
+				return new FileConfiguration(ParseVersion, file, sections.ToList());
+			}
 
+			return Parse(file, fullPath, GetResolvedChain(fullPath));
+		}
+
+		/// <summary>
+		/// Gets the editorconfig configuration for <paramref name="fileName"/> using a
+		/// pre-resolved chain. All files in the same directory share the same chain, so callers
+		/// processing many files in one directory should obtain the chain once via
+		/// <see cref="GetResolvedChain"/> and reuse it.
+		/// </summary>
+		public FileConfiguration Parse(string fileName, EditorConfigResolvedChain chain)
+		{
+			var file     = fileName.Trim('\r', '\n', ' ');
+			var fullPath = FileSystem.Path.GetFullPath(file);
+			return Parse(file, fullPath, chain);
+		}
+
+		private FileConfiguration Parse(string file, string fullPath, EditorConfigResolvedChain chain)
+		{
 			var sections =
-				from configFile in editorConfigFiles
-				from section in configFile.Sections
+				from section in chain.Sections
 				where IsMatch(section.Glob, fullPath)
 				select section;
-
 			return new FileConfiguration(ParseVersion, file, sections.ToList());
+		}
+
+		/// <summary>
+		/// Returns the <see cref="EditorConfigResolvedChain"/> for the directory containing
+		/// <paramref name="file"/>, resolving and caching it on first access.
+		/// All files in the same directory share a single chain; the cache is scoped to this
+		/// parser instance and is valid until the parser is recreated.
+		/// </summary>
+		public EditorConfigResolvedChain GetResolvedChain(string file)
+		{
+			var fullPath = FileSystem.Path.GetFullPath(file);
+			var dir      = FileSystem.Path.GetDirectoryName(fullPath);
+			return _chainCache.GetOrAdd(dir, _ => new EditorConfigResolvedChain(
+				GetConfigurationFilesTillRoot(fullPath)));
 		}
 
 		private bool IsMatch(string glob, string fileName)
@@ -154,14 +199,11 @@ namespace EditorConfig.Core
 		private IEnumerable<string> AllParentDirectories(string fullPath)
 		{
 			var dir = FileSystem.Path.GetDirectoryName(fullPath);
-			do
+			while (dir != null)
 			{
-				if (dir == null) yield break;
 				yield return dir;
-				var dirInfo = FileSystem.DirectoryInfo.New(dir);
-				if (dirInfo.Parent == null) yield break;
-				dir = dirInfo.Parent.FullName;
-			} while (true);
+				dir = FileSystem.Path.GetDirectoryName(dir);
+			}
 		}
 	}
 }
