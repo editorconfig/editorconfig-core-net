@@ -71,11 +71,12 @@ jobs:
       - name: AOT smoke test — ${{ matrix.rid }}
         shell: bash
         run: |
-          # Install the just-packed per-RID native tool and verify it produces expected output.
-          VERSION=$(dotnet minver -d=canary -m=0.1)
-          NUPKG="build/output/editorconfig-tool.${{ matrix.rid }}.${VERSION}.nupkg"
-          dotnet tool install --global --add-source build/output editorconfig-tool --version "${VERSION}"
-          OUTPUT=$(editorconfig .editorconfig)
+          # Run the native binary directly from the publish output (no `dotnet tool install`
+          # needed — the root package only exists in the coordinating build job).
+          EXT=""
+          [[ "$RUNNER_OS" == "Windows" ]] && EXT=".exe"
+          BINARY="src/EditorConfig.App/bin/Release/net10.0/${{ matrix.rid }}/publish/EditorConfig.App${EXT}"
+          OUTPUT=$("$BINARY" .editorconfig)
           echo "editorconfig output: $OUTPUT"
           echo "$OUTPUT" | grep -q "indent_style" || (echo "ERROR: expected indent_style in output" && exit 1)
 
