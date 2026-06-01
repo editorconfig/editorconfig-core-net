@@ -52,15 +52,15 @@ let private generatePackages (arguments:ParseResults<Arguments>) =
     
 let private validatePackages (arguments:ParseResults<Arguments>) =
     let output = Paths.RootRelative <| Paths.Output.FullName
-    // Only validate managed packages that have a signed assembly.
-    // AOT per-RID tool packages (e.g. editorconfig-tool.linux-x64.*) contain
-    // native binaries only — skip them to avoid false signing-key failures.
+    // Only the Core library package has signed managed assemblies.
+    // The editorconfig-tool root package contains only DotnetToolSettings.xml (no DLLs),
+    // and per-RID AOT packages contain native binaries — both would fail the signing check.
     let nugetPackages =
         Paths.Output.GetFiles("*.nupkg") |> Seq.sortByDescending(fun f -> f.CreationTimeUtc)
         |> Seq.map (fun p -> Paths.RootRelative p.FullName)
         |> Seq.filter (fun p ->
             let baseName = System.IO.Path.GetFileNameWithoutExtension(p).Replace("." + currentVersion.Value, "")
-            Paths.mapNugetToProject.ContainsKey(baseName))
+            baseName = "editorconfig")
 
     let jenkinsOnWindowsArgs =
         if Fake.Core.Environment.hasEnvironVar "JENKINS_URL" && Fake.Core.Environment.isWindows then ["-r"; "true"] else []
