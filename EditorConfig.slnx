@@ -1,0 +1,22 @@
+<Solution>
+  <Folder Name="/build/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="build.bat" />
+    <File Path="build.sh" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+    <File Path="CMakeLists.txt" />
+    <File Path="tests/Makefile" />
+    <File Path="tests/CTestTestfile.cmake" />
+    <File Path=".github/workflows/ci.yml" />
+    <File Path=".github/workflows/verify.yaml" />
+    <Project Path="build/scripts/scripts.fsproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <File Path="src/Directory.Build.props" />
+    <Project Path="src/EditorConfig.Core/EditorConfig.Core.csproj" />
+    <Project Path="src/EditorConfig.App/EditorConfig.App.csproj" />
+    <Project Path="src/EditorConfig.Tests/EditorConfig.Tests.csproj" />
+  </Folder>
+</Solution>

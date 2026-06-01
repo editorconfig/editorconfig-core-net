@@ -10,14 +10,14 @@ open ProcNet
 
     
 let exec binary args =
-    let r = Proc.Exec (binary, args |> List.map (fun a -> sprintf "\"%s\"" a) |> List.toArray)
-    match r.HasValue with | true -> r.Value | false -> failwithf "invocation of `%s` timed out" binary
+    // Proc 0.14+: Exec passes args directly to the OS (no shell expansion) and throws on failure.
+    Proc.Exec (binary, List.toArray args) |> ignore
     
 let private restoreTools = lazy(exec "dotnet" ["tool"; "restore"])
 let private currentVersion =
     lazy(
         restoreTools.Value |> ignore
-        let r = Proc.Start("dotnet", "minver", "-d=canary", "-m=0.1")
+        let r = Proc.Start("dotnet", "minver", "-p", "canary.0", "-m", "0.1")
         let o = r.ConsoleOut |> Seq.find (fun l -> not(l.Line.StartsWith("MinVer:")))
         o.Line
     )
@@ -42,7 +42,8 @@ let private pristineCheck (arguments:ParseResults<Arguments>) =
     | _ -> failwithf "The checkout folder has pending changes, aborting"
 
 let private test (arguments:ParseResults<Arguments>) =
-    exec "dotnet" ["test"; "-c"; "RELEASE"; ] |> ignore
+    // TUnit uses Microsoft.Testing.Platform; `dotnet run` avoids the deprecated VSTest path.
+    exec "dotnet" ["run"; "--project"; "src/EditorConfig.Tests"; "-c"; "Release"] |> ignore
 
 let private generatePackages (arguments:ParseResults<Arguments>) =
     let output = Paths.RootRelative Paths.Output.FullName
@@ -51,13 +52,19 @@ let private generatePackages (arguments:ParseResults<Arguments>) =
     
 let private validatePackages (arguments:ParseResults<Arguments>) =
     let output = Paths.RootRelative <| Paths.Output.FullName
+    // Only the Core library package has signed managed assemblies.
+    // The editorconfig-tool root package contains only DotnetToolSettings.xml (no DLLs),
+    // and per-RID AOT packages contain native binaries — both would fail the signing check.
     let nugetPackages =
         Paths.Output.GetFiles("*.nupkg") |> Seq.sortByDescending(fun f -> f.CreationTimeUtc)
         |> Seq.map (fun p -> Paths.RootRelative p.FullName)
-        
+        |> Seq.filter (fun p ->
+            let baseName = System.IO.Path.GetFileNameWithoutExtension(p).Replace("." + currentVersion.Value, "")
+            baseName = "editorconfig")
+
     let jenkinsOnWindowsArgs =
         if Fake.Core.Environment.hasEnvironVar "JENKINS_URL" && Fake.Core.Environment.isWindows then ["-r"; "true"] else []
-    
+
     let args = ["-v"; currentVersionInformational.Value; "-k"; Paths.SignKey; "-t"; output] @ jenkinsOnWindowsArgs
     nugetPackages |> Seq.iter (fun p -> exec "dotnet" (["nupkg-validator"; p] @ args) |> ignore)
     
@@ -65,9 +72,11 @@ let private validatePackages (arguments:ParseResults<Arguments>) =
 let private generateApiChanges (arguments:ParseResults<Arguments>) =
     let output = Paths.RootRelative <| Paths.Output.FullName
     let currentVersion = currentVersion.Value
+    // Only diff managed packages — AOT per-RID packages have no managed assembly to diff.
     let nugetPackages =
         Paths.Output.GetFiles("*.nupkg") |> Seq.sortByDescending(fun f -> f.CreationTimeUtc)
         |> Seq.map (fun p -> Path.GetFileNameWithoutExtension(Paths.RootRelative p.FullName).Replace("." + currentVersion, ""))
+        |> Seq.filter (fun p -> Paths.mapNugetToProject.ContainsKey(p))
     nugetPackages
     |> Seq.iter(fun p ->
         let outputFile =

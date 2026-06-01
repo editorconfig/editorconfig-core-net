@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using AwesomeAssertions;
 using EditorConfig.Core;
-using FluentAssertions;
-using NUnit.Framework;
+using TUnit;
 
 namespace EditorConfig.Tests.Defaults
 {
-	[TestFixture]
 	internal class DefaultsTests : EditorConfigTestBase
 	{
 		[Test]
 		public void CanFindFile()
 		{
 			//We only place an editorconfig in this folder to force root.
-			//An editorconfig file is not necessary for defaults but we do not want any parent 
+			//An editorconfig file is not necessary for defaults but we do not want any parent
 			//config files leaking into our test
 			var file = GetFileFromMethod(MethodBase.GetCurrentMethod(), ".editorconfig");
 			File.Exists(file).Should().BeTrue();

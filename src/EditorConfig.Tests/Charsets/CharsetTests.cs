@@ -1,11 +1,10 @@
-﻿using System.Reflection;
+using System.Reflection;
+using AwesomeAssertions;
 using EditorConfig.Core;
-using FluentAssertions;
-using NUnit.Framework;
+using TUnit;
 
 namespace EditorConfig.Tests.Charsets
 {
-	[TestFixture]
 	public class CharsetTests : EditorConfigTestBase
 	{
 		[Test]
@@ -50,6 +49,5 @@ namespace EditorConfig.Tests.Charsets
 			file.Charset.Should().BeNull();
 			HasBogusKey(file, "charset");
 		}
-
 	}
 }
