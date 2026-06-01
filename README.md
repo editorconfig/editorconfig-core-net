@@ -75,7 +75,7 @@ when you need a testable or virtual file system:
 
 ```csharp
 // Caching is enabled automatically
-var parser = new EditorConfigParser(fileSystem: myFileSystem);
+var parser = new EditorConfigParser(myFileSystem);
 ```
 
 When `fileSystem` is omitted the library uses `new FileSystem()` (the real disk).
