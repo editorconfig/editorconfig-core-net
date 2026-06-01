@@ -16,10 +16,19 @@
 		     The root package's DotnetToolSettings.xml (v2) maps each RID to its per-RID package.
 		     Installing this tool requires the .NET 10 SDK. -->
 		<RuntimeIdentifiers>linux-x64;linux-arm64;win-x64;win-arm64;osx-x64;osx-arm64;any</RuntimeIdentifiers>
+		<RollForward>Major</RollForward>
+
+		<!-- AOT settings only apply when a specific RID is targeted (i.e. dotnet pack -r <rid>).
+		     Without this guard, IsDynamicCodeSupported=false and InvariantGlobalization=true get
+		     baked into the runtimeconfig.json of the framework-dependent Debug build, causing the
+		     .NET runtime on Linux to emit extra stdout that breaks the editorconfig conformance
+		     test suite (ec_sort.cmake captures stdout and the extra lines corrupt the output). -->
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
 		<PublishAot>true</PublishAot>
 		<PublishSelfContained>true</PublishSelfContained>
 		<StripSymbols>true</StripSymbols>
-		<RollForward>Major</RollForward>
 		<InvariantGlobalization>true</InvariantGlobalization>
 	</PropertyGroup>
 
