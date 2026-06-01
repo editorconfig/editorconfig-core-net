@@ -39,8 +39,6 @@ jobs:
             runner: windows-latest
           - rid: win-arm64
             runner: windows-11-arm
-          - rid: osx-x64
-            runner: macos-13
           - rid: osx-arm64
             runner: macos-latest
 

@@ -15,7 +15,7 @@
 		<!-- Native-AOT tool packaging: per-RID native + 'any' framework-dependent fallback.
 		     The root package's DotnetToolSettings.xml (v2) maps each RID to its per-RID package.
 		     Installing this tool requires the .NET 10 SDK. -->
-		<RuntimeIdentifiers>linux-x64;linux-arm64;win-x64;win-arm64;osx-x64;osx-arm64;any</RuntimeIdentifiers>
+		<RuntimeIdentifiers>linux-x64;linux-arm64;win-x64;win-arm64;osx-arm64;any</RuntimeIdentifiers>
 		<RollForward>Major</RollForward>
 
 		<!-- AOT settings only apply when a specific RID is targeted (i.e. dotnet pack -r <rid>).
