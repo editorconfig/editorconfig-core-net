@@ -93,8 +93,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: aot-pack
     permissions:
-      contents: write   # create GitHub release
+      contents: write   # create GitHub release + push packages
       packages: write   # push to GitHub Packages
+      issues: write     # release-notes tool creates labels for release note categories
 
     steps:
       - uses: actions/checkout@v6
