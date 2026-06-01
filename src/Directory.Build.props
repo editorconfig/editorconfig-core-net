@@ -15,11 +15,15 @@
 		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<PackageIcon>nuget-icon.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 
 		<LangVersion>latest</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
+		<None Include="../../README.md" Pack="true" PackagePath="README.md">
+			<Link>README.md</Link>
+		</None>
 		<Content Include="../../nuget-icon.png" CopyToOutputDirectory="PreserveNewest">
 			<Link>nuget-icon.png</Link>
 			<Pack>True</Pack>
