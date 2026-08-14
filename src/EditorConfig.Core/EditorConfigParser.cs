@@ -138,8 +138,8 @@ namespace EditorConfig.Core
 		/// </summary>
 		/// <param name="fileName">The path to the file we want to know it's editorconfig settings for</param>
 		/// <param name="editorConfigFiles">
-		/// If null will use <see cref="GetResolvedChain"/> to find all relevant editorconfig files. <para/>
-		/// For repeated calls in the same directory prefer <see cref="GetResolvedChain"/> or
+		/// If null will use <see cref="GetResolvedChain(string)"/> to find all relevant editorconfig files. <para/>
+		/// For repeated calls in the same directory prefer <see cref="GetResolvedChain(string)"/> or
 		/// <see cref="Parse(string, EditorConfigResolvedChain)"/> which avoid re-traversal.
 		/// </param>
 		/// <returns></returns>
@@ -167,7 +167,7 @@ namespace EditorConfig.Core
 		/// Gets the editorconfig configuration for <paramref name="fileName"/> using a
 		/// pre-resolved chain. All files in the same directory share the same chain, so callers
 		/// processing many files in one directory should obtain the chain once via
-		/// <see cref="GetResolvedChain"/> and reuse it.
+		/// <see cref="GetResolvedChain(string)"/> and reuse it.
 		/// </summary>
 		public FileConfiguration Parse(string fileName, EditorConfigResolvedChain chain)
 		{
@@ -201,7 +201,7 @@ namespace EditorConfig.Core
 
 		/// <summary>
 		/// Returns the <see cref="EditorConfigResolvedChain"/> for <paramref name="directoryPath"/>,
-		/// resolving and caching it on first access. Prefer this over <see cref="GetResolvedChain"/>
+		/// resolving and caching it on first access. Prefer this over <see cref="GetResolvedChain(string)"/>
 		/// when you have a directory path rather than a file path — it avoids needing to construct a
 		/// sentinel file name.
 		/// </summary>
@@ -283,5 +283,27 @@ namespace EditorConfig.Core
 				dir = FileSystem.Path.GetDirectoryName(dir);
 			}
 		}
+
+		// ── IFileInfo overloads ──────────────────────────────────────────────────────
+
+		/// <summary>Parses editorconfig settings for <paramref name="fileInfo"/>.</summary>
+		public FileConfiguration Parse(IFileInfo fileInfo) => Parse(fileInfo.FullName);
+
+		/// <summary>Parses editorconfig settings for <paramref name="fileInfo"/> using a pre-resolved chain.</summary>
+		public FileConfiguration Parse(IFileInfo fileInfo, EditorConfigResolvedChain chain) => Parse(fileInfo.FullName, chain);
+
+		/// <summary>Returns the resolved chain for the directory containing <paramref name="fileInfo"/>.</summary>
+		public EditorConfigResolvedChain GetResolvedChain(IFileInfo fileInfo) => GetResolvedChain(fileInfo.FullName);
+
+		/// <summary>Gets all relevant editorconfig files for <paramref name="fileInfo"/> until root.</summary>
+		public IList<EditorConfigFile> GetConfigurationFilesTillRoot(IFileInfo fileInfo) => GetConfigurationFilesTillRoot(fileInfo.FullName);
+
+		// ── IDirectoryInfo overloads ─────────────────────────────────────────────────
+
+		/// <summary>Returns the resolved chain for <paramref name="directoryInfo"/>.</summary>
+		public EditorConfigResolvedChain GetResolvedChain(IDirectoryInfo directoryInfo) => GetResolvedChainForDirectory(directoryInfo.FullName);
+
+		/// <summary>Gets all relevant editorconfig files for <paramref name="directoryInfo"/> until root.</summary>
+		public IList<EditorConfigFile> GetConfigurationFilesTillRoot(IDirectoryInfo directoryInfo) => GetConfigurationFilesTillRootFromDirectory(directoryInfo.FullName);
 	}
 }

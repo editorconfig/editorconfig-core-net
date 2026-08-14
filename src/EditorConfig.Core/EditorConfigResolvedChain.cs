@@ -11,11 +11,11 @@ namespace EditorConfig.Core
 	/// </summary>
 	/// <remarks>
 	/// <para>
-	/// Obtaining a chain via <see cref="EditorConfigParser.GetResolvedChain"/> is O(1) for any
+	/// Obtaining a chain via <see cref="EditorConfigParser.GetResolvedChain(string)"/> is O(1) for any
 	/// directory that has already been resolved — the chain is cached per
 	/// <see cref="EditorConfigParser"/> instance. Callers that process many files in the same
 	/// directory (e.g. a formatter or linter run over a whole repository) can call
-	/// <see cref="EditorConfigParser.GetResolvedChain"/> once per directory and pass the result
+	/// <see cref="EditorConfigParser.GetResolvedChain(string)"/> once per directory and pass the result
 	/// to <see cref="EditorConfigParser.Parse(string, EditorConfigResolvedChain)"/> for each file.
 	/// </para>
 	/// <para>

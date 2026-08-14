@@ -24,7 +24,7 @@ namespace EditorConfig.Core
 
 
 	/// <summary>
-	/// Represents the raw config file as INI, please use <see cref="EditorConfigParser.GetConfigurationFilesTillRoot"/>
+	/// Represents the raw config file as INI, please use <see cref="EditorConfigParser.GetConfigurationFilesTillRoot(string)"/>
 	/// </summary>
 	public partial class EditorConfigFile : IEditorConfigFile
 	{
