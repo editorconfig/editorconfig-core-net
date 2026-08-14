@@ -301,9 +301,9 @@ namespace EditorConfig.Core
 		// ── IDirectoryInfo overloads ─────────────────────────────────────────────────
 
 		/// <summary>Returns the resolved chain for <paramref name="directoryInfo"/>.</summary>
-		public EditorConfigResolvedChain GetResolvedChainForDirectory(IDirectoryInfo directoryInfo) => GetResolvedChainForDirectory(directoryInfo.FullName);
+		public EditorConfigResolvedChain GetResolvedChain(IDirectoryInfo directoryInfo) => GetResolvedChainForDirectory(directoryInfo.FullName);
 
 		/// <summary>Gets all relevant editorconfig files for <paramref name="directoryInfo"/> until root.</summary>
-		public IList<EditorConfigFile> GetConfigurationFilesTillRootFromDirectory(IDirectoryInfo directoryInfo) => GetConfigurationFilesTillRootFromDirectory(directoryInfo.FullName);
+		public IList<EditorConfigFile> GetConfigurationFilesTillRoot(IDirectoryInfo directoryInfo) => GetConfigurationFilesTillRootFromDirectory(directoryInfo.FullName);
 	}
 }

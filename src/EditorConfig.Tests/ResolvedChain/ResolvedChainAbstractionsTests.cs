@@ -48,14 +48,14 @@ namespace EditorConfig.Tests.ResolvedChain
 		}
 
 		[Test]
-		public void GetResolvedChainForDirectory_IDirectoryInfo_ReturnsSameChainAsStringOverload()
+		public void GetResolvedChain_IDirectoryInfo_ReturnsSameChainAsStringOverload()
 		{
 			var dir = GetTestDirectory("TabWidths");
 			var fs = new FileSystem();
 			var parser = new EditorConfigParser(".positive.editorconfig");
 
 			var fromString    = parser.GetResolvedChainForDirectory(dir);
-			var fromDirInfo   = parser.GetResolvedChainForDirectory(fs.DirectoryInfo.New(dir));
+			var fromDirInfo   = parser.GetResolvedChain(fs.DirectoryInfo.New(dir));
 
 			fromDirInfo.Sections.Length.Should().Be(fromString.Sections.Length);
 		}
