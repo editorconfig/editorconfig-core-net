@@ -137,8 +137,9 @@ namespace EditorConfig.Core
 
 			// Apply spec normalization rules (indent_size/tab_width interplay)
 
-			//default tab_width to indent_size when indent size is a number
-			if (IndentSize != null && IndentSize.NumberOfColumns.HasValue)
+			// Default tab_width to indent_size when indent_size is a number and tab_width was not
+			// explicitly provided. When tab_width IS provided, leave it untouched.
+			if (IndentSize != null && IndentSize.NumberOfColumns.HasValue && !TabWidth.HasValue)
 			{
 				TabWidth = IndentSize.NumberOfColumns.Value;
 				properties["tab_width"] = TabWidth.Value.ToString();
