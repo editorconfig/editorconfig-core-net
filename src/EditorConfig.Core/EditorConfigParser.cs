@@ -199,6 +199,19 @@ namespace EditorConfig.Core
 				GetConfigurationFilesTillRoot(fullPath)));
 		}
 
+		/// <summary>
+		/// Returns the <see cref="EditorConfigResolvedChain"/> for <paramref name="directoryPath"/>,
+		/// resolving and caching it on first access. Prefer this over <see cref="GetResolvedChain"/>
+		/// when you have a directory path rather than a file path — it avoids needing to construct a
+		/// sentinel file name.
+		/// </summary>
+		public EditorConfigResolvedChain GetResolvedChainForDirectory(string directoryPath)
+		{
+			var fullDir = FileSystem.Path.GetFullPath(directoryPath);
+			return _chainCache.GetOrAdd(fullDir, _ => new EditorConfigResolvedChain(
+				GetConfigurationFilesTillRootFromDirectory(fullDir)));
+		}
+
 		private bool IsMatch(string glob, string fileName)
 		{
 			var matcher = _matcherCache.GetOrAdd(glob, g => GlobMatcher.Create(g, _globOptions));
@@ -219,6 +232,17 @@ namespace EditorConfig.Core
 			return ParseConfigFilesTillRoot(configFiles).Reverse().ToList();
 		}
 
+		/// <summary>
+		/// Gets all relevant <see cref="EditorConfigFile"/> for <paramref name="directoryPath"/> until the first config
+		/// file marked as root. Prefer this over <see cref="GetConfigurationFilesTillRoot(string)"/> when you have a
+		/// directory path — it avoids needing to construct a sentinel file name.
+		/// </summary>
+		public IList<EditorConfigFile> GetConfigurationFilesTillRootFromDirectory(string directoryPath)
+		{
+			var fullDir = FileSystem.Path.GetFullPath(directoryPath);
+			return ParseConfigFilesTillRoot(AllParentConfigFilesFromDirectory(fullDir)).Reverse().ToList();
+		}
+
 		private IEnumerable<EditorConfigFile> ParseConfigFilesTillRoot(IEnumerable<string> configFiles)
 		{
 			foreach (var configFile in configFiles.Select(Factory))
@@ -234,9 +258,25 @@ namespace EditorConfig.Core
 			where FileSystem.File.Exists(configFile)
 			select configFile;
 
+		private IEnumerable<string> AllParentConfigFilesFromDirectory(string directoryPath) =>
+			from parent in AllParentDirectoriesFromDirectory(directoryPath)
+			let configFile = FileSystem.Path.Combine(parent, ConfigFileName)
+			where FileSystem.File.Exists(configFile)
+			select configFile;
+
 		private IEnumerable<string> AllParentDirectories(string fullPath)
 		{
 			var dir = FileSystem.Path.GetDirectoryName(fullPath);
+			while (dir != null)
+			{
+				yield return dir;
+				dir = FileSystem.Path.GetDirectoryName(dir);
+			}
+		}
+
+		private IEnumerable<string> AllParentDirectoriesFromDirectory(string directoryPath)
+		{
+			var dir = directoryPath;
 			while (dir != null)
 			{
 				yield return dir;
