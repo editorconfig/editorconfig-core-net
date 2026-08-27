@@ -80,6 +80,41 @@ var parser = new EditorConfigParser(myFileSystem);
 
 When `fileSystem` is omitted the library uses `new FileSystem()` (the real disk).
 
+#### File-content caching
+
+Every `EditorConfigParser` caches parsed `.editorconfig` files in an
+`EditorConfigFileCache`, keyed by path, modification time, and size — a cache hit
+costs only a metadata stat, never a file read.
+
+The cache is **private to each parser instance by default**. This is what makes
+it safe to construct many parsers against different (or mocked) file systems —
+for example in parallel test suites using `MockFileSystem` — without one
+parser's cache ever being observable from another:
+
+```csharp
+var parser1 = new EditorConfigParser(fileSystemA);
+var parser2 = new EditorConfigParser(fileSystemB);
+// parser1 and parser2 never share cache entries, even if fileSystemA and
+// fileSystemB happen to produce a file with the same path/mtime/size.
+```
+
+If you want multiple parsers to share one cache (e.g. many short-lived parsers
+in a long-running process, all reading the real disk), pass an explicit
+`EditorConfigFileCache` instance:
+
+```csharp
+var sharedCache = new EditorConfigFileCache();
+var parser1 = new EditorConfigParser(fileSystem, sharedCache);
+var parser2 = new EditorConfigParser(fileSystem, sharedCache);
+// Safe even across parsers using different IFileSystem instances — entries from
+// anything other than the real on-disk FileSystem are qualified by filesystem
+// identity so unrelated instances can never collide.
+```
+
+Use the fully custom `EditorConfigParser(Func<string, EditorConfigFile> factory, ...)`
+constructor if you need to bypass `EditorConfigFileCache` entirely (e.g. to supply
+pre-loaded `EditorConfigFile` instances in tests).
+
 ## Performance
 
 The library is designed to be high-performance and allocation-light.
@@ -91,9 +126,10 @@ The library is designed to be high-performance and allocation-light.
 - **Per-directory chain cache** — `.editorconfig` files are resolved once per
   directory per parser instance. For a repository with thousands of source files,
   the traversal and `File.Exists` checks are paid at most once per unique directory.
-- **File-content cache** — `EditorConfigFileCache` (used by default) caches
-  parsed files by path + modification time + size. Cache hits require only a
-  single metadata stat with no file read.
+- **File-content cache** — `EditorConfigFileCache` (private per parser instance
+  by default, see [File-content caching](#file-content-caching)) caches parsed
+  files by path + modification time + size. Cache hits require only a single
+  metadata stat with no file read.
 
 Benchmark results on Apple M2 Pro · .NET 10 · Arm64:
 

@@ -9,6 +9,7 @@
 		<ProjectReference Include="..\EditorConfig.Core\EditorConfig.Core.csproj" />
 		<PackageReference Include="TUnit" Version="1.48.6" />
 		<PackageReference Include="AwesomeAssertions" Version="9.4.0" />
+		<PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="22.1.1" />
 	</ItemGroup>
 
 	<ItemGroup>

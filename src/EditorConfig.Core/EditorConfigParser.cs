@@ -79,14 +79,21 @@ namespace EditorConfig.Core
 		public IFileSystem FileSystem { get; private set; }
 
 		/// <summary>
+		/// The <see cref="EditorConfigFileCache"/> backing this parser. Private and scoped to
+		/// this instance by default — pass an existing <see cref="EditorConfigFileCache"/> to
+		/// the constructor to share it (and its cached entries) with other parser instances.
+		/// </summary>
+		public EditorConfigFileCache FileCache { get; private set; }
+
+		/// <summary>
 		/// Creates an <see cref="EditorConfigParser"/> with the default filesystem and
-		/// <see cref="EditorConfigFileCache"/> enabled.
+		/// a private <see cref="EditorConfigFileCache"/> enabled.
 		/// </summary>
 		public EditorConfigParser() : this((IFileSystem)null) { }
 
 		/// <summary>
 		/// Creates an <see cref="EditorConfigParser"/> with a custom config file name and
-		/// optional development version. Uses the default filesystem and
+		/// optional development version. Uses the default filesystem and a private
 		/// <see cref="EditorConfigFileCache"/>.
 		/// </summary>
 		/// <param name="configFileName">The config file name to look for. Defaults to <c>.editorconfig</c>.</param>
@@ -95,19 +102,44 @@ namespace EditorConfig.Core
 			: this((IFileSystem)null, configFileName, developmentVersion) { }
 
 		/// <summary>
-		/// Creates an <see cref="EditorConfigParser"/> with the provided filesystem and
-		/// <see cref="EditorConfigFileCache"/> enabled.
+		/// Creates an <see cref="EditorConfigParser"/> with the provided filesystem and cache.
+		/// Use this overload to explicitly share an <see cref="EditorConfigFileCache"/> across
+		/// multiple parser instances.
+		/// </summary>
+		/// <param name="fileSystem">The <see cref="IFileSystem"/> to use.</param>
+		/// <param name="fileCache">
+		/// An existing <see cref="EditorConfigFileCache"/> to share with other parsers. Safe to
+		/// share even across parsers using different <see cref="IFileSystem"/> instances.
+		/// </param>
+		/// <param name="configFileName">The config file name to look for. Defaults to <c>.editorconfig</c>.</param>
+		/// <param name="developmentVersion">Only used in testing to simulate an older parser version.</param>
+		public EditorConfigParser(IFileSystem fileSystem, EditorConfigFileCache fileCache,
+			string configFileName = ".editorconfig", Version developmentVersion = null)
+			: this(fileSystem, configFileName, developmentVersion, fileCache) { }
+
+		/// <summary>
+		/// Creates an <see cref="EditorConfigParser"/> with the provided filesystem. A private
+		/// <see cref="EditorConfigFileCache"/> is created for this instance unless
+		/// <paramref name="fileCache"/> is supplied to opt into sharing.
 		/// </summary>
 		/// <param name="fileSystem">The <see cref="IFileSystem"/> to use.</param>
 		/// <param name="configFileName">The config file name to look for. Defaults to <c>.editorconfig</c>.</param>
 		/// <param name="developmentVersion">Only used in testing to simulate an older parser version.</param>
-		public EditorConfigParser(IFileSystem fileSystem, string configFileName = ".editorconfig", Version developmentVersion = null)
+		/// <param name="fileCache">
+		/// An existing <see cref="EditorConfigFileCache"/> to share with other parsers, instead of
+		/// creating a new private one for this instance. Safe to share even across parsers using
+		/// different <see cref="IFileSystem"/> instances.
+		/// </param>
+		public EditorConfigParser(IFileSystem fileSystem, string configFileName = ".editorconfig",
+			Version developmentVersion = null, EditorConfigFileCache fileCache = null)
 		{
 			fileSystem ??= new FileSystem();
-			Factory = path => EditorConfigFileCache.GetOrCreate(path, fileSystem);
+			var cache = fileCache ?? new EditorConfigFileCache();
+			Factory = path => cache.GetOrCreate(path, fileSystem);
 			ConfigFileName = configFileName ?? ".editorconfig";
 			ParseVersion = developmentVersion ?? Version;
 			FileSystem = fileSystem;
+			FileCache = cache;
 		}
 
 		/// <summary>
