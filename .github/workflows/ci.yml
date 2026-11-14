@@ -129,9 +129,6 @@ jobs:
       - name: Validate managed packages
         run: ./build.sh validatepackages -s true
 
-      - name: Inspect public API changes
-        run: ./build.sh generateapichanges -s true
-
       - name: Publish to GitHub Package Registry (branch push)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads')
         shell: bash

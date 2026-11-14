@@ -69,33 +69,6 @@ let private validatePackages (arguments:ParseResults<Arguments>) =
     nugetPackages |> Seq.iter (fun p -> exec "dotnet" (["nupkg-validator"; p] @ args) |> ignore)
     
 
-let private generateApiChanges (arguments:ParseResults<Arguments>) =
-    let output = Paths.RootRelative <| Paths.Output.FullName
-    let currentVersion = currentVersion.Value
-    // Only diff managed packages — AOT per-RID packages have no managed assembly to diff.
-    let nugetPackages =
-        Paths.Output.GetFiles("*.nupkg") |> Seq.sortByDescending(fun f -> f.CreationTimeUtc)
-        |> Seq.map (fun p -> Path.GetFileNameWithoutExtension(Paths.RootRelative p.FullName).Replace("." + currentVersion, ""))
-        |> Seq.filter (fun p -> Paths.mapNugetToProject.ContainsKey(p))
-    nugetPackages
-    |> Seq.iter(fun p ->
-        let outputFile =
-            let f = sprintf "breaking-changes-%s.md" p
-            Path.Combine(output, f)
-        let folder = Paths.mapNugetToProject.TryFind p |> Option.defaultValue p
-        let tfm = Paths.mapNugetToTFM.TryFind p |> Option.defaultValue Paths.MainTFM
-        let args =
-            [
-                "assembly-differ"
-                (sprintf "previous-nuget|%s|%s|%s" p currentVersion tfm);
-                (sprintf "directory|src/%s/bin/Release/%s" folder tfm);
-                "-a"; "true"; "--target"; p; "-f"; "github-comment"; "--output"; outputFile
-            ]
-        
-        printfn "dotnet %A" args
-        exec "dotnet" args |> ignore
-    )
-    
 let private release (arguments:ParseResults<Arguments>) = printfn "release"
     
 let private publish (arguments:ParseResults<Arguments>) = printfn "publish" 
@@ -121,10 +94,9 @@ let Setup (parsed:ParseResults<Arguments>) (subCommand:Arguments) =
     step PristineCheck.Name pristineCheck
     step GeneratePackages.Name generatePackages 
     step ValidatePackages.Name validatePackages 
-    step GenerateApiChanges.Name generateApiChanges
     cmd Release.Name
         (Some [PristineCheck.Name; Test.Name;])
-        (Some [GeneratePackages.Name; ValidatePackages.Name; GenerateApiChanges.Name])
+        (Some [GeneratePackages.Name; ValidatePackages.Name])
         <| fun _ -> release parsed
         
     cmd Publish.Name

@@ -11,7 +11,6 @@ type Arguments =
     | [<CliPrefix(CliPrefix.None);Hidden;SubCommand>] PristineCheck 
     | [<CliPrefix(CliPrefix.None);Hidden;SubCommand>] GeneratePackages
     | [<CliPrefix(CliPrefix.None);Hidden;SubCommand>] ValidatePackages 
-    | [<CliPrefix(CliPrefix.None);Hidden;SubCommand>] GenerateApiChanges 
     | [<CliPrefix(CliPrefix.None);SubCommand>] Release
     
     | [<CliPrefix(CliPrefix.None);SubCommand>] Publish
@@ -36,7 +35,6 @@ with
             | PristineCheck  
             | GeneratePackages
             | ValidatePackages 
-            | GenerateApiChanges
                 -> "Undocumented, dependent target"
     member this.Name =
         match FSharpValue.GetUnionFields(this, typeof<Arguments>) with
