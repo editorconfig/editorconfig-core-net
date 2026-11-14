@@ -1,0 +1,30 @@
+# Drafts the next release from the labels of merged pull requests. Publishing the draft creates its tag, and the tag
+# push runs ci.yml, which builds and publishes the packages.
+#
+# 0.x rule: `breaking` bumps the minor version, never the major. Going to 1.0 is a manual decision: edit the draft's
+# tag to 1.0.0 when publishing, then move `breaking` from minor to a `major:` resolver.
+name-template: '$RESOLVED_VERSION'
+tag-template: '$RESOLVED_VERSION'
+change-template: '- $TITLE by @$AUTHOR in #$NUMBER'
+template: |
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$RESOLVED_VERSION
+categories:
+  - title: '💥 Breaking Changes'
+    labels: [breaking]
+  - title: '✨ Features'
+    labels: [feature, enhancement]
+  - title: '🐛 Bug Fixes'
+    labels: [bug, fix]
+  - title: '📝 Documentation'
+    labels: [documentation]
+  - title: '🧰 Maintenance'
+    labels: [chore, dependencies, .NET, github_actions]
+  - title: '⚙️ Automation'
+    labels: [ci]
+exclude-labels: [changelog:skip]
+version-resolver:
+  minor:
+    labels: [breaking, feature, enhancement]
+  default: patch

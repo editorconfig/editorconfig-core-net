@@ -95,7 +95,6 @@ jobs:
     permissions:
       contents: write   # create GitHub release + push packages
       packages: write   # push to GitHub Packages
-      issues: write     # release-notes tool creates labels for release note categories
 
     steps:
       - uses: actions/checkout@v6
@@ -142,14 +141,8 @@ jobs:
             --skip-duplicate \
             --no-symbols; do echo "Retrying"; sleep 1; done
 
-      - name: Generate release notes (tag push)
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-        run: ./build.sh generatereleasenotes -s true
-
-      - name: Create GitHub release (tag push)
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
-        run: ./build.sh createreleaseongithub -s true --token ${{ secrets.GITHUB_TOKEN }}
-
+      # The release and its notes already exist: release-drafter keeps a draft from the labels of merged pull
+      # requests, and publishing that draft is what creates this tag.
       - name: Publish to nuget.org (tag push)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         run: |
