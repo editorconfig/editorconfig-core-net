@@ -1,0 +1,35 @@
+# A pull request carries exactly one release label, so release-drafter never has to guess the next version.
+name: pr-labels
+
+on:
+  pull_request:
+    types: [opened, reopened, labeled, unlabeled, synchronize]
+
+permissions: {}
+
+jobs:
+  release-label:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Exactly one release label
+        shell: bash
+        env:
+          ALLOWED: breaking,feature,enhancement,bug,fix,documentation,chore,dependencies,ci,changelog:skip
+          PR_LABELS: ${{ toJSON(github.event.pull_request.labels.*.name) }}
+        run: |
+          found=$(jq -r --arg allowed "$ALLOWED" '
+            ($allowed | split(",")) as $a | map(select(. as $l | $a | index($l))) | join(",")' <<<"$PR_LABELS")
+          count=$(jq -r --arg allowed "$ALLOWED" '
+            ($allowed | split(",")) as $a | map(select(. as $l | $a | index($l))) | length' <<<"$PR_LABELS")
+          if [ "$count" -eq 1 ]; then
+            echo "release label: $found"
+            exit 0
+          fi
+          if [ "$count" -eq 0 ]; then
+            echo "::error::add one release label: ${ALLOWED//,/, }"
+          else
+            echo "::error::pick one release label, found: $found"
+          fi
+          exit 1
